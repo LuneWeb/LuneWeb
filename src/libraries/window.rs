@@ -30,13 +30,24 @@ impl LuaUserData for LuaWindow {
     }
 }
 
+fn window_builder() -> WindowBuilder {
+    #[cfg(target_os = "linux")]
+    {
+        use tao::platform::unix::WindowBuilderExtUnix;
+        WindowBuilder::new().with_default_vbox(false)
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    WindowBuilder::new()
+}
+
 pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
     TableBuilder::new(lua)?
         .with_function("new", |_, _: ()| {
             let window_result = EVENT_LOOP.with(|event_loop| {
                 let target = event_loop.borrow();
 
-                WindowBuilder::new().build(&target)
+                window_builder().build(&target)
             });
 
             Ok(LuaWindow {
