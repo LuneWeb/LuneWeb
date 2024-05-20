@@ -36,6 +36,17 @@ impl LuaUserData for LuaWindow {
 
             Ok(())
         });
+
+        methods.add_method_mut("open", |_, this, _: ()| {
+            this.this.set_visible(true);
+            this.closed = false;
+
+            *ACTIVE_WINDOWS
+                .lock()
+                .expect("Failed to lock ACTIVE_WINDOWs mutex") += 1;
+
+            Ok(())
+        });
     }
 }
 
