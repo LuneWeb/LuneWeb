@@ -2,9 +2,13 @@ use super::event_loop::EVENT_LOOP;
 use crate::classes::windowid::LuaWindowId;
 use lune_utils::TableBuilder;
 use mlua::prelude::*;
-use std::rc::Rc;
+use std::{rc::Rc, sync::Mutex};
 use tao::window::{Window, WindowBuilder};
 use wry::WebView;
+
+// Some say we shouldn't do stuff like this
+// but I like it! its simple and it just works.
+pub static ACTIVE_WINDOWS: Mutex<usize> = Mutex::new(0);
 
 pub struct LuaWindow {
     pub this: Window,
@@ -25,6 +29,11 @@ impl LuaUserData for LuaWindow {
         methods.add_method_mut("close", |_, this, _: ()| {
             this.this.set_visible(false);
             this.closed = true;
+
+            *ACTIVE_WINDOWS
+                .lock()
+                .expect("Failed to lock ACTIVE_WINDOWs mutex") -= 1;
+
             Ok(())
         });
     }
@@ -49,6 +58,10 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
 
                 window_builder().build(&target)
             });
+
+            *ACTIVE_WINDOWS
+                .lock()
+                .expect("Failed to lock ACTIVE_WINDOWs mutex") += 1;
 
             Ok(LuaWindow {
                 this: window_result.unwrap(),

@@ -10,7 +10,10 @@ use tao::{
     window::WindowId,
 };
 
-use crate::classes::{connection::LuaConnection, windowid::LuaWindowId};
+use crate::{
+    classes::{connection::LuaConnection, windowid::LuaWindowId},
+    libraries::window::ACTIVE_WINDOWS,
+};
 
 #[derive(Clone, Copy)]
 pub enum LuaEvent {
@@ -65,6 +68,7 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
 
                 let connection = LuaConnection::new();
                 let mut shutdown_rx = connection.shutdown_tx.subscribe();
+                let shutdown_tx = connection.shutdown_tx.clone();
 
                 lua.spawn_local(async move {
                     let mut event_listener = EVENT_LOOP_SENDER.subscribe();
@@ -89,6 +93,14 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
                                     .push_thread_back(thread, info.lua_event)
                                     .unwrap();
                             }
+                        }
+
+                        if *ACTIVE_WINDOWS
+                            .lock()
+                            .expect("Failed to lock ACTIVE_WINDOWs mutex")
+                            == 0
+                        {
+                            let _ = shutdown_tx.send(true);
                         }
                     }
                 });

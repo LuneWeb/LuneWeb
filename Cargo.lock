@@ -1979,7 +1979,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "bstr",
  "http 1.1.0",
