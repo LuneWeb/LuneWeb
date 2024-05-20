@@ -1981,6 +1981,8 @@ dependencies = [
 name = "luneweb"
 version = "0.1.6"
 dependencies = [
+ "bstr",
+ "http 1.1.0",
  "lune-std",
  "lune-std-serde 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lune-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

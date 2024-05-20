@@ -1,9 +1,22 @@
 use super::{IPCChannel, IPCMessage, LuaWebView};
-use crate::libraries::{webview::INIT_SCRIPT, window::LuaWindow};
+use crate::{
+    classes::{
+        connection::LuaConnection,
+        http::{request::LuaRequest, response::LuaResponse},
+    },
+    libraries::{webview::INIT_SCRIPT, window::LuaWindow},
+};
+use http::{Request, Response};
 use mlua::prelude::*;
 use mlua_luau_scheduler::LuaSpawnExt;
 use serde::Deserialize;
-use std::{rc::Rc, sync::Mutex, time::Duration};
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    rc::{Rc, Weak},
+    sync::Mutex,
+    time::Duration,
+};
 use tao::window::Window;
 use wry::WebViewBuilder;
 
@@ -14,10 +27,17 @@ pub struct InternalIPCMessage {
     pub data: serde_json::Value,
 }
 
+#[derive(Debug)]
+pub struct CustomProtocolInfo {
+    pub request_channel: tokio::sync::watch::Sender<Request<Vec<u8>>>,
+    pub response_channel: tokio::sync::watch::Sender<Response<Cow<'static, [u8]>>>,
+}
+
 #[derive(Default)]
 pub(super) struct LuaWebViewBuilder {
     pub url: Option<String>,
     pub initialization_script: Option<String>,
+    pub custom_protocols: HashMap<String, CustomProtocolInfo>,
 }
 
 impl LuaWebViewBuilder {
@@ -48,6 +68,72 @@ impl LuaUserData for LuaWebViewBuilder {
             Ok(())
         });
 
+        methods.add_method_mut(
+            "with_custom_protocol",
+            |lua, this, (protocol, handler): (String, LuaFunction)| {
+                use tokio::sync::watch::Sender;
+
+                for char in protocol.chars() {
+                    if char.is_uppercase() {
+                        return Err(LuaError::RuntimeError(format!("Custom protocol name '{protocol}' is not valid, only the first character is allowed to be uppercased")))
+                    }
+                }
+
+                let info = CustomProtocolInfo {
+                    request_channel: Sender::new(Request::default()),
+                    response_channel: Sender::new(Response::default()),
+                };
+
+                let mut inner_rq = info.request_channel.subscribe();
+                let inner_res = info.response_channel.clone();
+
+                this.custom_protocols.insert(protocol, info);
+
+                let key_handler = lua.create_registry_value(handler)?;
+
+                let inner_lua = lua
+                    .app_data_ref::<Weak<Lua>>()
+                    .expect("Missing weak lua ref")
+                    .upgrade()
+                    .expect("Lua was dropped unexpectedly");
+
+                let connection = LuaConnection::new();
+                let mut shutdown_tx = connection.shutdown_tx.subscribe();
+
+                lua.spawn_local(async move {
+                    loop {
+                        tokio::select! {
+                            Ok(_) = shutdown_tx.changed() => break,
+                            _ = inner_rq.changed() => {}
+                        }
+
+                        let inner_handler = inner_lua.registry_value::<LuaFunction>(&key_handler);
+
+                        if let Ok(handler) = inner_handler {
+                            let request = inner_rq.borrow_and_update();
+                            let lua_req = LuaRequest {
+                                body: request.body().to_vec(),
+                                head: request.clone().into_parts().0,
+                            };
+
+                            let lua_res = handler
+                                .call_async::<_, LuaResponse>(lua_req.into_lua_table(&inner_lua))
+                                .await
+                                .expect("Expected a response for custom protocol from lua");
+
+                            let _ = inner_res.send(
+                                lua_res
+                                    .into_response::<Cow<'static, [u8]>>()
+                                    .expect("Lua response is not valid"),
+                            );
+                        }
+                    }
+                });
+
+                Ok(connection)
+            },
+        );
+
         methods.add_method("build", |lua, this, target: LuaAnyUserData| {
             let mut target = target.borrow_mut::<LuaWindow>()?;
             let url = this.url.clone();
@@ -75,7 +161,7 @@ impl LuaUserData for LuaWebViewBuilder {
                 }
             });
 
-            let builder = this
+            let mut builder = this
                 .into_builder(&target.this)
                 .with_ipc_handler(move |data|  {
                     let body = data.body().as_str();
@@ -113,6 +199,35 @@ impl LuaUserData for LuaWebViewBuilder {
                     format!("window.onload = () => {{ {} }}", src)
                 })
                 .with_url(url.unwrap_or("about:blank".into()));
+
+            for (protocol, info) in &this.custom_protocols {
+                let inner_lua = lua
+                    .app_data_ref::<Weak<Lua>>()
+                    .expect("Missing weak lua ref")
+                    .upgrade()
+                    .expect("Lua was dropped unexpectedly");
+
+                let rx_response = info.response_channel.subscribe();
+                let tx_request = info.request_channel.clone();
+
+                builder = builder.with_asynchronous_custom_protocol(protocol.to_string(), move |request, responder| {
+                    if tx_request.receiver_count() == 0 {
+                        // no listeners
+                        responder.respond::<Cow<'static, [u8]>>(Response::default());
+                        return;
+                    }
+
+                    let mut inner_rx_response = rx_response.clone();
+                    let _ = tx_request.send(request);
+
+                    inner_lua.spawn_local(async move {
+                        let _ = inner_rx_response.changed().await;
+                        let response = inner_rx_response.borrow_and_update();
+
+                        responder.respond(response.to_owned());
+                    });
+                })
+            }
 
             let webview = builder.build().into_lua_err()?;
             let webview_rc = Rc::new(webview);
