@@ -3,7 +3,7 @@ use crate::classes::connection::LuaConnection;
 use lune_std_serde::{decode, EncodeDecodeConfig, EncodeDecodeFormat};
 use lune_utils::TableBuilder;
 use mlua::prelude::*;
-use mlua_luau_scheduler::LuaSpawnExt;
+use mlua_luau_scheduler::{LuaSchedulerExt, LuaSpawnExt};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::rc::{Rc, Weak};
@@ -27,7 +27,7 @@ pub struct IPCMessage {
     pub data: serde_json::Value,
 }
 
-pub type IPCChannel = tokio::sync::watch::Sender<(String, serde_json::Value)>;
+pub type IPCChannel = tokio::sync::watch::Sender<IPCMessage>;
 
 struct LuaWebView {
     #[allow(dead_code)]
@@ -92,15 +92,22 @@ impl LuaUserData for LuaWebView {
                         let inner_callback = inner_lua.registry_value::<LuaFunction>(&key_callback);
 
                         if let Ok(inner_callback) = inner_callback {
-                            let borrowed = rx.borrow_and_update();
-                            let (requested_channel, requested_value) = (&borrowed.0, &borrowed.1);
+                            let message = rx.borrow_and_update();
+                            let (requested_channel, requested_value) =
+                                (&message.channel, &message.data);
 
                             if *requested_channel == channel {
                                 let decoded = inner_lua
                                     .to_value_with(requested_value, LUA_SERIALIZE_OPTIONS)
                                     .expect("Failed to decode javascript value into lua value");
 
-                                let _ = inner_callback.call_async::<_, ()>(decoded).await;
+                                let thread =
+                                    inner_lua.create_thread(inner_callback.clone()).unwrap();
+
+                                inner_lua
+                                    .as_ref()
+                                    .push_thread_back(thread, decoded)
+                                    .unwrap();
                             }
                         }
                     }

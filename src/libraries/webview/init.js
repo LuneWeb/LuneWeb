@@ -1,34 +1,11 @@
 {
     let luneweb = {}
 
-    // ? this is a temporary workaround for messages to not get replaced
-    // TODO: ^^^ put messages into an ordered list instead of a channel
-    let sentMessage = false
-    const sendMessageCooldown = 36;
-
     luneweb.postMessage = function (channel, data = null) {
-        let inner = () => {
-            sentMessage = true
-            window.ipc.postMessage(JSON.stringify({
-                channel,
-                data,
-            }))
-
-            setTimeout(() => {
-                sentMessage = false
-            }, sendMessageCooldown)
-        }
-
-        if (sentMessage) {
-            let loop = setInterval(() => {
-                if (!sentMessage) {
-                    clearInterval(loop)
-                    inner()
-                }
-            }, sendMessageCooldown)
-        } else {
-            inner()
-        }
+        window.ipc.postMessage(JSON.stringify({
+            channel,
+            data,
+        }))
     }
 
     luneweb.postInternalMessage = function (action, data = null) {

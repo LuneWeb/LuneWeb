@@ -1,8 +1,9 @@
 use super::{IPCChannel, IPCMessage, LuaWebView};
 use crate::libraries::{webview::INIT_SCRIPT, window::LuaWindow};
 use mlua::prelude::*;
+use mlua_luau_scheduler::LuaSpawnExt;
 use serde::Deserialize;
-use std::rc::Rc;
+use std::{rc::Rc, sync::Mutex, time::Duration};
 use tao::window::Window;
 use wry::WebViewBuilder;
 
@@ -47,12 +48,32 @@ impl LuaUserData for LuaWebViewBuilder {
             Ok(())
         });
 
-        methods.add_method("build", |_, this, target: LuaAnyUserData| {
+        methods.add_method("build", |lua, this, target: LuaAnyUserData| {
             let mut target = target.borrow_mut::<LuaWindow>()?;
             let url = this.url.clone();
 
-            let ipc_channel = IPCChannel::new(("_".into(), "null".into()));
+            let ipc_channel = IPCChannel::new(IPCMessage { channel: "_".into(), data: serde_json::Value::Null });
             let inner_ipc_channel = ipc_channel.clone();
+
+            //  let _ = channel_pool.send(IPCMessage { channel: message.channel, data: message.data });
+            let channel_pool: Rc<Mutex<Vec<IPCMessage>>> = Rc::new(Mutex::new(vec![]));
+            let inner_channel_pool = Rc::clone(&channel_pool);
+
+            lua.spawn_local(async move {
+                loop {
+                    if inner_ipc_channel.receiver_count() == 0 {
+                        break;
+                    }
+
+                    if let Ok(mut channel_pool) = inner_channel_pool.try_lock() {
+                        if !channel_pool.is_empty() {
+                            let _ = inner_ipc_channel.send(channel_pool.pop().unwrap());
+                        }
+                    }
+
+                    tokio::time::sleep(Duration::from_millis(16)).await;
+                }
+            });
 
             let builder = this
                 .into_builder(&target.this)
@@ -79,7 +100,7 @@ impl LuaUserData for LuaWebViewBuilder {
                             }
                         }
                     } else if let Ok(message) = message {
-                        let _ = inner_ipc_channel.send((message.channel, message.data));
+                        channel_pool.lock().unwrap().push(message);
                     }
                 })
                 .with_initialization_script(&{
