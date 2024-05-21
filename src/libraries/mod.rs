@@ -1,8 +1,8 @@
 use lune_std::context::LuneModuleCreator;
 
-mod event_loop;
-mod webview;
-mod window;
+pub mod event_loop;
+pub mod webview;
+pub mod window;
 
 pub enum LuneWebLibraries {
     Window,

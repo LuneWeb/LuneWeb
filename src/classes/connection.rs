@@ -1,4 +1,6 @@
+use crate::libraries::window::ACTIVE_WINDOWS;
 use mlua::prelude::*;
+use std::time::Duration;
 use tokio::sync::watch;
 
 pub struct LuaConnection {
@@ -7,9 +9,23 @@ pub struct LuaConnection {
 
 impl LuaConnection {
     pub fn new() -> Self {
-        Self {
-            shutdown_tx: watch::Sender::new(false),
-        }
+        let shutdown_tx = watch::Sender::new(false);
+        let inner_shutdown_tx = shutdown_tx.clone();
+
+        tokio::spawn(async move {
+            loop {
+                if let Ok(active_windows) = ACTIVE_WINDOWS.try_lock() {
+                    if *active_windows == 0 {
+                        let _ = inner_shutdown_tx.send(true);
+                        break;
+                    }
+                }
+
+                tokio::time::sleep(Duration::from_millis(16)).await;
+            }
+        });
+
+        Self { shutdown_tx }
     }
 }
 
