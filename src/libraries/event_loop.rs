@@ -2,7 +2,7 @@ use lune_utils::TableBuilder;
 use mlua::prelude::*;
 use mlua_luau_scheduler::{LuaSchedulerExt, LuaSpawnExt};
 use once_cell::sync::Lazy;
-use std::{borrow::Borrow, cell::RefCell, rc::Weak, time::Duration};
+use std::{borrow::Borrow, cell::RefCell, rc::Weak, sync::Mutex, time::Duration};
 use tao::{
     event::WindowEvent,
     event_loop::{EventLoop, EventLoopBuilder},
@@ -31,6 +31,10 @@ impl<'lua> IntoLua<'lua> for LuaEvent {
 thread_local! {
     pub static EVENT_LOOP: RefCell<EventLoop<()>> = RefCell::new(EventLoopBuilder::new().build());
 }
+
+// Some say we shouldn't do stuff like this
+// but I like it! its simple and it just works.
+pub static EVENT_LOOP_ACTIVE: Mutex<bool> = Mutex::new(false);
 
 pub struct EventLoopInfo {
     pub window_id: Option<WindowId>,
@@ -70,10 +74,14 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
                 let mut shutdown_rx = connection.shutdown_tx.subscribe();
                 let shutdown_tx = connection.shutdown_tx.clone();
 
+                let event_loop_active = EVENT_LOOP_ACTIVE
+                    .lock()
+                    .expect("Failed to lock EVENT_LOOP_ACTIVE mutex");
+
                 lua.spawn_local(async move {
                     let mut event_listener = EVENT_LOOP_SENDER.subscribe();
 
-                    loop {
+                    loop {                        
                         tokio::select! {
                             Ok(_) = shutdown_rx.changed() => break,
                             _ = event_listener.changed() => {},
@@ -105,18 +113,38 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
                     }
                 });
 
+                if !*event_loop_active {
+                    // event_loop.new() will use the mutex so we have to drop it
+                    drop(event_loop_active);
+                    
+                    // activate the main event loop automatically :)
+                    lua.load(r#"
+                    require("@luneweb/event_loop").new()
+                    "#).eval::<()>().expect("Failed to create event loop automatically");
+                }
+
                 Ok(connection)
             },
         )?
-        .with_function("new", |lua, _: ()| {
+        .with_function("new", |lua: &Lua, _: ()| {
+            let mut event_loop_active = EVENT_LOOP_ACTIVE
+                .lock()
+                .expect("Failed to lock EVENT_LOOP_ACTIVE mutex");
+        
+            if *event_loop_active {
+                return Err(LuaError::RuntimeError("Subscribing to the event loop for the first time will automatically create an event loop for you, if you're creating the event loop manually you should stop".into()));
+            } else {
+                *event_loop_active = true;
+            }
+        
             lua.spawn_local(async move {
                 loop {
                     let info: EventLoopInfo = EVENT_LOOP.with(|event_loop| {
                         let mut event_loop = event_loop.borrow_mut();
-
+        
                         let mut _window_id: Option<WindowId> = None;
                         let mut lua_event: Option<LuaEvent> = None;
-
+        
                         event_loop.run_return(|event, _, flow| {
                             match event.borrow() {
                                 tao::event::Event::WindowEvent {
@@ -125,15 +153,13 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
                                     // HANDLE WINDOW EVENTS
                                     _window_id = Some(*window_id);
                                     lua_event = match event {
-                                        WindowEvent::CloseRequested => {
-                                            Some(LuaEvent::CloseRequested)
-                                        }
+                                        WindowEvent::CloseRequested => Some(LuaEvent::CloseRequested),
                                         _ => None,
                                     }
                                 }
                                 _ => {}
                             }
-
+        
                             let can_exit = match event.borrow() {
                                 tao::event::Event::MainEventsCleared => true,
                                 tao::event::Event::LoopDestroyed => true,
@@ -141,28 +167,32 @@ pub fn create(lua: &Lua) -> LuaResult<LuaTable> {
                                 tao::event::Event::UserEvent(_) => true,
                                 _ => false,
                             } || EVENT_LOOP_SENDER.receiver_count() == 0;
-
+        
                             if can_exit {
                                 *flow = tao::event_loop::ControlFlow::Exit;
                             }
                         });
-
+        
                         EventLoopInfo {
                             window_id: _window_id,
                             lua_event,
                         }
                     });
-
+        
                     if !EVENT_LOOP_SENDER.is_closed() {
                         EVENT_LOOP_SENDER.send(info).into_lua_err().unwrap();
                     } else {
                         break;
                     }
-
+        
                     tokio::time::sleep(Duration::from_millis(16)).await;
                 }
+        
+                *EVENT_LOOP_ACTIVE
+                    .lock()
+                    .expect("Failed to lock EVENT_LOOP_ACTIVE mutex") = false;
             });
-
+        
             Ok(())
         })?
         .build_readonly()
