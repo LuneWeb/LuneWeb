@@ -29,8 +29,8 @@ task = [ "lune-std/task" ]
 
 # Using a lune-std fork that let's us add our own standard libraries
 [dependencies.lune-std]
-git = "https://github.com/HighFlowey/luneweb"
-branch = "custom-aliases"
+git = "https://github.com/LuneWeb/Lune"
+rev = "e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 package = "lune-std"
 default-features = false
 

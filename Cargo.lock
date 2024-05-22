@@ -1759,10 +1759,10 @@ dependencies = [
 [[package]]
 name = "lune-roblox"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "glam",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "once_cell",
  "rand 0.8.5",
@@ -1776,8 +1776,8 @@ dependencies = [
 
 [[package]]
 name = "lune-std"
-version = "0.1.2"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+version = "0.1.1"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "lune-std-datetime",
  "lune-std-fs",
@@ -1786,10 +1786,10 @@ dependencies = [
  "lune-std-process",
  "lune-std-regex",
  "lune-std-roblox",
- "lune-std-serde 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-std-serde 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "lune-std-stdio",
  "lune-std-task",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "mlua-luau-scheduler",
  "serde",
@@ -1800,11 +1800,11 @@ dependencies = [
 [[package]]
 name = "lune-std-datetime"
 version = "0.1.1"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "chrono",
  "chrono_lc",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "thiserror",
 ]
@@ -1812,11 +1812,11 @@ dependencies = [
 [[package]]
 name = "lune-std-fs"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "bstr",
  "lune-std-datetime",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "tokio",
 ]
@@ -1824,16 +1824,16 @@ dependencies = [
 [[package]]
 name = "lune-std-luau"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
 ]
 
 [[package]]
 name = "lune-std-net"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "bstr",
  "futures-util",
@@ -1842,8 +1842,8 @@ dependencies = [
  "hyper 1.3.1",
  "hyper-tungstenite",
  "hyper-util",
- "lune-std-serde 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-std-serde 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "mlua-luau-scheduler",
  "reqwest",
@@ -1855,10 +1855,10 @@ dependencies = [
 [[package]]
 name = "lune-std-process"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "directories",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "mlua-luau-scheduler",
  "os_str_bytes",
@@ -1869,9 +1869,9 @@ dependencies = [
 [[package]]
 name = "lune-std-regex"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "regex",
  "self_cell",
@@ -1880,10 +1880,10 @@ dependencies = [
 [[package]]
 name = "lune-std-roblox"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "lune-roblox",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "mlua-luau-scheduler",
  "once_cell",
@@ -1911,11 +1911,11 @@ dependencies = [
 [[package]]
 name = "lune-std-serde"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "async-compression",
  "bstr",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "lz4",
  "mlua",
  "serde",
@@ -1928,10 +1928,10 @@ dependencies = [
 [[package]]
 name = "lune-std-stdio"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "dialoguer",
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "mlua-luau-scheduler",
  "tokio",
@@ -1940,9 +1940,9 @@ dependencies = [
 [[package]]
 name = "lune-std-task"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
- "lune-utils 0.1.0 (git+https://github.com/HighFlowey/luneweb?branch=custom-aliases)",
+ "lune-utils 0.1.0 (git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd)",
  "mlua",
  "mlua-luau-scheduler",
  "tokio",
@@ -1966,7 +1966,7 @@ dependencies = [
 [[package]]
 name = "lune-utils"
 version = "0.1.0"
-source = "git+https://github.com/HighFlowey/luneweb?branch=custom-aliases#be0488bee1d59830b4499e865ef934671aed75d6"
+source = "git+https://github.com/LuneWeb/Lune?rev=e375af1f1a9da052fd05b570ffe32ea23613d6fd#e375af1f1a9da052fd05b570ffe32ea23613d6fd"
 dependencies = [
  "console",
  "dunce",
