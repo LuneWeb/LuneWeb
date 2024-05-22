@@ -36,6 +36,7 @@ pub struct CustomProtocolInfo {
 #[derive(Default)]
 pub(super) struct LuaWebViewBuilder {
     pub url: Option<String>,
+    pub html: Option<String>,
     pub initialization_script: Option<String>,
     pub custom_protocols: HashMap<String, CustomProtocolInfo>,
 }
@@ -60,6 +61,11 @@ impl LuaUserData for LuaWebViewBuilder {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method_mut("with_url", |_, this, url: String| {
             this.url = Some(url);
+            Ok(())
+        });
+
+        methods.add_method_mut("with_html", |_, this, html: String| {
+            this.html = Some(html);
             Ok(())
         });
 
@@ -137,6 +143,7 @@ impl LuaUserData for LuaWebViewBuilder {
         methods.add_method("build", |lua, this, target: LuaAnyUserData| {
             let mut target = target.borrow_mut::<LuaWindow>()?;
             let url = this.url.clone();
+            let html = this.html.clone();
 
             let ipc_channel = IPCChannel::new(IPCMessage { channel: "_".into(), data: serde_json::Value::Null });
             let inner_ipc_channel = ipc_channel.clone();
@@ -197,8 +204,13 @@ impl LuaUserData for LuaWebViewBuilder {
                     }
 
                     format!("window.onload = () => {{ {} }}", src)
-                })
-                .with_url(url.unwrap_or("about:blank".into()));
+                });
+
+            if let Some(html) = html {
+                builder = builder.with_html(html);
+            } else {
+                builder = builder.with_url(url.unwrap_or("about:blank".into()))
+            }
 
             for (protocol, info) in &this.custom_protocols {
                 let inner_lua = lua
