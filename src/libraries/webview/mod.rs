@@ -60,8 +60,12 @@ impl LuaUserData for LuaWebView {
             },
         );
 
-        methods.add_async_method("evaluate_script", |_, this, script: String| async move {
-            this.this.evaluate_script(script.as_str()).into_lua_err()
+        methods.add_method("load_url", |_, this, url: String|  {
+            this.this.load_url(&url).into_lua_err()
+        });
+
+        methods.add_method("evaluate_script", |_, this, script: String| {
+            this.this.evaluate_script(&script).into_lua_err()
         });
 
         methods.add_method_mut(
