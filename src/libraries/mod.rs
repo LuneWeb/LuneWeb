@@ -1,30 +1,40 @@
 use lune_std::context::LuneModuleCreator;
 
-pub mod event_loop;
+#[cfg(feature = "webview")]
 pub mod webview;
+
+pub mod event_loop;
 pub mod window;
 
+#[rustfmt::skip]
 pub enum LuneWebLibraries {
+    #[cfg(feature = "webview")] WebView,
     Window,
-    WebView,
     EventLoop,
 }
 
 impl LuneWebLibraries {
-    pub const ALL: &'static [Self] = &[Self::Window, Self::WebView, Self::EventLoop];
+    #[rustfmt::skip]
+    pub const ALL: &'static [Self] = &[
+        #[cfg(feature = "webview")] Self::WebView,
+        Self::Window,
+        Self::EventLoop,
+    ];
 
+    #[rustfmt::skip]
     pub fn name(&self) -> &str {
         match self {
+            #[cfg(feature = "webview")] Self::WebView => "webview",
             Self::Window => "window",
-            Self::WebView => "webview",
             Self::EventLoop => "event_loop",
         }
     }
 
+    #[rustfmt::skip]
     pub fn module_creator(&self) -> LuneModuleCreator {
         match self {
+            #[cfg(feature = "webview")] Self::WebView => LuneModuleCreator::LuaTable(webview::create),
             Self::Window => LuneModuleCreator::LuaTable(window::create),
-            Self::WebView => LuneModuleCreator::LuaTable(webview::create),
             Self::EventLoop => LuneModuleCreator::LuaTable(event_loop::create),
         }
     }
