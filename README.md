@@ -12,22 +12,22 @@ use lune_std::context::GlobalsContextBuilder;
 use mlua_luau_scheduler::Scheduler;
 
 let lua = Rc::new(mlua::Lua::new());
-let builder = GlobalsContextBuilder::default();
+let mut builder = GlobalsContextBuilder::default();
 
 // Make our Lua struct ready to be used by luneweb and lune libraries
 luneweb::lua::patch_lua(&lua);
 
 // Inject luneweb libraries
-luneweb::lua::inject_globals(&builder)?;
+luneweb::lua::inject_globals(&mut builder)?;
 
 // Inject lune libraries
 lune_std::inject_globals(&lua, builder)?;
 
-let sched = Scheduler::new(lua);
+let sched = Scheduler::new(&lua);
 let path = PathBuf::from("src/init.luau"); // path to our luau code
-let chunk = fs::read_to_string(&path)?;
+let src = fs::read_to_string(&path)?;
 
-let main = lua.load(chunk).set_name(path.to_string_lossy().to_string());
+let main = lua.load(src).set_name(path.to_string_lossy().to_string());
 sched.push_thread_back(main, ())?;
 sched.run().await;
 ```
