@@ -1,10 +1,20 @@
 use crate::libraries::LuneWebLibraries;
 use lune_std::context::GlobalsContextBuilder;
 use mlua::prelude::*;
-use mlua_luau_scheduler::Scheduler;
-use std::{fs, path::PathBuf};
 
-fn inject_globals(lua: &Lua) -> Result<(), LuaError> {
+/**
+    Create a Weak\<Lua> reference for the Lua struct
+
+    This is required for most luneweb and lune libraries
+*/
+pub fn patch_lua(lua: &Rc<Lua>) {
+    lua.set_app_data(Rc::downgrade(&lua));
+}
+
+/**
+    Creates a GlobalsContextBuilder struct and injects LuneWeb libraries into it.
+*/
+pub fn create_and_inject_globals() -> Result<GlobalsContextBuilder, LuaError> {
     let mut builder = GlobalsContextBuilder::new();
 
     builder.with_alias("luneweb", |modules| {
@@ -15,19 +25,18 @@ fn inject_globals(lua: &Lua) -> Result<(), LuaError> {
         Ok(())
     })?;
 
-    lune_std::inject_globals(lua, builder)?;
-
-    Ok(())
+    Ok(builder)
 }
 
-pub async fn inject_lua<'lua>(lua: &'lua Lua, path: &'lua PathBuf) -> LuaResult<Scheduler<'lua>> {
-    let sched = Scheduler::new(lua);
-    let chunk = fs::read_to_string(&path)?;
+/**
+    Injects LuneWeb libraries into the provided GlobalsContextBuilder struct.
+*/
+pub fn inject_globals(globals_ctx_builder: &GlobalsContextBuilder) -> Result<(), LuaError> {
+    globals_ctx_builder.with_alias("luneweb", |modules| {
+        for lib in LuneWebLibraries::ALL {
+            modules.insert(lib.name(), lib.module_creator());
+        }
 
-    inject_globals(&lua)?;
-
-    let main = lua.load(chunk).set_name(path.to_string_lossy().to_string());
-    sched.push_thread_back(main, ())?;
-
-    Ok(sched)
+        Ok(())
+    })
 }

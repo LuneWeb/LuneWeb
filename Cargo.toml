@@ -4,29 +4,7 @@ version = "0.2.1"
 edition = "2021"
 
 [features]
-default = [
-    "datetime",
-    "fs",
-    "luau",
-    "net",
-    "process",
-    "regex",
-    "roblox",
-    "serde",
-    "stdio",
-    "task",
-    "webview"]
-
-datetime = [ "lune-std/datetime" ]
-fs = [ "lune-std/fs" ]
-luau = [ "lune-std/luau" ]
-net = [ "lune-std/net" ]
-process = [ "lune-std/process" ]
-regex = [ "lune-std/regex" ]
-roblox = [ "lune-std/roblox" ]
-serde = [ "lune-std/serde" ]
-stdio = [ "lune-std/stdio" ]
-task = [ "lune-std/task" ]
+default = ["webview"]
 webview = [ "dep:wry" ]
 
 # Using a lune-std fork that let's us add our own standard libraries
