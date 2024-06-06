@@ -4,6 +4,13 @@ This repo contains all the lua libraries for creating windows and webviews using
 
 ---
 
+## Issues
+
+- webview_builder:with_url is broken on Linux so webview:load_url should be used instead
+- URL for custom protocols differ between platforms... let's say you name your protocol 'app', on Linux you'd send requests to it by using this url '`app://somrandomtext/`', on Windows '`http://app.somerandomtext/`', I don't know about macOS though 🤷
+
+---
+
 ## Example usage
 
 ```rs
