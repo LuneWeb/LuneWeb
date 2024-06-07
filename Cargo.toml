@@ -16,7 +16,7 @@ default-features = false
 
 [dependencies.mlua-luau-scheduler]
 git = "https://github.com/LuneWeb/Lune"
-rev = "e1d5448e9ad01a65afe5c702e4ca0af420edd0b3"
+rev = "96570554fd6bb5ae6f483fea29337822ca10b0c2"
 package = "mlua-luau-scheduler"
 
 [dependencies]
