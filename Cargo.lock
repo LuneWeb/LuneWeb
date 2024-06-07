@@ -1259,11 +1259,11 @@ dependencies = [
 [[package]]
 name = "lune-std"
 version = "0.1.2"
-source = "git+https://github.com/LuneWeb/Lune?rev=e1d5448e9ad01a65afe5c702e4ca0af420edd0b3#e1d5448e9ad01a65afe5c702e4ca0af420edd0b3"
+source = "git+https://github.com/LuneWeb/Lune?rev=467a1629848d4871482a2cc65c144bab4a211536#467a1629848d4871482a2cc65c144bab4a211536"
 dependencies = [
  "lune-utils 0.1.1",
  "mlua",
- "mlua-luau-scheduler",
+ "mlua-luau-scheduler 0.0.2 (git+https://github.com/LuneWeb/Lune?rev=467a1629848d4871482a2cc65c144bab4a211536)",
  "serde",
  "serde_json",
  "tokio",
@@ -1305,7 +1305,7 @@ dependencies = [
 [[package]]
 name = "lune-utils"
 version = "0.1.1"
-source = "git+https://github.com/LuneWeb/Lune?rev=e1d5448e9ad01a65afe5c702e4ca0af420edd0b3#e1d5448e9ad01a65afe5c702e4ca0af420edd0b3"
+source = "git+https://github.com/LuneWeb/Lune?rev=467a1629848d4871482a2cc65c144bab4a211536#467a1629848d4871482a2cc65c144bab4a211536"
 dependencies = [
  "console",
  "dunce",
@@ -1326,7 +1326,7 @@ dependencies = [
  "lune-std-serde",
  "lune-utils 0.1.0",
  "mlua",
- "mlua-luau-scheduler",
+ "mlua-luau-scheduler 0.0.2 (git+https://github.com/LuneWeb/Lune?rev=e1d5448e9ad01a65afe5c702e4ca0af420edd0b3)",
  "once_cell",
  "serde",
  "serde_json",
@@ -1441,6 +1441,22 @@ dependencies = [
  "rustc-hash",
  "serde",
  "serde-value",
+]
+
+[[package]]
+name = "mlua-luau-scheduler"
+version = "0.0.2"
+source = "git+https://github.com/LuneWeb/Lune?rev=467a1629848d4871482a2cc65c144bab4a211536#467a1629848d4871482a2cc65c144bab4a211536"
+dependencies = [
+ "async-executor",
+ "blocking",
+ "concurrent-queue",
+ "derive_more",
+ "event-listener 4.0.3",
+ "futures-lite",
+ "mlua",
+ "rustc-hash",
+ "tracing",
 ]
 
 [[package]]
