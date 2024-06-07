@@ -10,7 +10,7 @@ webview = ["dep:wry"]
 # Using a lune-std fork that let's us add our own standard libraries
 [dependencies.lune-std]
 git = "https://github.com/LuneWeb/Lune"
-rev = "467a1629848d4871482a2cc65c144bab4a211536"
+rev = "96570554fd6bb5ae6f483fea29337822ca10b0c2"
 package = "lune-std"
 default-features = false
 
