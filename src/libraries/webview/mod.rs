@@ -37,6 +37,8 @@ struct LuaWebView {
 
 impl LuaUserData for LuaWebView {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_function(LuaMetaMethod::Type, |_, _: ()| Ok("WebView"));
+
         methods.add_async_method(
             "evaluate_script_with_response",
             |lua, this, script: String| async move {
@@ -60,7 +62,7 @@ impl LuaUserData for LuaWebView {
             },
         );
 
-        methods.add_method("load_url", |_, this, url: String|  {
+        methods.add_method("load_url", |_, this, url: String| {
             this.this.load_url(&url).into_lua_err()
         });
 

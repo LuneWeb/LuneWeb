@@ -54,6 +54,8 @@ impl LuaWebViewBuilder {
 
 impl LuaUserData for LuaWebViewBuilder {
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_function(LuaMetaMethod::Type, |_, _: ()| Ok("WebViewBuilder"));
+
         methods.add_method_mut("with_url", |_, this, url: String| {
             this.url = Some(url);
             Ok(())

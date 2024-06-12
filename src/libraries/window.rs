@@ -26,6 +26,8 @@ impl LuaUserData for LuaWindow {
     }
 
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_function(LuaMetaMethod::Type, |_, _: ()| Ok("Window"));
+
         methods.add_method_mut("close", |_, this, _: ()| {
             this.this.set_visible(false);
             this.closed = true;

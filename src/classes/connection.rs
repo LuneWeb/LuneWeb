@@ -40,6 +40,8 @@ impl LuaUserData for LuaConnection {
     }
 
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_meta_function(LuaMetaMethod::Type, |_, _: ()| Ok("Connection"));
+
         methods.add_method_mut("disconnect", |_, this, _: ()| {
             this.shutdown_tx.send(true).into_lua_err()
         });
