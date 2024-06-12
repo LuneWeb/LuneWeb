@@ -12,7 +12,6 @@ webview = ["dep:wry"]
 git = "https://github.com/LuneWeb/Lune"
 rev = "96570554fd6bb5ae6f483fea29337822ca10b0c2"
 package = "lune-std"
-default-features = false
 
 [dependencies.mlua-luau-scheduler]
 git = "https://github.com/LuneWeb/Lune"
