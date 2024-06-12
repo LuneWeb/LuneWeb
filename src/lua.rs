@@ -13,26 +13,9 @@ pub fn patch_lua(lua: &Rc<Lua>) {
 }
 
 /**
-    Creates a GlobalsContextBuilder struct and injects LuneWeb libraries into it.
-*/
-pub fn create_and_inject_globals() -> Result<GlobalsContextBuilder, LuaError> {
-    let mut builder = GlobalsContextBuilder::new();
-
-    builder.with_alias("luneweb", |modules| {
-        for lib in LuneWebLibraries::ALL {
-            modules.insert(lib.name(), lib.module_creator());
-        }
-
-        Ok(())
-    })?;
-
-    Ok(builder)
-}
-
-/**
     Injects LuneWeb libraries into the provided GlobalsContextBuilder struct.
 */
-pub fn inject_globals(globals_ctx_builder: &mut GlobalsContextBuilder) -> Result<(), LuaError> {
+pub fn inject_libraries(globals_ctx_builder: &mut GlobalsContextBuilder) -> Result<(), LuaError> {
     globals_ctx_builder.with_alias("luneweb", |modules| {
         for lib in LuneWebLibraries::ALL {
             modules.insert(lib.name(), lib.module_creator());
