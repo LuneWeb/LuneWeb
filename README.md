@@ -4,36 +4,6 @@ This repo contains all the lua libraries for creating windows and webviews using
 
 ---
 
-## Example usage
-
-```rs
-// We're using a forked version of lune from 'https://github.com/LuneWeb/lune' which allows us to use this struct called 'GlobalsContextBuilder' to customize the globals
-use lune_std::context::GlobalsContextBuilder;
-use mlua_luau_scheduler::Scheduler;
-
-let lua = Rc::new(mlua::Lua::new());
-let mut builder = GlobalsContextBuilder::default();
-
-// Make our Lua struct ready to be used by luneweb and lune libraries
-luneweb::lua::patch_lua(&lua);
-
-// Inject luneweb libraries
-luneweb::lua::inject_globals(&mut builder)?;
-
-// Inject lune libraries
-lune_std::inject_globals(&lua, builder)?;
-
-let sched = Scheduler::new(&lua);
-let path = PathBuf::from("src/init.luau"); // path to our luau code
-let src = fs::read_to_string(&path)?;
-
-let main = lua.load(src).set_name(path.to_string_lossy().to_string());
-sched.push_thread_back(main, ())?;
-sched.run().await;
-```
-
----
-
 ## Cross-Platform
 
 ### Arch Linux / Manjaro
@@ -66,6 +36,20 @@ Not implemented yet.
 
 ---
 
+## Crate
+
+Since luneweb-rs isn't on crates.io, you'll have to get it from Github
+
+```toml
+[dependencies.luneweb]
+git = "https://github.com/LuneWeb/LuneWeb-rs"
+tag = "v0.2.4" # Double check to see if this is the latest version or not
+```
+
+---
+
 ## Getting started
 
 Clone our [Template](https://github.com/LuneWeb/LuneWeb-template) repo to get started with using LuneWeb
+
+Our template repo does alot of things, like bundling assets and providing the Lua instance with an api for accessing these assets, for more basic examples, you can read the `./examples` directory.
