@@ -1,4 +1,4 @@
-use std::{env::current_dir, path::PathBuf, rc::Rc};
+use std::{env::current_dir, rc::Rc};
 
 use lune_std::context::GlobalsContextBuilder;
 use mlua::Lua;
