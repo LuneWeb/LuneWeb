@@ -3,8 +3,8 @@ use include_dir::Dir;
 
 #[derive(Default)]
 pub struct Context<'a> {
-    luau: Option<Dir<'a>>,
-    javascript: Option<Dir<'a>>,
+    pub(crate) luau: Option<Dir<'a>>,
+    pub(crate) javascript: Option<Dir<'a>>,
 }
 
 impl<'ctx> Context<'ctx> {
