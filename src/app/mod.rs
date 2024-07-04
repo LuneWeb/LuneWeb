@@ -26,22 +26,25 @@ impl<'app> App<'app> {
         let event_loop = EventLoop::new();
         let window = window_builder!().build(&event_loop)?;
 
+        let mut webview_builder = webview_builder!(&window).with_url("about:blank");
+
         if let Some(javascript_dir) = &self.ctx.javascript {
-            let index = javascript_dir
-                .get_file("index.js")
-                .expect("Failed to find index.js");
+            for file in javascript_dir.files() {
+                let Some(extension) = file.path().extension() else {
+                    continue;
+                };
 
-            let src = index
-                .contents_utf8()
-                .expect("Failed to interpret file's content as a string");
+                if extension == "js" {
+                    let src = file
+                        .contents_utf8()
+                        .expect("Failed to interpret file's content as a string");
 
-            self.webview = Some(
-                webview_builder!(&window)
-                    .with_initialization_script(src)
-                    .with_url("about:blank")
-                    .build()?,
-            )
+                    webview_builder = webview_builder.with_initialization_script(src);
+                }
+            }
         }
+
+        self.webview = Some(webview_builder.build()?);
 
         event_loop.run(move |event, _target, control_flow| match event {
             Event::WindowEvent {

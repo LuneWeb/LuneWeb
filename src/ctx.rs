@@ -25,16 +25,8 @@ impl<'ctx> Context<'ctx> {
         }
     }
 
-    pub fn javascript_dir(mut self, dir: Dir<'ctx>) -> Result<Self, LuneWebError> {
-        if dir.contains("index.js") {
-            self.javascript = Some(dir);
-            Ok(self)
-        } else {
-            Err(
-                "The provided Javascript directory does not contain 'index.js'"
-                    .to_string()
-                    .into(),
-            )
-        }
+    pub fn javascript_dir(mut self, dir: Dir<'ctx>) -> Self {
+        self.javascript = Some(dir);
+        self
     }
 }
