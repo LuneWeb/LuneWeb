@@ -31,6 +31,7 @@ impl<'app> App<'app> {
 
             webview_builder!(&window)
                 .with_initialization_script(src)
+                .with_url("about:blank")
                 .build()?;
         }
 
