@@ -3,17 +3,23 @@ use tao::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
 };
+use wry::WebView;
 
 #[macro_use]
 mod util;
 
+#[derive(Default)]
 pub struct App<'a> {
     ctx: Context<'a>,
+    webview: Option<WebView>,
 }
 
 impl<'app> App<'app> {
     pub fn new(ctx: Context<'app>) -> Self {
-        Self { ctx }
+        Self {
+            ctx,
+            ..Default::default()
+        }
     }
 
     pub fn run(&mut self) -> Result<(), LuneWebError> {
@@ -29,10 +35,12 @@ impl<'app> App<'app> {
                 .contents_utf8()
                 .expect("Failed to interpret file's content as a string");
 
-            webview_builder!(&window)
-                .with_initialization_script(src)
-                .with_url("about:blank")
-                .build()?;
+            self.webview = Some(
+                webview_builder!(&window)
+                    .with_initialization_script(src)
+                    .with_url("about:blank")
+                    .build()?,
+            )
         }
 
         event_loop.run(move |event, _target, control_flow| match event {
