@@ -35,16 +35,19 @@ impl<'app> App<'app> {
                 .build()?;
         }
 
-        event_loop.run(move |event, _target, control_flow| {
-            if let Event::WindowEvent {
+        event_loop.run(move |event, _target, control_flow| match event {
+            Event::WindowEvent {
                 window_id: _,
                 event: WindowEvent::CloseRequested,
                 ..
-            } = event
-            {
+            } => {
                 window.set_visible(false);
                 *control_flow = ControlFlow::Exit;
             }
+            Event::RedrawRequested(_) => {
+                window.request_redraw();
+            }
+            _ => {}
         });
     }
 }
