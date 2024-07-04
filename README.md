@@ -4,7 +4,7 @@ This repo contains all the lua libraries for creating windows and webviews using
 
 ---
 
-## Cross-Platform
+## Platform-specific dependencies
 
 ### Arch Linux / Manjaro
 
@@ -29,27 +29,3 @@ WebView2 provided by Microsoft Edge Chromium is used. So LuneWeb supports Window
 ### (NOT TESTED) macOS
 
 WebKit is native on macOS so everything should be fine.
-
-### Android / IOS
-
-Not implemented yet.
-
----
-
-## Crate
-
-Since luneweb-rs isn't on crates.io, you'll have to get it from Github
-
-```toml
-[dependencies.luneweb]
-git = "https://github.com/LuneWeb/LuneWeb-rs"
-tag = "v0.2.4" # Double check to see if this is the latest version or not
-```
-
----
-
-## Getting started
-
-Clone our [Template](https://github.com/LuneWeb/LuneWeb-template) repo to get started with using LuneWeb
-
-Our template repo does alot of things, like bundling assets and providing the Lua instance with an api for accessing these assets, for more basic examples, you can read the `./examples` directory.

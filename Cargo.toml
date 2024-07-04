@@ -1,13 +1,8 @@
 [package]
 name = "luneweb"
-version = "0.2.4"
+version = "0.3.0"
 edition = "2021"
 
-[features]
-default = ["webview"]
-webview = ["dep:wry"]
-
-# Using a lune-std fork that let's us add our own standard libraries
 [dependencies.lune-std]
 git = "https://github.com/LuneWeb/Lune"
 rev = "96570554fd6bb5ae6f483fea29337822ca10b0c2"
@@ -19,14 +14,16 @@ rev = "96570554fd6bb5ae6f483fea29337822ca10b0c2"
 package = "mlua-luau-scheduler"
 
 [dependencies]
-mlua = { version = "0.9.8", features = ["luau"] }
-lune-utils = "0.1.0"
-lune-std-serde = "0.1.0"
-serde = "1.0.202"
-serde_json = "1.0.117"
-tokio = { version = "1.37.0", features = ["full"] }
-once_cell = "1.19.0"
-wry = { version = "0.40.1", optional = true }
-tao = "0.28.0"
-http = "1.1.0"
-bstr = "1.9.1"
+mlua = { version = "0.9.9", features = ["luau"] }
+tokio = { version = "1.38.0", features = ["full"] }
+include_dir = "0.7.4"
+wry = "0.41.0"
+tao = "0.28.1"
+
+# lune-utils = "0.1.0"
+# lune-std-serde = "0.1.0"
+# serde = "1.0.202"
+# serde_json = "1.0.117"
+# http = "1.1.0"
+# bstr = "1.9.1"
+# once_cell = "1.19.0"
