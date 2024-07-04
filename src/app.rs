@@ -6,6 +6,37 @@ use tao::{
 };
 use wry::WebViewBuilder;
 
+/// Create a window builder that has cross-platform support
+macro_rules! window_builder {
+    () => {{
+        #[cfg(target_os = "linux")]
+        {
+            use tao::platform::unix::WindowBuilderExtUnix;
+            WindowBuilder::new().with_default_vbox(false)
+        }
+
+        #[cfg(not(target_os = "linux"))]
+        WindowBuilder::new()
+    }};
+}
+
+/// Create a webview builder that has cross-platform support
+macro_rules! webview_builder {
+    ($target:expr) => {{
+        #[cfg(not(target_os = "linux"))]
+        {
+            WebViewBuilder::new(target)
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            use tao::platform::unix::WindowExtUnix;
+            use wry::WebViewBuilderExtUnix;
+            WebViewBuilder::new_gtk($target.gtk_window())
+        }
+    }};
+}
+
 pub struct App<'a> {
     ctx: Context<'a>,
 }
@@ -17,7 +48,7 @@ impl<'app> App<'app> {
 
     pub fn run(&mut self) -> Result<(), LuneWebError> {
         let event_loop = EventLoop::new();
-        let window = WindowBuilder::new().build(&event_loop)?;
+        let window = window_builder!().build(&event_loop)?;
 
         if let Some(javascript_dir) = &self.ctx.javascript {
             let index = javascript_dir
@@ -28,7 +59,7 @@ impl<'app> App<'app> {
                 .contents_utf8()
                 .expect("Failed to interpret file's content as a string");
 
-            WebViewBuilder::new(&window)
+            webview_builder!(&window)
                 .with_initialization_script(src)
                 .build()?;
         }
