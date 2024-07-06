@@ -7,6 +7,7 @@ use tao::{
     platform::run_return::EventLoopExtRunReturn,
     window::Window,
 };
+use tokio::fs::read;
 use wry::WebView;
 
 #[macro_use]
@@ -49,6 +50,23 @@ impl App {
 
         let window = self.build_window()?;
         self.build_webview()?;
+
+        if let Some(input) = self.ctx.luau_input {
+            let path = input.to_string_lossy();
+
+            match read(&input).await {
+                Ok(content) => {
+                    let chunk = lua.load(content).set_name(path);
+                    scheduler.push_thread_front(chunk, ())?;
+                }
+                Err(err) => {
+                    return Err(LuneWebError::Custom(format!(
+                        "Failed to read the content of '{}'\nError: {err}",
+                        path
+                    )))
+                }
+            }
+        }
 
         let func = lua.create_async_function(move |_, _: ()| {
             let window = Rc::clone(&window);
@@ -98,6 +116,7 @@ impl App {
                 Ok(())
             }
         })?;
+
         scheduler.push_thread_front(lua.create_thread(func)?, ())?;
         scheduler.run().await;
 
