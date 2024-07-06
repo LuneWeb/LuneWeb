@@ -1999,6 +1999,7 @@ dependencies = [
  "mlua",
  "mlua-luau-scheduler",
  "tao",
+ "thread_local",
  "tokio",
  "wry",
 ]
@@ -3667,6 +3668,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.65",
+]
+
+[[package]]
+name = "thread_local"
+version = "1.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b9ef9bad013ada3808854ceac7b46812a6465ba368859a37e2100283d2d719c"
+dependencies = [
+ "cfg-if",
+ "once_cell",
 ]
 
 [[package]]

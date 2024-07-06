@@ -5,6 +5,7 @@ pub enum Error {
     Os(OsError),
     Custom(String),
     Wry(wry::Error),
+    Mlua(mlua::Error),
 }
 
 impl From<OsError> for Error {
@@ -22,5 +23,11 @@ impl From<String> for Error {
 impl From<wry::Error> for Error {
     fn from(value: wry::Error) -> Self {
         Self::Wry(value)
+    }
+}
+
+impl From<mlua::Error> for Error {
+    fn from(value: mlua::Error) -> Self {
+        Self::Mlua(value)
     }
 }

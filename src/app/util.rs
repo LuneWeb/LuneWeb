@@ -1,3 +1,15 @@
+macro_rules! patched_lua {
+    () => {{
+        use mlua::Lua;
+        use std::rc::Rc;
+
+        let lua = Lua::new();
+        let lua_rc = Rc::new(lua);
+        lua_rc.set_app_data(Rc::downgrade(&lua_rc));
+        lua_rc
+    }};
+}
+
 /// Create a window builder that has cross-platform support
 macro_rules! window_builder {
     () => {{
