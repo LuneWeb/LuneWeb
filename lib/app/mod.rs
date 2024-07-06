@@ -8,6 +8,7 @@ use tao::{
     window::Window,
 };
 use tokio::fs::read;
+use util::patched_lua;
 use wry::WebView;
 
 #[macro_use]
@@ -67,7 +68,7 @@ impl App {
     }
 
     pub async fn run(mut self) -> Result<(), LuneWebError> {
-        let lua = patched_lua!(&self.ctx.lune_ctx);
+        let lua = patched_lua(&self.ctx.lune_ctx)?;
         let scheduler = Scheduler::new(&lua);
 
         let window = self.build_window()?;
