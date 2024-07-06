@@ -1,6 +1,6 @@
 use crate::{ctx::ContextBuilder, Context, LuneWebError};
 use mlua_luau_scheduler::Scheduler;
-use std::{cell::RefCell, rc::Rc, time::Duration};
+use std::{borrow::Cow, cell::RefCell, rc::Rc, time::Duration};
 use tao::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
@@ -9,7 +9,7 @@ use tao::{
 };
 use tokio::fs::read;
 use util::patched_lua;
-use wry::WebView;
+use wry::{http::Response, WebView};
 
 #[macro_use]
 mod util;
@@ -36,7 +36,13 @@ impl App {
 
     async fn build_webview(&mut self) -> Result<Rc<WebView>, LuneWebError> {
         if let Some(window) = &self.window {
-            let mut builder = webview_builder!(window).with_url("about:blank");
+            let mut builder = webview_builder!(window)
+                .with_url("about:blank")
+                .with_asynchronous_custom_protocol("test".to_string(), |_req, sender| {
+                    let res: Response<Cow<'static, [u8]>> =
+                        Response::new("Hello!".as_bytes().into());
+                    sender.respond(res);
+                });
 
             for input in &self.ctx.js_inputs {
                 let path = input.to_string_lossy();
@@ -94,6 +100,7 @@ impl App {
             let window = Rc::clone(&window);
             async move { logic(window).await }
         })?;
+
         scheduler.push_thread_front(lua.create_thread(func)?, ())?;
         scheduler.run().await;
 
