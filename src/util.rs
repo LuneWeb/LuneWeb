@@ -1,3 +1,5 @@
+use crate::util::Error as LuneWebError;
+use lune_std::context::GlobalsContextBuilder;
 use std::fmt::Display;
 use tao::error::OsError;
 
@@ -43,4 +45,14 @@ impl Display for Error {
             Error::Wry(wry) => wry.fmt(f),
         }
     }
+}
+
+/// Creates a GlobalsContextBuilder which contains lune's standard libraries
+pub fn lune_ctx() -> Result<GlobalsContextBuilder, LuneWebError> {
+    let mut builder = GlobalsContextBuilder::new();
+
+    // Inject lune standard libraries
+    lune_std::inject_libraries(&mut builder)?;
+
+    Ok(builder)
 }
