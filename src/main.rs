@@ -10,6 +10,7 @@ use tao::{
 #[macro_use]
 mod macros;
 mod cli;
+mod config;
 
 thread_local! {
     pub static EVENT_LOOP: RefCell<EventLoop<()>> = RefCell::new(EventLoopBuilder::with_user_event().build());

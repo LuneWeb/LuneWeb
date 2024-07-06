@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --kill-others \"vite\" \"yarn luneweb\"",
     "build": "vite build",
-    "preview": "vite preview"
+    "luneweb": "cargo run --manifest-path ../../Cargo.toml -- run backend/init.luau"
   },
   "dependencies": {},
   "devDependencies": {
-    "vite": "^5.3.3"
+    "vite": "^5.3.3",
+    "concurrently": "8.2.2"
   }
 }

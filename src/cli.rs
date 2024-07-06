@@ -1,11 +1,9 @@
 use clap::Parser;
 use lune_std::context::GlobalsContextBuilder;
 use mlua_luau_scheduler::Scheduler;
-use std::{path::PathBuf, rc::Rc};
-use tao::event_loop::EventLoopBuilder;
-use tokio::fs;
+use std::{env::current_dir, path::PathBuf, rc::Rc};
 
-use crate::{logic, webview_builder, window_builder, EVENT_LOOP};
+use crate::{config::LunewebConfig, logic, webview_builder, window_builder, EVENT_LOOP};
 #[derive(Parser)]
 struct Cli {
     #[clap(subcommand)]
@@ -14,7 +12,7 @@ struct Cli {
 
 #[derive(clap::Subcommand)]
 enum SubCommand {
-    Run { html: PathBuf, luau: PathBuf },
+    Run { luau: PathBuf },
     Build,
 }
 
@@ -22,7 +20,9 @@ pub async fn init() {
     let cli = Cli::parse();
 
     match cli.command {
-        SubCommand::Run { html, luau } => {
+        SubCommand::Run { luau } => {
+            let config = LunewebConfig::from(current_dir().unwrap());
+
             let mut ctx = GlobalsContextBuilder::new();
             lune_std::inject_libraries(&mut ctx).unwrap();
 
@@ -52,10 +52,9 @@ pub async fn init() {
                     .unwrap(),
             );
 
-            let bytes_html_content = fs::read(html).await.unwrap();
-            let html_content = String::from_utf8(bytes_html_content).unwrap();
+            println!("{config:?}");
 
-            let builder_webview = webview_builder!(window).with_html(html_content);
+            let builder_webview = webview_builder!(window).with_url(config.dev.url);
             let webview = builder_webview.build().unwrap();
 
             // main logic
