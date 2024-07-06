@@ -51,8 +51,7 @@ impl App {
                     }
                     Err(err) => {
                         return Err(LuneWebError::Custom(format!(
-                            "Failed to read the content of '{}'\nError: {err}",
-                            path
+                            "Failed to read the content of '{path}'\nError: {err}",
                         )));
                     }
                 }
@@ -84,8 +83,7 @@ impl App {
                 }
                 Err(err) => {
                     return Err(LuneWebError::Custom(format!(
-                        "Failed to read the content of '{}'\nError: {err}",
-                        path
+                        "Failed to read the content of '{path}'\nError: {err}",
                     )))
                 }
             }
