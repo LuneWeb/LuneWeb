@@ -37,7 +37,7 @@ impl App {
         if let Some(window) = &self.window {
             let mut builder = webview_builder!(window).with_url("about:blank");
 
-            for input in &self.ctx.javascript_inputs {
+            for input in &self.ctx.js_inputs {
                 let path = input.to_string_lossy();
 
                 match read(&input).await {
