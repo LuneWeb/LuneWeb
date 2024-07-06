@@ -33,11 +33,34 @@ impl App {
         Ok(rc)
     }
 
-    fn build_webview(&mut self) -> Result<Rc<WebView>, LuneWebError> {
+    async fn build_webview(&mut self) -> Result<Rc<WebView>, LuneWebError> {
         if let Some(window) = &self.window {
-            let builder = webview_builder!(window).with_url("about:blank");
+            let mut builder = webview_builder!(window).with_url("about:blank");
+
+            for input in &self.ctx.javascript_inputs {
+                let path = input.to_string_lossy();
+
+                match read(&input).await {
+                    Ok(content) => {
+                        builder = builder.with_initialization_script(
+                            String::from_utf8(content)
+                                .expect("Failed to parse utf8 into string")
+                                .to_string()
+                                .as_str(),
+                        );
+                    }
+                    Err(err) => {
+                        return Err(LuneWebError::Custom(format!(
+                            "Failed to read the content of '{}'\nError: {err}",
+                            path
+                        )));
+                    }
+                }
+            }
+
             let rc = Rc::new(builder.build()?);
             self.webview = Some(Rc::clone(&rc));
+
             Ok(rc)
         } else {
             Err("WebView should be built after Window".to_string().into())
@@ -49,7 +72,7 @@ impl App {
         let scheduler = Scheduler::new(&lua);
 
         let window = self.build_window()?;
-        self.build_webview()?;
+        self.build_webview().await?;
 
         if let Some(input) = self.ctx.luau_input {
             let path = input.to_string_lossy();
