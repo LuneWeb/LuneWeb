@@ -92,53 +92,8 @@ impl App {
 
         let func = lua.create_async_function(move |_, _: ()| {
             let window = Rc::clone(&window);
-
-            async move {
-                loop {
-                    let mut exit = false;
-
-                    EVENT_LOOP.with_borrow_mut(|event_loop| {
-                        event_loop.run_return(|event, _target, control_flow| {
-                            match event {
-                                Event::WindowEvent {
-                                    window_id: _,
-                                    event: WindowEvent::CloseRequested,
-                                    ..
-                                } => {
-                                    window.set_visible(false);
-                                    exit = true;
-                                }
-                                Event::RedrawRequested(_) => {
-                                    window.request_redraw();
-                                }
-                                _ => {}
-                            };
-
-                            let can_exit = matches!(
-                                event,
-                                tao::event::Event::MainEventsCleared
-                                    | tao::event::Event::LoopDestroyed
-                                    | tao::event::Event::WindowEvent { .. }
-                                    | tao::event::Event::UserEvent(_)
-                            );
-
-                            if can_exit {
-                                *control_flow = ControlFlow::Exit;
-                            }
-                        })
-                    });
-
-                    if exit {
-                        break;
-                    }
-
-                    tokio::time::sleep(Duration::from_millis(16)).await;
-                }
-
-                Ok(())
-            }
+            async move { logic(window).await }
         })?;
-
         scheduler.push_thread_front(lua.create_thread(func)?, ())?;
         scheduler.run().await;
 
@@ -160,4 +115,49 @@ impl From<ContextBuilder> for App {
         let ctx: Context = value.into();
         Self::from(ctx)
     }
+}
+
+pub async fn logic(window: Rc<Window>) -> mlua::Result<()> {
+    loop {
+        let mut exit = false;
+
+        EVENT_LOOP.with_borrow_mut(|event_loop| {
+            event_loop.run_return(|event, _target, control_flow| {
+                match event {
+                    Event::WindowEvent {
+                        window_id: _,
+                        event: WindowEvent::CloseRequested,
+                        ..
+                    } => {
+                        window.set_visible(false);
+                        exit = true;
+                    }
+                    Event::RedrawRequested(_) => {
+                        window.request_redraw();
+                    }
+                    _ => {}
+                };
+
+                let can_exit = matches!(
+                    event,
+                    tao::event::Event::MainEventsCleared
+                        | tao::event::Event::LoopDestroyed
+                        | tao::event::Event::WindowEvent { .. }
+                        | tao::event::Event::UserEvent(_)
+                );
+
+                if can_exit {
+                    *control_flow = ControlFlow::Exit;
+                }
+            })
+        });
+
+        if exit {
+            break;
+        }
+
+        tokio::time::sleep(Duration::from_millis(16)).await;
+    }
+
+    Ok(())
 }
