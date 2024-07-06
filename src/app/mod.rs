@@ -1,6 +1,6 @@
 use crate::{Context, LuneWebError};
 use mlua_luau_scheduler::Scheduler;
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, time::Duration};
 use tao::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
@@ -72,22 +72,19 @@ impl App {
         let scheduler = Scheduler::new(&lua);
         self.build_webview()?;
 
-        if let Some(luau_dir) = self.ctx.luau {
-            let init = luau_dir
-                .get_file("init.luau")
-                .expect("Failed to get init.luau");
+        // if let Some(init) = self.ctx.luau_init {
+        //     let src = init
+        //         .contents_utf8()
+        //         .expect("Failed to interpret file's content as a string");
 
-            let src = init
-                .contents_utf8()
-                .expect("Failed to interpret file's content as a string");
+        //     let chunk = lua.load(src);
+        //     scheduler.push_thread_front(chunk, ())?;
+        // }
 
-            let chunk = lua.load(src);
-            scheduler.push_thread_front(chunk, ())?;
-        }
-
-        lune_std::inject_libraries(&mut self.ctx.lune_ctx)?;
+        // lune_std::inject_libraries(&mut self.ctx.lune_ctx)?;
         lua.sandbox(true)?; // R.I.P the _G global 💀
-        lune_std::inject_globals(&lua, &self.ctx.lune_ctx.build())?;
+
+        // lune_std::inject_globals(&lua, &self.ctx.lune_ctx.build())?;
 
         let func = lua.create_async_function(move |_, _: ()| {
             let window = Rc::clone(&window);
@@ -130,6 +127,8 @@ impl App {
                     if exit {
                         break;
                     }
+
+                    tokio::time::sleep(Duration::from_millis(16)).await;
                 }
 
                 Ok(())

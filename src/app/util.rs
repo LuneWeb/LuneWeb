@@ -10,29 +10,6 @@ macro_rules! patched_lua {
     }};
 }
 
-#[macro_export]
-macro_rules! include_luau {
-    ($luau_dir:expr, $path:literal) => {{
-        use lune_std::context::GlobalsContextBuilder;
-        use std::env::current_dir;
-
-        let mut ctx = GlobalsContextBuilder::new();
-        let cwd = current_dir().expect("Failed to get current working directory");
-
-        for file in $luau_dir.files() {
-            let Some(ext) = file.path().extension() else {
-                continue;
-            };
-
-            if ext == "luau" {
-                ctx.with_script(cwd.join($path).join(file.path()), file.contents().into());
-            }
-        }
-
-        ctx
-    }};
-}
-
 /// Create a window builder that has cross-platform support
 macro_rules! window_builder {
     () => {{
