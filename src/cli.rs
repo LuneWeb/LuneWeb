@@ -1,7 +1,7 @@
 use clap::Parser;
 use lune_std::context::GlobalsContextBuilder;
 use mlua_luau_scheduler::Scheduler;
-use std::{env::current_dir, path::PathBuf, rc::Rc};
+use std::{env::current_dir, rc::Rc};
 use tokio::fs;
 
 use crate::{config::LunewebConfig, logic, webview_builder, window_builder, EVENT_LOOP};
@@ -54,7 +54,7 @@ pub async fn init() {
             );
 
             let builder_webview = webview_builder!(window).with_url(config.dev.url);
-            let webview = builder_webview.build().unwrap();
+            let _webview = builder_webview.build().unwrap();
 
             let luau_code = {
                 let bytes_content = fs::read(&config.app.luau).await.unwrap();

@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc, time::Duration};
+use std::{cell::RefCell, process::exit as process_exit, rc::Rc, time::Duration};
 
 use tao::{
     event::{Event, WindowEvent},
@@ -63,5 +63,5 @@ pub async fn logic(window: Rc<Window>) -> mlua::Result<()> {
         tokio::time::sleep(Duration::from_millis(16)).await;
     }
 
-    Ok(())
+    process_exit(0);
 }
