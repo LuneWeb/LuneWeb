@@ -1,2 +1,5 @@
 [dev]
 url = "http://localhost:5173/"
+
+[app]
+luau = "src/init.luau"

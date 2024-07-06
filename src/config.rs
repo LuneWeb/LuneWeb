@@ -9,8 +9,14 @@ pub struct LunewebConfigDev {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+pub struct LunewebConfigApp {
+    pub luau: PathBuf,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LunewebConfig {
     pub dev: LunewebConfigDev,
+    pub app: LunewebConfigApp,
 }
 
 impl From<PathBuf> for LunewebConfig {

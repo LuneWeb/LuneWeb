@@ -2,6 +2,7 @@ use clap::Parser;
 use lune_std::context::GlobalsContextBuilder;
 use mlua_luau_scheduler::Scheduler;
 use std::{env::current_dir, path::PathBuf, rc::Rc};
+use tokio::fs;
 
 use crate::{config::LunewebConfig, logic, webview_builder, window_builder, EVENT_LOOP};
 #[derive(Parser)]
@@ -12,7 +13,7 @@ struct Cli {
 
 #[derive(clap::Subcommand)]
 enum SubCommand {
-    Run { luau: PathBuf },
+    Run,
     Build,
 }
 
@@ -20,7 +21,7 @@ pub async fn init() {
     let cli = Cli::parse();
 
     match cli.command {
-        SubCommand::Run { luau } => {
+        SubCommand::Run => {
             let config = LunewebConfig::from(current_dir().unwrap());
 
             let mut ctx = GlobalsContextBuilder::new();
@@ -52,10 +53,17 @@ pub async fn init() {
                     .unwrap(),
             );
 
-            println!("{config:?}");
-
             let builder_webview = webview_builder!(window).with_url(config.dev.url);
             let webview = builder_webview.build().unwrap();
+
+            let luau_code = {
+                let bytes_content = fs::read(&config.app.luau).await.unwrap();
+                let content = String::from_utf8(bytes_content).unwrap();
+
+                lua.load(content)
+                    .set_name(config.app.luau.to_string_lossy())
+            };
+            scheduler.push_thread_front(luau_code, ()).unwrap();
 
             // main logic
             let logic_function = lua
