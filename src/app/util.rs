@@ -1,9 +1,15 @@
 macro_rules! patched_lua {
-    () => {{
+    ($lune_ctx:expr) => {{
         use mlua::Lua;
         use std::rc::Rc;
 
         let lua = Lua::new();
+        lune_std::inject_globals(&lua, $lune_ctx)?;
+        lua.sandbox(true)?;
+
+        // sandboxing makes all the inserted globals read-only, so we should insert _G after sandboxing
+        lune_std::LuneStandardGlobal::GTable.create(&lua, $lune_ctx)?;
+
         let lua_rc = Rc::new(lua);
         lua_rc.set_app_data(Rc::downgrade(&lua_rc));
         lua_rc

@@ -1,5 +1,6 @@
 use tao::error::OsError;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum Error {
     Os(OsError),

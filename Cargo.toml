@@ -16,7 +16,6 @@ package = "mlua-luau-scheduler"
 [dependencies]
 mlua = { version = "0.9.9", features = ["luau"] }
 tokio = { version = "1.38.0", features = ["full"] }
-include_dir = "0.7.4"
 wry = "0.41.0"
 tao = "0.28.1"
 thread_local = "1.1.8"

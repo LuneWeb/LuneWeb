@@ -1,4 +1,4 @@
-use crate::{Context, LuneWebError};
+use crate::{ctx::ContextBuilder, Context, LuneWebError};
 use mlua_luau_scheduler::Scheduler;
 use std::{cell::RefCell, rc::Rc, time::Duration};
 use tao::{
@@ -18,47 +18,24 @@ thread_local! {
 
 #[derive(Default)]
 pub struct App {
-    ctx: Context,
-    window: Option<Rc<Window>>,
-    webview: Option<Rc<WebView>>,
+    pub(crate) ctx: Context,
+    pub(crate) window: Option<Rc<Window>>,
+    pub(crate) webview: Option<Rc<WebView>>,
 }
 
 impl App {
-    pub fn new(ctx: Context) -> Self {
-        Self {
-            ctx,
-            ..Default::default()
-        }
-    }
-
-    fn build_window(&mut self, target: &EventLoop<()>) -> Result<Rc<Window>, LuneWebError> {
-        let window = window_builder!().build(target)?;
+    fn build_window(&mut self) -> Result<Rc<Window>, LuneWebError> {
+        let window = EVENT_LOOP.with_borrow(|event_loop| window_builder!().build(event_loop))?;
         let rc = Rc::new(window);
         self.window = Some(Rc::clone(&rc));
+
         Ok(rc)
     }
 
     fn build_webview(&mut self) -> Result<Rc<WebView>, LuneWebError> {
         if let Some(window) = &self.window {
-            let mut webview_builder = webview_builder!(window).with_url("about:blank");
-
-            if let Some(javascript_dir) = &self.ctx.javascript {
-                for file in javascript_dir.files() {
-                    let Some(extension) = file.path().extension() else {
-                        continue;
-                    };
-
-                    if extension == "js" {
-                        let src = file
-                            .contents_utf8()
-                            .expect("Failed to interpret file's content as a string");
-
-                        webview_builder = webview_builder.with_initialization_script(src);
-                    }
-                }
-            }
-
-            let rc = Rc::new(webview_builder.build()?);
+            let builder = webview_builder!(window).with_url("about:blank");
+            let rc = Rc::new(builder.build()?);
             self.webview = Some(Rc::clone(&rc));
             Ok(rc)
         } else {
@@ -67,24 +44,11 @@ impl App {
     }
 
     pub async fn run(mut self) -> Result<(), LuneWebError> {
-        let window = EVENT_LOOP.with_borrow(|event_loop| self.build_window(event_loop))?;
-        let lua = patched_lua!();
+        let lua = patched_lua!(&self.ctx.lune_ctx);
         let scheduler = Scheduler::new(&lua);
+
+        let window = self.build_window()?;
         self.build_webview()?;
-
-        // if let Some(init) = self.ctx.luau_init {
-        //     let src = init
-        //         .contents_utf8()
-        //         .expect("Failed to interpret file's content as a string");
-
-        //     let chunk = lua.load(src);
-        //     scheduler.push_thread_front(chunk, ())?;
-        // }
-
-        // lune_std::inject_libraries(&mut self.ctx.lune_ctx)?;
-        lua.sandbox(true)?; // R.I.P the _G global 💀
-
-        // lune_std::inject_globals(&lua, &self.ctx.lune_ctx.build())?;
 
         let func = lua.create_async_function(move |_, _: ()| {
             let window = Rc::clone(&window);
@@ -134,10 +98,25 @@ impl App {
                 Ok(())
             }
         })?;
-
-        scheduler.push_thread_front(lua.create_thread(func).unwrap(), ())?;
+        scheduler.push_thread_front(lua.create_thread(func)?, ())?;
         scheduler.run().await;
 
         Ok(())
+    }
+}
+
+impl From<Context> for App {
+    fn from(value: Context) -> Self {
+        Self {
+            ctx: value,
+            ..Default::default()
+        }
+    }
+}
+
+impl From<ContextBuilder> for App {
+    fn from(value: ContextBuilder) -> Self {
+        let ctx: Context = value.into();
+        Self::from(ctx)
     }
 }
