@@ -3,6 +3,13 @@ name = "luneweb"
 version = "0.3.0"
 edition = "2021"
 
+[lib]
+path = "lib/lib.rs"
+
+[[bin]]
+name = "luneweb"
+path = "src/main.rs"
+
 [dependencies.lune-std]
 git = "https://github.com/LuneWeb/Lune"
 rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
