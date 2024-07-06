@@ -1,1 +1,0 @@
-window.age = 18;
