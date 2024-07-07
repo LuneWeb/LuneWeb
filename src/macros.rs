@@ -2,10 +2,11 @@
 #[macro_export]
 macro_rules! window_builder {
     () => {{
+        use tao::window::WindowBuilder;
+
         #[cfg(target_os = "linux")]
         {
             use tao::platform::unix::WindowBuilderExtUnix;
-            use tao::window::WindowBuilder;
             WindowBuilder::new().with_default_vbox(false)
         }
 
@@ -18,17 +19,18 @@ macro_rules! window_builder {
 #[macro_export]
 macro_rules! webview_builder {
     ($target:expr) => {{
-        #[cfg(not(target_os = "linux"))]
-        {
-            WebViewBuilder::new(target)
-        }
+        use wry::WebViewBuilder;
 
         #[cfg(target_os = "linux")]
         {
             use tao::platform::unix::WindowExtUnix;
-            use wry::WebViewBuilder;
             use wry::WebViewBuilderExtUnix;
             WebViewBuilder::new_gtk($target.gtk_window())
+        }
+
+        #[cfg(not(target_os = "linux"))]
+        {
+            WebViewBuilder::new(&$target)
         }
     }};
 }
