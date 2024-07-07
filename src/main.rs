@@ -27,7 +27,7 @@ pub fn inject_libraries(ctx: &mut GlobalsContextBuilder) -> mlua::Result<()> {
     ctx.with_alias("luneweb", |libs| {
         libs.insert(
             "message",
-            lune_std::context::LuauLibraryCreator::LuaTable(message::create_luneweb),
+            lune_std::context::LuauLibraryCreator::LuaTable(message::create),
         );
 
         Ok(())
