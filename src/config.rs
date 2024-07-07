@@ -3,19 +3,19 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LunewebConfigDev {
     pub url: Option<String>,
     pub pkg_manager: Option<String>,
     pub pkg_install: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LunewebConfigApp {
     pub luau: Option<PathBuf>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LunewebConfig {
     pub dev: Option<LunewebConfigDev>,
     pub app: Option<LunewebConfigApp>,

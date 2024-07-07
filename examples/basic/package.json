@@ -8,7 +8,7 @@
     "luneweb": "cargo run --manifest-path ../../Cargo.toml -- run"
   },
   "dependencies": {
-    "lunweb": "link:../../js/"
+    "lunweb": "file:../../js/"
   },
   "devDependencies": {
     "concurrently": "8.2.2",

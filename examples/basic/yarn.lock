@@ -336,9 +336,8 @@ lodash@^4.17.21:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-"lunweb@link:../../js":
-  version "0.0.0"
-  uid ""
+"lunweb@file:../../js":
+  version "0.3.0"
 
 nanoid@^3.3.7:
   version "3.3.7"

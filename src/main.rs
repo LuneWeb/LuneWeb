@@ -1,4 +1,6 @@
-use std::{cell::RefCell, process::exit as process_exit, rc::Rc, time::Duration};
+use std::{cell::RefCell, rc::Rc, time::Duration};
+
+use tokio::sync::watch::Sender;
 
 use lune_std::context::GlobalsContextBuilder;
 use tao::{
@@ -23,9 +25,10 @@ struct App {
 thread_local! {
     pub static EVENT_LOOP: RefCell<EventLoop<()>> = RefCell::new(EventLoopBuilder::with_user_event().build());
     pub static APP: RefCell<App> = RefCell::new(App::default());
+    pub static ONLOAD_TX: RefCell<Sender<()>> = RefCell::new(Sender::new(()));
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() {
     cli::init().await
 }
@@ -83,5 +86,5 @@ pub async fn logic(window: Rc<Window>) -> mlua::Result<()> {
         tokio::time::sleep(Duration::from_millis(16)).await;
     }
 
-    process_exit(0);
+    Ok(())
 }

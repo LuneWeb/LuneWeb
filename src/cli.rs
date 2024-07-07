@@ -4,12 +4,14 @@ use mlua_luau_scheduler::Scheduler;
 use std::{
     env::{current_dir, set_current_dir},
     path::PathBuf,
+    process,
     rc::Rc,
 };
 use tokio::{fs, process::Command};
 
 use crate::{
     config::LunewebConfig, logic, message, webview_builder, window_builder, APP, EVENT_LOOP,
+    ONLOAD_TX,
 };
 #[derive(Parser)]
 struct Cli {
@@ -67,8 +69,6 @@ pub async fn init() {
                     .unwrap();
             }
 
-            let _vite_process = Command::new("npx").arg("vite").spawn().expect("Failed to run command 'npx vite' make sure to have node js installed and have installed vite in your dev dependencies");
-
             let mut ctx = GlobalsContextBuilder::new();
             lune_std::inject_libraries(&mut ctx).unwrap();
             crate::inject_libraries(&mut ctx).unwrap();
@@ -101,7 +101,14 @@ pub async fn init() {
 
             let builder_webview = webview_builder!(window)
                 .with_initialization_script(&format!("{{ {0} }}", message::JS_IMPL))
-                .with_url(config_dev.url.expect("Expected url from luneweb.toml"));
+                .with_url(config_dev.url.expect("Expected url from luneweb.toml"))
+                .with_ipc_handler(|_| {
+                    ONLOAD_TX.with_borrow(|tx| {
+                        if tx.receiver_count() > 0 {
+                            tx.send(()).unwrap();
+                        }
+                    });
+                });
             let webview = Rc::new(builder_webview.build().unwrap());
 
             if let Some(luau_path) = &app_dev.luau {
@@ -112,7 +119,7 @@ pub async fn init() {
                     lua.load(content).set_name(luau_path.to_string_lossy())
                 };
 
-                scheduler.push_thread_front(luau_code, ()).unwrap();
+                scheduler.push_thread_back(luau_code, ()).unwrap();
             }
 
             // main logic
@@ -120,7 +127,14 @@ pub async fn init() {
                 .create_async_function(move |_, _: ()| {
                     let window = Rc::clone(&window);
 
-                    async move { logic(window).await }
+                    async move {
+                        logic(window).await?;
+
+                        process::exit(0);
+
+                        #[allow(unreachable_code)]
+                        Ok(())
+                    }
                 })
                 .unwrap();
 
