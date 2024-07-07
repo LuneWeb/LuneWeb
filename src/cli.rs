@@ -44,6 +44,7 @@ pub async fn init() {
 
             let mut ctx = GlobalsContextBuilder::new();
             lune_std::inject_libraries(&mut ctx).unwrap();
+            crate::inject_libraries(&mut ctx).unwrap();
 
             let lua = mlua::Lua::new();
             let ctx = ctx.build();

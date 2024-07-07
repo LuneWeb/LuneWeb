@@ -1,5 +1,6 @@
 use std::{cell::RefCell, process::exit as process_exit, rc::Rc, time::Duration};
 
+use lune_std::context::GlobalsContextBuilder;
 use tao::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
@@ -11,6 +12,7 @@ use tao::{
 mod macros;
 mod cli;
 mod config;
+mod message;
 
 thread_local! {
     pub static EVENT_LOOP: RefCell<EventLoop<()>> = RefCell::new(EventLoopBuilder::with_user_event().build());
@@ -19,6 +21,17 @@ thread_local! {
 #[tokio::main]
 async fn main() {
     cli::init().await
+}
+
+pub fn inject_libraries(ctx: &mut GlobalsContextBuilder) -> mlua::Result<()> {
+    ctx.with_alias("luneweb", |libs| {
+        libs.insert(
+            "message",
+            lune_std::context::LuauLibraryCreator::LuaTable(message::create_luneweb),
+        );
+
+        Ok(())
+    })
 }
 
 pub async fn logic(window: Rc<Window>) -> mlua::Result<()> {
