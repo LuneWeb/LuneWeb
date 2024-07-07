@@ -42,13 +42,30 @@ pub async fn init() {
             let cwd = set_cwd(dir);
             let config = LunewebConfig::from(cwd.clone());
 
-            Command::new(config.dev.pkg_manager)
-                .arg(config.dev.pkg_install)
-                .spawn()
-                .expect("Failed to install node_modules")
-                .wait_with_output()
-                .await
-                .unwrap();
+            let config_dev = config.dev.unwrap_or(crate::config::LunewebConfigDev {
+                url: Some("http://localhost:5173/".into()),
+                pkg_manager: None,
+                pkg_install: None,
+            });
+
+            let app_dev = config
+                .app
+                .unwrap_or(crate::config::LunewebConfigApp { luau: None });
+
+            if let Some(pkg_manager) = config_dev.pkg_manager {
+                let mut command = Command::new(pkg_manager);
+
+                if let Some(arg) = config_dev.pkg_install {
+                    command.arg(arg);
+                }
+
+                command
+                    .spawn()
+                    .expect("Failed to install node_modules")
+                    .wait_with_output()
+                    .await
+                    .unwrap();
+            }
 
             let _vite_process = Command::new("npx").arg("vite").spawn().expect("Failed to run command 'npx vite' make sure to have node js installed and have installed vite in your dev dependencies");
 
@@ -84,17 +101,19 @@ pub async fn init() {
 
             let builder_webview = webview_builder!(window)
                 .with_initialization_script(message::JS_IMPL)
-                .with_url(config.dev.url);
+                .with_url(config_dev.url.expect("Expected url from luneweb.toml"));
             let webview = Rc::new(builder_webview.build().unwrap());
 
-            let luau_code = {
-                let bytes_content = fs::read(&config.app.luau).await.unwrap();
-                let content = String::from_utf8(bytes_content).unwrap();
+            if let Some(luau_path) = &app_dev.luau {
+                let luau_code = {
+                    let bytes_content = fs::read(luau_path).await.unwrap();
+                    let content = String::from_utf8(bytes_content).unwrap();
 
-                lua.load(content)
-                    .set_name(config.app.luau.to_string_lossy())
-            };
-            scheduler.push_thread_front(luau_code, ()).unwrap();
+                    lua.load(content).set_name(luau_path.to_string_lossy())
+                };
+
+                scheduler.push_thread_front(luau_code, ()).unwrap();
+            }
 
             // main logic
             let logic_function = lua
