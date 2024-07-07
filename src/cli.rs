@@ -26,7 +26,12 @@ pub async fn init() {
 
     match cli.command {
         SubCommand::Run { dir } => {
-            let cwd = dir.unwrap_or(current_dir().unwrap());
+            let cwd = current_dir().unwrap();
+            let cwd = match dir {
+                Some(dir) => cwd.join(dir),
+                None => cwd,
+            };
+
             set_current_dir(&cwd).unwrap();
 
             let config = LunewebConfig::from(cwd.clone());
