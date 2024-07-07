@@ -8,7 +8,9 @@ use std::{
 };
 use tokio::{fs, process::Command};
 
-use crate::{config::LunewebConfig, logic, webview_builder, window_builder, EVENT_LOOP};
+use crate::{
+    config::LunewebConfig, logic, message, webview_builder, window_builder, APP, EVENT_LOOP,
+};
 #[derive(Parser)]
 struct Cli {
     #[clap(subcommand)]
@@ -72,8 +74,10 @@ pub async fn init() {
                     .unwrap(),
             );
 
-            let builder_webview = webview_builder!(window).with_url(config.dev.url);
-            let _webview = builder_webview.build().unwrap();
+            let builder_webview = webview_builder!(window)
+                .with_initialization_script(message::JS_IMPL)
+                .with_url(config.dev.url);
+            let webview = Rc::new(builder_webview.build().unwrap());
 
             let luau_code = {
                 let bytes_content = fs::read(&config.app.luau).await.unwrap();
@@ -92,6 +96,10 @@ pub async fn init() {
                     async move { logic(window).await }
                 })
                 .unwrap();
+
+            APP.set(crate::App {
+                webview: Some(webview),
+            });
 
             let logic_thread = lua.create_thread(logic_function).unwrap();
             scheduler.push_thread_front(logic_thread, ()).unwrap();

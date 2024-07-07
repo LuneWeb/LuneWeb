@@ -7,6 +7,7 @@ use tao::{
     platform::run_return::EventLoopExtRunReturn,
     window::Window,
 };
+use wry::WebView;
 
 #[macro_use]
 mod macros;
@@ -14,8 +15,14 @@ mod cli;
 mod config;
 mod message;
 
+#[derive(Default)]
+struct App {
+    pub webview: Option<Rc<WebView>>,
+}
+
 thread_local! {
     pub static EVENT_LOOP: RefCell<EventLoop<()>> = RefCell::new(EventLoopBuilder::with_user_event().build());
+    pub static APP: RefCell<App> = RefCell::new(App::default());
 }
 
 #[tokio::main]

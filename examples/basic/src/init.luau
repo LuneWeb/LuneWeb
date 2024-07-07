@@ -1,6 +1,7 @@
 local task = require("@lune/task")
+local message = require("@luneweb/message")
 
-print("Luau started...")
+message.send("Hello, Javascript!")
 
 task.wait(5)
 

@@ -3,6 +3,7 @@
   "luau-lsp.platform.type": "standard",
   "luau-lsp.require.mode": "relativeToFile",
   "luau-lsp.require.directoryAliases": {
-    "@lune/": "~/.lune/.typedefs/0.8.6/"
+    "@lune/": "~/.lune/.typedefs/0.8.6/",
+    "@luneweb/": "./types/"
   }
 }

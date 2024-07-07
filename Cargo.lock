@@ -2050,6 +2050,7 @@ version = "0.3.0"
 dependencies = [
  "clap",
  "lune-std",
+ "lune-std-serde",
  "lune-utils",
  "mlua",
  "mlua-luau-scheduler",

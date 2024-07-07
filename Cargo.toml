@@ -12,6 +12,11 @@ git = "https://github.com/LuneWeb/Lune"
 rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
 package = "lune-std"
 
+[dependencies.lune-std-serde]
+git = "https://github.com/LuneWeb/Lune"
+rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+package = "lune-std-serde"
+
 [dependencies.lune-utils]
 git = "https://github.com/LuneWeb/Lune"
 rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
