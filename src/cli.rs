@@ -100,7 +100,7 @@ pub async fn init() {
             );
 
             let builder_webview = webview_builder!(window)
-                .with_initialization_script(message::JS_IMPL)
+                .with_initialization_script(&format!("{{ {0} }}", message::JS_IMPL))
                 .with_url(config_dev.url.expect("Expected url from luneweb.toml"));
             let webview = Rc::new(builder_webview.build().unwrap());
 

@@ -1,3 +1,5 @@
+// This code runs in its own scope
+
 Object.defineProperty(window, "luneweb", {
   value: Object.freeze({
     shareMessage: function (message) {
