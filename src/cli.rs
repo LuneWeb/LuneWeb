@@ -1,7 +1,11 @@
 use clap::Parser;
 use lune_std::context::GlobalsContextBuilder;
 use mlua_luau_scheduler::Scheduler;
-use std::{env::current_dir, rc::Rc};
+use std::{
+    env::{current_dir, set_current_dir},
+    path::PathBuf,
+    rc::Rc,
+};
 use tokio::fs;
 
 use crate::{config::LunewebConfig, logic, webview_builder, window_builder, EVENT_LOOP};
@@ -13,7 +17,7 @@ struct Cli {
 
 #[derive(clap::Subcommand)]
 enum SubCommand {
-    Run,
+    Run { dir: Option<PathBuf> },
     Build,
 }
 
@@ -21,8 +25,11 @@ pub async fn init() {
     let cli = Cli::parse();
 
     match cli.command {
-        SubCommand::Run => {
-            let config = LunewebConfig::from(current_dir().unwrap());
+        SubCommand::Run { dir } => {
+            let cwd = dir.unwrap_or(current_dir().unwrap());
+            set_current_dir(&cwd).unwrap();
+
+            let config = LunewebConfig::from(cwd.clone());
 
             let mut ctx = GlobalsContextBuilder::new();
             lune_std::inject_libraries(&mut ctx).unwrap();
