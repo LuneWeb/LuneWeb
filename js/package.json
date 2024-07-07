@@ -1,0 +1,15 @@
+{
+  "name": "luneweb-types",
+  "type": "module",
+  "module": "out/index.js",
+  "main": "out/index.js",
+  "version": "0.3.0",
+  "description": "luau and typescript type definitions for luneweb",
+  "scripts": {
+    "prepare": "tsc"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  }
+}
