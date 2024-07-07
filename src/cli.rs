@@ -42,6 +42,14 @@ pub async fn init() {
             let cwd = set_cwd(dir);
             let config = LunewebConfig::from(cwd.clone());
 
+            Command::new(config.dev.pkg_manager)
+                .arg(config.dev.pkg_install)
+                .spawn()
+                .expect("Failed to install node_modules")
+                .wait_with_output()
+                .await
+                .unwrap();
+
             let _vite_process = Command::new("npx").arg("vite").spawn().expect("Failed to run command 'npx vite' make sure to have node js installed and have installed vite in your dev dependencies");
 
             let mut ctx = GlobalsContextBuilder::new();

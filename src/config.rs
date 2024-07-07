@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LunewebConfigDev {
     pub url: String,
+    pub pkg_manager: String,
+    pub pkg_install: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
