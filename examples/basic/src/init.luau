@@ -1,6 +1,7 @@
 local task = require("@lune/task")
 
-while true do
-	print(os.clock())
-	task.wait(1)
-end
+print("Luau started...")
+
+task.wait(5)
+
+print("Hello, World! 🤖")
