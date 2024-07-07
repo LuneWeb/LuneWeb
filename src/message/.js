@@ -1,9 +1,15 @@
-// This code runs in its own scope
+const messageListeners = [];
 
 Object.defineProperty(window, "luneweb", {
   value: Object.freeze({
     shareMessage: function (message) {
-      console.log("Received message from luau:", message);
+      messageListeners.forEach((listener) => {
+        listener(message);
+      });
+    },
+
+    listen: function (callback) {
+      messageListeners.push(callback);
     },
   }),
 });
