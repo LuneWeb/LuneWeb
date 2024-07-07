@@ -26,6 +26,6 @@ This repo contains all the lua libraries for creating windows and webviews using
 
 WebView2 provided by Microsoft Edge Chromium is used. So LuneWeb supports Windows 7, 8, 10 and 11.
 
-### (NOT TESTED) macOS
+### macOS
 
 WebKit is native on macOS so everything should be fine.
