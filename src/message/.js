@@ -1,3 +1,7 @@
-window._sendMessage = function sendMessage(message) {
-  console.log("Received message from luau:", JSON.parse(message));
-};
+Object.defineProperty(window, "luneweb", {
+  value: Object.freeze({
+    shareMessage: function (message) {
+      console.log("Received message from luau:", JSON.parse(message));
+    },
+  }),
+});
