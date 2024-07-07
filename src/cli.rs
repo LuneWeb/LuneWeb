@@ -6,7 +6,7 @@ use std::{
     path::PathBuf,
     rc::Rc,
 };
-use tokio::fs;
+use tokio::{fs, process::Command};
 
 use crate::{config::LunewebConfig, logic, webview_builder, window_builder, EVENT_LOOP};
 #[derive(Parser)]
@@ -21,20 +21,26 @@ enum SubCommand {
     Build,
 }
 
+fn set_cwd(dir: Option<PathBuf>) -> PathBuf {
+    let cwd = current_dir().unwrap();
+    let cwd = match dir {
+        Some(dir) => cwd.join(dir),
+        None => cwd,
+    };
+
+    set_current_dir(&cwd).unwrap();
+    cwd
+}
+
 pub async fn init() {
     let cli = Cli::parse();
 
     match cli.command {
         SubCommand::Run { dir } => {
-            let cwd = current_dir().unwrap();
-            let cwd = match dir {
-                Some(dir) => cwd.join(dir),
-                None => cwd,
-            };
-
-            set_current_dir(&cwd).unwrap();
-
+            let cwd = set_cwd(dir);
             let config = LunewebConfig::from(cwd.clone());
+
+            let _vite_process = Command::new("npx").arg("vite").spawn().expect("Failed to run command 'npx vite' make sure to have node js installed and have installed vite in your dev dependencies");
 
             let mut ctx = GlobalsContextBuilder::new();
             lune_std::inject_libraries(&mut ctx).unwrap();
