@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc, time::Duration};
 
+use include_dir::{include_dir, Dir};
 use tokio::sync::watch::Sender;
 
 use lune_std::context::GlobalsContextBuilder;
@@ -16,6 +17,9 @@ mod macros;
 mod cli;
 mod config;
 mod message;
+
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+const LUAU_TYPES: Dir = include_dir!("types/");
 
 #[derive(Default)]
 struct App {

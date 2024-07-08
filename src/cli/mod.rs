@@ -5,6 +5,7 @@ use std::{
     path::PathBuf,
 };
 
+mod home;
 mod run;
 mod setup;
 
@@ -16,7 +17,7 @@ struct Cli {
 
 #[derive(clap::Subcommand)]
 enum SubCommand {
-    /// Setup luneweb (installs a copy of the luau type definition files here)
+    /// Setup luneweb and install luau type definition files in the home directory
     Setup { dir: Option<PathBuf> },
     /// Runs luneweb
     Run { dir: Option<PathBuf> },
