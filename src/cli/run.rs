@@ -18,6 +18,11 @@ pub async fn run(dir: Option<PathBuf>) {
         pkg_install: None,
     });
 
+    let title = match cwd.file_stem() {
+        Some(stem) => stem.to_string_lossy(),
+        None => "LuneWeb".into(),
+    };
+
     let app_dev = config
         .app
         .unwrap_or(crate::config::LunewebConfigApp { luau: None });
@@ -60,7 +65,7 @@ pub async fn run(dir: Option<PathBuf>) {
     };
     let scheduler = Scheduler::new(&lua);
 
-    let builder_window = window_builder!();
+    let builder_window = window_builder!().with_title(title);
     let window = Rc::new(
         EVENT_LOOP
             .with_borrow(|event_loop| builder_window.build(event_loop))
