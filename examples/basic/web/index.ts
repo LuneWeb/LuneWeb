@@ -1,11 +1,12 @@
 import { message } from "lunweb";
+import { log } from "./log";
 
 message.listen((message) => {
-  console.log(`Message shared from Luau: ${message}`);
+  log(`Message shared from Luau: ${JSON.stringify(message)}`);
 });
 
 message.createChannel("Channel1", (message) => {
-  console.log(`Channel1 received message from Luau: ${message}`);
+  log(`Channel1 received message from Luau: ${JSON.stringify(message)}`);
 
   return true;
 });
