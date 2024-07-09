@@ -34,3 +34,17 @@ macro_rules! webview_builder {
         }
     }};
 }
+
+macro_rules! with_app {
+    (($app_ident:ident) => $code:block) => {{
+        use crate::app::APP;
+
+        APP.with_borrow(move |app_option| {
+            let Some($app_ident) = app_option else {
+                return Err(mlua::Error::RuntimeError("App is none".into()));
+            };
+
+            $code
+        })
+    }};
+}

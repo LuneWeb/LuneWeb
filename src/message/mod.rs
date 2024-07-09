@@ -4,7 +4,7 @@ use mlua::ExternalResult;
 use mlua_luau_scheduler::{IntoLuaThread, LuaSchedulerExt, LuaSpawnExt};
 use tokio::sync::watch::channel;
 
-use crate::{app::APP, ONLOAD_TX};
+use crate::ONLOAD_TX;
 
 pub const JS_IMPL: &str = include_str!(".js");
 
@@ -46,11 +46,7 @@ pub fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
 fn message_share(lua: &mlua::Lua, message: mlua::Value) -> Result<(), mlua::Error> {
     let json = lune_std_serde::encode(message, lua, LUA_SERDE_CONFIG)?;
 
-    APP.with_borrow(|app| {
-        let Some(app) = app else {
-            return Err(mlua::Error::RuntimeError("App is none".into()));
-        };
-
+    with_app!((app) => {
         let string_json = json.to_string_lossy();
         let script = format!("window.luneweb.shareMessage({string_json})");
 
@@ -66,11 +62,7 @@ async fn message_send<'lua>(
 
     let (tx, mut rx) = channel::<String>("null".into());
 
-    APP.with_borrow(move |app| {
-        let Some(app) = app else {
-            return Err(mlua::Error::RuntimeError("App is none".into()));
-        };
-
+    with_app!((app) => {
         let string_json = json.to_string_lossy();
         let string_channel_name = channel_name.to_string()?;
         let script =
