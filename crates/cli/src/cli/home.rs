@@ -16,17 +16,17 @@ pub fn luneweb_home() -> Result<PathBuf, String> {
 
 pub fn install_types() -> Result<(), String> {
     let home = luneweb_home().unwrap();
-    let directory = home.join(".luneweb").join(format!("types-{VERSION}"));
+    let directory = home.join(".luneweb");
 
-    if directory.is_dir() {
-        fs::remove_dir_all(&directory).unwrap();
+    if !directory.is_dir() {
+        fs::create_dir_all(&directory).unwrap();
     }
 
-    fs::create_dir_all(&directory).unwrap();
-
-    for file in LUAU_TYPES.files() {
-        fs::write(directory.join(file.path()), file.contents()).unwrap();
-    }
+    fs::write(
+        directory.join(format!(".type_defs-{VERSION}.d.luau")),
+        LUAU_TYPES,
+    )
+    .unwrap();
 
     println!("Installed Luau type definition files at: '{directory:?}'");
 

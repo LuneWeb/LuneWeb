@@ -1,0 +1,28 @@
+[package]
+name = "luneweb-app"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+mlua = { version = "0.9.9", features = ["luau", "async"] }
+tokio = { version = "1.38.0", features = ["full"] }
+wry = "0.41.0"
+tao = "0.28.1"
+
+[dependencies.mlua-luau-scheduler]
+git = "https://github.com/LuneWeb/Lune"
+rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+package = "mlua-luau-scheduler"
+
+[dependencies.lune-utils]
+git = "https://github.com/LuneWeb/Lune"
+rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+package = "lune-utils"
+
+[dependencies.lune-std-serde]
+git = "https://github.com/LuneWeb/Lune"
+rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+package = "lune-std-serde"

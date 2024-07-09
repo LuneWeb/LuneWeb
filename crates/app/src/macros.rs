@@ -1,3 +1,15 @@
+/// Get weak rc reference to lua and upgrade it
+macro_rules! inner_lua {
+    ($lua:expr) => {{
+        use std::rc::Weak;
+
+        $lua.app_data_ref::<Weak<mlua::Lua>>()
+            .expect("Missing weak lua reference")
+            .upgrade()
+            .expect("Failed to upgrade weak lua reference")
+    }};
+}
+
 /// Create a window builder that has cross-platform support
 #[macro_export]
 macro_rules! window_builder {
@@ -32,19 +44,5 @@ macro_rules! webview_builder {
         {
             WebViewBuilder::new(&$target)
         }
-    }};
-}
-
-macro_rules! with_app {
-    (($app_ident:ident) => $code:block) => {{
-        use crate::app::APP;
-
-        APP.with_borrow(move |app_option| {
-            let Some($app_ident) = app_option else {
-                return Err(mlua::Error::RuntimeError("App is none".into()));
-            };
-
-            $code
-        })
     }};
 }

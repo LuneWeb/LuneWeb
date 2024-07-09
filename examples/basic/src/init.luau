@@ -1,13 +1,14 @@
 local datetime = require("@lune/datetime")
-local message = require("@luneweb/message")
 
-message.onLoad(function()
-	message.share("Hello, Javascript!")
-	message.share({
+app:onLoad(function()
+	app:shareMessage("Hello, Javascript!")
+	app:shareMessage({
 		message = "Hello!",
 		age = 18,
 		time = datetime.now().unixTimestamp,
 	})
 
-	print(`Javascript returned: {message.send("Channel1", "Hello!")}`)
+	print(`Javascript returned: {app:sendMessage("Channel1", "Hello!")}`)
 end)
+
+app:run()

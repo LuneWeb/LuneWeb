@@ -1,10 +1,11 @@
 use std::{path::PathBuf, rc::Rc};
 
 use lune_std::context::GlobalsContextBuilder;
+use luneweb_app::{config::AppConfig, App};
 use mlua_luau_scheduler::Scheduler;
-use tokio::{fs, process::Command};
+use tokio::fs;
 
-use crate::{app::App, config::LunewebConfig, message, ONLOAD_TX};
+use crate::config::LunewebConfig;
 
 use super::set_cwd;
 
@@ -14,8 +15,6 @@ pub async fn run(dir: Option<PathBuf>) {
 
     let config_dev = config.dev.unwrap_or(crate::config::LunewebConfigDev {
         url: Some("http://localhost:5173/".into()),
-        pkg_manager: None,
-        pkg_install: None,
     });
 
     let title = match cwd.file_stem() {
@@ -27,26 +26,22 @@ pub async fn run(dir: Option<PathBuf>) {
         .app
         .unwrap_or(crate::config::LunewebConfigApp { luau: None });
 
-    if let Some(pkg_manager) = config_dev.pkg_manager {
-        let mut command = Command::new(pkg_manager);
+    let lua = mlua::Lua::new();
+    let app = App::new(AppConfig {
+        window_title: title.to_string(),
+        url: config_dev
+            .url
+            .clone()
+            .expect("Expected url from luneweb.toml"),
+    })
+    .expect("Failed to create app");
 
-        if let Some(arg) = config_dev.pkg_install {
-            command.arg(arg);
-        }
-
-        command
-            .spawn()
-            .expect("Failed to install node_modules")
-            .wait_with_output()
-            .await
-            .unwrap();
-    }
+    app.into_global(&lua)
+        .expect("Failed to inject app into lua globals");
 
     let mut ctx = GlobalsContextBuilder::new();
     lune_std::inject_libraries(&mut ctx).unwrap();
-    crate::inject_libraries(&mut ctx).unwrap();
 
-    let lua = mlua::Lua::new();
     let ctx = ctx.build();
 
     lune_std::inject_globals(&lua, &ctx).unwrap();
@@ -65,27 +60,6 @@ pub async fn run(dir: Option<PathBuf>) {
     };
     let scheduler = Scheduler::new(&lua);
 
-    let app = App::new(
-        |builder_window| builder_window.with_title(title.clone()),
-        |builder_webview| {
-            builder_webview
-                .with_initialization_script(&format!("{{ {0} }}", message::JS_IMPL))
-                .with_url(
-                    config_dev
-                        .url
-                        .clone()
-                        .expect("Expected url from luneweb.toml"),
-                )
-                .with_ipc_handler(|_| {
-                    ONLOAD_TX.with_borrow(|tx| {
-                        if tx.receiver_count() > 0 {
-                            tx.send(()).unwrap();
-                        }
-                    });
-                })
-        },
-    );
-
     if let Some(luau_path) = &app_dev.luau {
         let luau_code = {
             let bytes_content = fs::read(luau_path).await.unwrap();
@@ -97,7 +71,5 @@ pub async fn run(dir: Option<PathBuf>) {
         scheduler.push_thread_back(luau_code, ()).unwrap();
     }
 
-    let logic_thread = lua.create_thread(app.init_logic(&lua)).unwrap();
-    scheduler.push_thread_front(logic_thread, ()).unwrap();
     scheduler.run().await;
 }

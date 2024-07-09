@@ -1,7 +1,5 @@
 [dev]
 url = "http://localhost:5173/"
-pkg_manager = "yarn"           # e.g. 'yarn' or 'npm' or 'pnpm'
-pkg_install = ""               # the command for installing node modules (e.g. 'install')
 
 [app]
 luau = "src/init.luau"
