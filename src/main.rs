@@ -10,10 +10,10 @@ use tao::{
     platform::run_return::EventLoopExtRunReturn,
     window::Window,
 };
-use wry::WebView;
 
 #[macro_use]
 mod macros;
+mod app;
 mod cli;
 mod config;
 mod message;
@@ -21,14 +21,8 @@ mod message;
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 const LUAU_TYPES: Dir = include_dir!("types/");
 
-#[derive(Default)]
-struct App {
-    pub webview: Option<Rc<WebView>>,
-}
-
 thread_local! {
     pub static EVENT_LOOP: RefCell<EventLoop<()>> = RefCell::new(EventLoopBuilder::with_user_event().build());
-    pub static APP: RefCell<App> = RefCell::new(App::default());
     pub static ONLOAD_TX: RefCell<Sender<()>> = RefCell::new(Sender::new(()));
 }
 

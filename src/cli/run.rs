@@ -1,10 +1,10 @@
-use std::{path::PathBuf, process, rc::Rc};
+use std::{path::PathBuf, rc::Rc};
 
 use lune_std::context::GlobalsContextBuilder;
 use mlua_luau_scheduler::Scheduler;
 use tokio::{fs, process::Command};
 
-use crate::{config::LunewebConfig, logic, message, APP, EVENT_LOOP, ONLOAD_TX};
+use crate::{app::App, config::LunewebConfig, message, ONLOAD_TX};
 
 use super::set_cwd;
 
@@ -65,24 +65,26 @@ pub async fn run(dir: Option<PathBuf>) {
     };
     let scheduler = Scheduler::new(&lua);
 
-    let builder_window = window_builder!().with_title(title);
-    let window = Rc::new(
-        EVENT_LOOP
-            .with_borrow(|event_loop| builder_window.build(event_loop))
-            .unwrap(),
+    let app = App::new(
+        |builder_window| builder_window.with_title(title.clone()),
+        |builder_webview| {
+            builder_webview
+                .with_initialization_script(&format!("{{ {0} }}", message::JS_IMPL))
+                .with_url(
+                    config_dev
+                        .url
+                        .clone()
+                        .expect("Expected url from luneweb.toml"),
+                )
+                .with_ipc_handler(|_| {
+                    ONLOAD_TX.with_borrow(|tx| {
+                        if tx.receiver_count() > 0 {
+                            tx.send(()).unwrap();
+                        }
+                    });
+                })
+        },
     );
-
-    let builder_webview = webview_builder!(window)
-        .with_initialization_script(&format!("{{ {0} }}", message::JS_IMPL))
-        .with_url(config_dev.url.expect("Expected url from luneweb.toml"))
-        .with_ipc_handler(|_| {
-            ONLOAD_TX.with_borrow(|tx| {
-                if tx.receiver_count() > 0 {
-                    tx.send(()).unwrap();
-                }
-            });
-        });
-    let webview = Rc::new(builder_webview.build().unwrap());
 
     if let Some(luau_path) = &app_dev.luau {
         let luau_code = {
@@ -95,27 +97,7 @@ pub async fn run(dir: Option<PathBuf>) {
         scheduler.push_thread_back(luau_code, ()).unwrap();
     }
 
-    // main logic
-    let logic_function = lua
-        .create_async_function(move |_, _: ()| {
-            let window = Rc::clone(&window);
-
-            async move {
-                logic(window).await?;
-
-                process::exit(0);
-
-                #[allow(unreachable_code)]
-                Ok(())
-            }
-        })
-        .unwrap();
-
-    APP.set(crate::App {
-        webview: Some(webview),
-    });
-
-    let logic_thread = lua.create_thread(logic_function).unwrap();
+    let logic_thread = lua.create_thread(app.init_logic(&lua)).unwrap();
     scheduler.push_thread_front(logic_thread, ()).unwrap();
     scheduler.run().await;
 }

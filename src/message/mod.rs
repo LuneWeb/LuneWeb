@@ -4,7 +4,7 @@ use mlua::ExternalResult;
 use mlua_luau_scheduler::{IntoLuaThread, LuaSchedulerExt, LuaSpawnExt};
 use tokio::sync::watch::channel;
 
-use crate::{APP, ONLOAD_TX};
+use crate::{app::APP, ONLOAD_TX};
 
 pub const JS_IMPL: &str = include_str!(".js");
 
@@ -47,14 +47,14 @@ fn message_share(lua: &mlua::Lua, message: mlua::Value) -> Result<(), mlua::Erro
     let json = lune_std_serde::encode(message, lua, LUA_SERDE_CONFIG)?;
 
     APP.with_borrow(|app| {
-        if let Some(webview) = &app.webview {
-            let string_json = json.to_string_lossy();
-            let script = format!("window.luneweb.shareMessage({string_json})");
+        let Some(app) = app else {
+            return Err(mlua::Error::RuntimeError("App is none".into()));
+        };
 
-            webview.evaluate_script(&script).into_lua_err()
-        } else {
-            Err(mlua::Error::RuntimeError("WebView not available".into()))
-        }
+        let string_json = json.to_string_lossy();
+        let script = format!("window.luneweb.shareMessage({string_json})");
+
+        app.webview.evaluate_script(&script).into_lua_err()
     })
 }
 
@@ -67,22 +67,22 @@ async fn message_send<'lua>(
     let (tx, mut rx) = channel::<String>("null".into());
 
     APP.with_borrow(move |app| {
-        if let Some(webview) = &app.webview {
-            let string_json = json.to_string_lossy();
-            let string_channel_name = channel_name.to_string()?;
-            let script =
-                format!(r#"window.luneweb.sendMessage("{string_channel_name}", {string_json})"#);
+        let Some(app) = app else {
+            return Err(mlua::Error::RuntimeError("App is none".into()));
+        };
 
-            webview
-                .evaluate_script_with_callback(&script, move |received| {
-                    tx.send(received).unwrap();
-                })
-                .into_lua_err()?;
+        let string_json = json.to_string_lossy();
+        let string_channel_name = channel_name.to_string()?;
+        let script =
+            format!(r#"window.luneweb.sendMessage("{string_channel_name}", {string_json})"#);
 
-            Ok(())
-        } else {
-            Err(mlua::Error::RuntimeError("WebView not available".into()))
-        }
+        app.webview
+            .evaluate_script_with_callback(&script, move |received| {
+                tx.send(received).unwrap();
+            })
+            .into_lua_err()?;
+
+        Ok(())
     })?;
 
     let _ = rx.changed().await;
