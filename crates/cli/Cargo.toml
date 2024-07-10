@@ -9,22 +9,22 @@ path = "src/main.rs"
 
 [dependencies.lune-std]
 git = "https://github.com/LuneWeb/Lune"
-rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+rev = "94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 package = "lune-std"
 
 [dependencies.lune-std-serde]
 git = "https://github.com/LuneWeb/Lune"
-rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+rev = "94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 package = "lune-std-serde"
 
 [dependencies.lune-utils]
 git = "https://github.com/LuneWeb/Lune"
-rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+rev = "94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 package = "lune-utils"
 
 [dependencies.mlua-luau-scheduler]
 git = "https://github.com/LuneWeb/Lune"
-rev = "8c58dc4b09a3211dc9b880ddd0f335108cf0ff42"
+rev = "94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 package = "mlua-luau-scheduler"
 
 [dependencies]
