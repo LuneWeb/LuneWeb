@@ -1,5 +1,5 @@
 {
-  "name": "luneweb-types",
+  "name": "luneweb-api",
   "type": "module",
   "module": "out/index.js",
   "main": "out/index.js",
