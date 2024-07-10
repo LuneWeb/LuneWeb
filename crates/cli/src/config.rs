@@ -1,22 +1,36 @@
 use std::fs;
 use std::path::PathBuf;
 
-use serde::{Deserialize, Serialize};
+use luneweb_app::config::AppConfig;
+use serde::Deserialize;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LunewebConfigDev {
     pub url: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LunewebConfigApp {
     pub luau: Option<PathBuf>,
+    pub name: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LunewebConfig {
     pub dev: Option<LunewebConfigDev>,
     pub app: Option<LunewebConfigApp>,
+}
+
+impl From<LunewebConfig> for AppConfig {
+    fn from(val: LunewebConfig) -> Self {
+        AppConfig {
+            url: val
+                .dev
+                .and_then(|dev| dev.url)
+                .unwrap_or("http://localhost:5173/".into()),
+            window_title: val.app.and_then(|app| app.name).unwrap_or("LuneWeb".into()),
+        }
+    }
 }
 
 impl From<PathBuf> for LunewebConfig {

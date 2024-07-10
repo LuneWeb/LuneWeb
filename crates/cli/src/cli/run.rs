@@ -1,7 +1,7 @@
 use std::{path::PathBuf, rc::Rc};
 
 use lune_std::context::GlobalsContextBuilder;
-use luneweb_app::{config::AppConfig, App};
+use luneweb_app::App;
 use mlua_luau_scheduler::Scheduler;
 use tokio::fs;
 
@@ -13,28 +13,8 @@ pub async fn run(dir: Option<PathBuf>) {
     let cwd = set_cwd(dir);
     let config = LunewebConfig::from(cwd.clone());
 
-    let config_dev = config.dev.unwrap_or(crate::config::LunewebConfigDev {
-        url: Some("http://localhost:5173/".into()),
-    });
-
-    let title = match cwd.file_stem() {
-        Some(stem) => stem.to_string_lossy(),
-        None => "LuneWeb".into(),
-    };
-
-    let app_dev = config
-        .app
-        .unwrap_or(crate::config::LunewebConfigApp { luau: None });
-
     let lua = mlua::Lua::new();
-    let app = App::new(AppConfig {
-        window_title: title.to_string(),
-        url: config_dev
-            .url
-            .clone()
-            .expect("Expected url from luneweb.toml"),
-    })
-    .expect("Failed to create app");
+    let app = App::new(config.clone().into()).expect("Failed to create app");
 
     app.into_global(&lua)
         .expect("Failed to inject app into lua globals");
@@ -60,7 +40,7 @@ pub async fn run(dir: Option<PathBuf>) {
     };
     let scheduler = Scheduler::new(&lua);
 
-    if let Some(luau_path) = &app_dev.luau {
+    if let Some(luau_path) = &config.app.and_then(|app| app.luau) {
         let luau_code = {
             let bytes_content = fs::read(luau_path).await.unwrap();
             let content = String::from_utf8(bytes_content).unwrap();
