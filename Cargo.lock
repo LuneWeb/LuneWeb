@@ -2077,7 +2077,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb"
-version = "0.3.0"
+version = "0.3.0-pre1"
 dependencies = [
  "clap",
  "homedir",
