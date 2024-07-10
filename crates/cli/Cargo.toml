@@ -1,6 +1,6 @@
 [package]
 name = "luneweb"
-version = "0.3.0-pre1"
+version = "0.3.0-pre2"
 edition = "2021"
 
 [[bin]]
@@ -34,13 +34,12 @@ mlua = { version = "0.9.9", features = ["luau", "async"] }
 tokio = { version = "1.38.0", features = ["full"] }
 wry = "0.41.0"
 tao = "0.28.1"
-thread_local = "1.1.8"
 
 clap = { version = "4.5.8", features = ["derive"] }
 serde = { version = "1.0.203", features = ["derive"] }
 toml = "0.8.14"
-include_dir = "0.7.4"
-homedir = "0.3.3"
+directories = "5.0"
+once_cell = "1.19.0"
 
 # lune-utils = "0.1.0"
 # lune-std-serde = "0.1.0"
