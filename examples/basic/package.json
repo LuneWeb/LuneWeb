@@ -1,0 +1,17 @@
+{
+  "name": "basic",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently --kill-others \"vite\" \"yarn luneweb\"",
+    "build": "vite build",
+    "luneweb": "cargo run --manifest-path ../../Cargo.toml -- run"
+  },
+  "dependencies": {
+    "lunweb": "file:../../js/"
+  },
+  "devDependencies": {
+    "concurrently": "8.2.2",
+    "vite": "^5.3.3"
+  }
+}

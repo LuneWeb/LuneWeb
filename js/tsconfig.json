@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["globals.d.ts"],
+    "outDir": "out/",
+    "declaration": true,
+    "module": "ES2022"
+  }
+}
