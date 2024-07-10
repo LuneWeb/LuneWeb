@@ -40,16 +40,19 @@ pub async fn run(dir: Option<PathBuf>) {
     };
     let scheduler = Scheduler::new(&lua);
 
-    if let Some(luau_path) = &config.app.and_then(|app| app.luau) {
-        let luau_code = {
-            let bytes_content = fs::read(luau_path).await.unwrap();
-            let content = String::from_utf8(bytes_content).unwrap();
+    let luau_code = {
+        let bytes_content = fs::read(&config.app.luau)
+            .await
+            .expect("Failed to read luau file");
+        let content = String::from_utf8(bytes_content).expect("String::from_utf8 failed");
 
-            lua.load(content).set_name(luau_path.to_string_lossy())
-        };
+        lua.load(content)
+            .set_name(config.app.luau.to_string_lossy())
+    };
 
-        scheduler.push_thread_back(luau_code, ()).unwrap();
-    }
+    scheduler
+        .push_thread_back(luau_code, ())
+        .expect("Failed to push luau thread back");
 
     scheduler.run().await;
 }

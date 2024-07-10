@@ -11,14 +11,14 @@ pub struct LunewebConfigDev {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct LunewebConfigApp {
-    pub luau: Option<PathBuf>,
     pub name: Option<String>,
+    pub luau: PathBuf,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct LunewebConfig {
     pub dev: Option<LunewebConfigDev>,
-    pub app: Option<LunewebConfigApp>,
+    pub app: LunewebConfigApp,
 }
 
 impl From<LunewebConfig> for AppConfig {
@@ -28,7 +28,7 @@ impl From<LunewebConfig> for AppConfig {
                 .dev
                 .and_then(|dev| dev.url)
                 .unwrap_or("http://localhost:5173/".into()),
-            window_title: val.app.and_then(|app| app.name).unwrap_or("LuneWeb".into()),
+            window_title: val.app.name.unwrap_or("LuneWeb".into()),
         }
     }
 }
@@ -39,9 +39,6 @@ impl From<PathBuf> for LunewebConfig {
         let bytes_content =
             fs::read(&path).unwrap_or_else(|_| panic!("luneweb.toml doesn't exist at '{path:?}'"));
         let content = String::from_utf8(bytes_content).unwrap();
-        toml::from_str(&content).unwrap_or(Self {
-            dev: None,
-            app: None,
-        })
+        toml::from_str(&content).unwrap_or_else(|err| panic!("Failed to parse luneweb.toml\n{err}"))
     }
 }
