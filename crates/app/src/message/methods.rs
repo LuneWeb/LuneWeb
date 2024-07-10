@@ -57,7 +57,7 @@ pub fn implement_lua_methods<'lua, M: mlua::UserDataMethods<'lua, App>>(methods:
             let _ = rx.changed().await;
             let received = rx.borrow_and_update();
 
-            serde::json_to_lua(received.to_string(), lua)
+            serde::json_to_lua(received.to_string(), lua).or(Ok(mlua::Value::Nil))
         },
     );
 }
