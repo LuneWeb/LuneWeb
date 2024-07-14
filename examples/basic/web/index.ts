@@ -1,4 +1,4 @@
-import { message } from "lunweb";
+import { message } from "luneweb-api";
 import { log } from "./log";
 
 message.listen((message) => {
