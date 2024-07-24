@@ -2,6 +2,10 @@
 
 LuneWeb is a tool for creating cross-platform desktop applications using Luau and Typescript/Javascript, LuneWeb uses [TauriApps](https://github.com/tauri-apps) to create webviews, [Lune](https://github.com/lune-org/lune) for its utilities, luau libraries and luau scheduler, and [mlua](https://github.com/mlua-rs/mlua) for embedding luau
 
+## Unstable API
+
+LuneWeb will be getting major updates frequently until the API is flexible and enjoyable enough to be used in serious projects
+
 ---
 
 ## Platform-specific dependencies
