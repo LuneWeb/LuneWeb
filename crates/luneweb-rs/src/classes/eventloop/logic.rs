@@ -9,6 +9,9 @@ use tao::{
 
 use super::EventLoop;
 
+/// NOTE: increase the duration if the application crashes regularly
+const INTERVAL: Duration = Duration::from_millis(6);
+
 pub enum EventLoopAction {
     CloseRequested(WindowId),
     RedrawRequest(WindowId),
@@ -16,23 +19,33 @@ pub enum EventLoopAction {
 }
 
 pub async fn lua_run(lua: &mlua::Lua, _: ()) -> mlua::Result<()> {
-    let can_exit = false;
+    let mut interval = tokio::time::interval(INTERVAL);
 
     loop {
-        tokio::time::sleep(Duration::from_millis(16)).await;
-
         let Some(mut event_loop) = lua.app_data_mut::<EventLoop>() else {
             continue;
         };
 
         event_loop.once();
 
-        if can_exit {
+        if !event_loop.windows.is_empty()
+            && event_loop
+                .windows
+                .iter()
+                .all(|window| !window.inner.is_visible())
+        {
+            // All windows are closed
+            event_loop.once();
             break;
         }
+
+        // drop mutable reference before using await
+        drop(event_loop);
+
+        interval.tick().await;
     }
 
-    Ok(())
+    std::process::exit(0)
 }
 
 impl EventLoop {
@@ -84,17 +97,6 @@ impl EventLoop {
         let action = self.await_action();
 
         self.take_action(&action);
-
-        if self.windows.is_empty() {
-            // dont do any checks when there
-            // arent any windows created yet
-            return;
-        }
-
-        if self.windows.iter().all(|window| !window.inner.is_visible()) {
-            // All windows are closed
-            std::process::exit(0)
-        }
     }
 }
 

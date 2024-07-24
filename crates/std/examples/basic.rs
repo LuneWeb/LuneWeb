@@ -1,5 +1,4 @@
 use luneweb_rs::classes::eventloop::EventLoop;
-use luneweb_std::StandardLibrary;
 use mlua_luau_scheduler::Scheduler;
 
 const SCRIPT: &str = include_str!("init.luau");
