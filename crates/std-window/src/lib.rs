@@ -1,6 +1,11 @@
-use luneweb_rs::classes::{eventloop::EventLoop, window::Window};
+use std::rc::Rc;
+
+use luneweb_rs::classes::window::Window;
+use message::LuaMessage;
 use mlua::{ExternalResult, IntoLua};
 use tao::window::WindowId;
+
+pub mod message;
 
 /**
 
@@ -12,12 +17,15 @@ use tao::window::WindowId;
 
 ```rust
 //                        &Lua, WindowId
-inner_window(let window << lua, this.id)
+inner_window(let window << lua, id)
 ```
 
  */
+#[macro_export]
 macro_rules! inner_window {
     (let $var:ident << $lua:expr, $id:expr) => {
+        use luneweb_rs::classes::eventloop::EventLoop;
+
         let event_loop = $lua
             .app_data_ref::<EventLoop>()
             .expect("Coulnd't get reference to EventLoop");
@@ -29,7 +37,8 @@ macro_rules! inner_window {
 }
 
 pub struct LuaWindow {
-    id: WindowId,
+    pub(crate) id: WindowId,
+    pub message: Rc<LuaMessage>,
 }
 
 impl LuaWindow {
@@ -44,12 +53,18 @@ impl LuaWindow {
 
         window.finalize(lua).into_lua_err()?;
 
-        Self { id }.into_lua(lua)
+        Self {
+            id,
+            message: Rc::new(LuaMessage { id }),
+        }
+        .into_lua(lua)
     }
 }
 
 impl mlua::UserData for LuaWindow {
     fn add_fields<'lua, F: mlua::UserDataFields<'lua, Self>>(fields: &mut F) {
+        fields.add_field_method_get("message", |_, this| Ok(Rc::clone(&this.message)));
+
         fields.add_field_method_get("title", |lua, this| {
             inner_window!(let window << lua, this.id);
 

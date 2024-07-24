@@ -8,4 +8,6 @@ while true do
 	task.wait(1)
 	window1.title = "World"
 	window2.title = "Hello"
+
+	window1.message:eval("console.log('Loop Finished')")
 end

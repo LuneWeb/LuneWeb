@@ -2,6 +2,8 @@
   "rust-analyzer.check.command": "clippy",
   "luau-lsp.platform.type": "standard",
   "luau-lsp.require.mode": "relativeToFile",
+  "luau.trace.server": "verbose",
+  "luau-lsp.sourcemap.enabled": false,
   "luau-lsp.types.definitionFiles": ["./globals.d.luau"],
   "luau-lsp.require.directoryAliases": {
     "@lune/": "~/.lune/.typedefs/0.8.6/"
