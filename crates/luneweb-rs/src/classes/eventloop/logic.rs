@@ -10,7 +10,7 @@ use tao::{
 use super::EventLoop;
 
 /// NOTE: increase the duration if the application crashes regularly
-const INTERVAL: Duration = Duration::from_millis(6);
+const INTERVAL: Duration = Duration::from_millis(4);
 
 pub enum EventLoopAction {
     CloseRequested(WindowId),
@@ -19,8 +19,6 @@ pub enum EventLoopAction {
 }
 
 pub async fn lua_run(lua: &mlua::Lua, _: ()) -> mlua::Result<()> {
-    let mut interval = tokio::time::interval(INTERVAL);
-
     loop {
         let Some(mut event_loop) = lua.app_data_mut::<EventLoop>() else {
             continue;
@@ -42,7 +40,7 @@ pub async fn lua_run(lua: &mlua::Lua, _: ()) -> mlua::Result<()> {
         // drop mutable reference before using await
         drop(event_loop);
 
-        interval.tick().await;
+        tokio::time::sleep(INTERVAL).await;
     }
 
     std::process::exit(0)
@@ -53,6 +51,10 @@ impl EventLoop {
         let mut action = EventLoopAction::None;
 
         self.inner.run_return(|event, _target, control_flow| {
+            if can_exit(&event) {
+                *control_flow = ControlFlow::Exit;
+            }
+
             match event {
                 Event::WindowEvent {
                     window_id,
@@ -66,10 +68,6 @@ impl EventLoop {
 
                 _ => {}
             };
-
-            if can_exit(event) {
-                *control_flow = ControlFlow::Exit;
-            }
         });
 
         action
@@ -100,7 +98,7 @@ impl EventLoop {
     }
 }
 
-fn can_exit(event: Event<()>) -> bool {
+fn can_exit(event: &Event<()>) -> bool {
     matches!(
         event,
         tao::event::Event::MainEventsCleared
