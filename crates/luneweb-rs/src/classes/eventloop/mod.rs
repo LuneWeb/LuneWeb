@@ -8,6 +8,7 @@ use tao::{
 use super::window::Window;
 
 mod logic;
+mod lua;
 
 pub struct EventLoop {
     pub(super) inner: _EventLoop<()>,
@@ -32,7 +33,7 @@ impl EventLoop {
     }
 
     fn lua_function<'lua>(&'lua self, lua: &'lua mlua::Lua) -> mlua::Value {
-        let wrapped = mlua::Function::wrap_async(logic::lua_run);
+        let wrapped = mlua::Function::wrap_async(lua::lua_run);
 
         wrapped
             .into_lua(lua)
