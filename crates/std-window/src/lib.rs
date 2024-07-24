@@ -1,5 +1,5 @@
 use luneweb_rs::classes::{eventloop::EventLoop, window::Window};
-use mlua::IntoLua;
+use mlua::{ExternalResult, IntoLua};
 use tao::window::WindowId;
 
 /**
@@ -36,11 +36,13 @@ impl LuaWindow {
     #[allow(clippy::new_ret_no_self)]
     pub fn new(lua: &mlua::Lua, title: String) -> mlua::Result<mlua::Value> {
         let window = Window::new(lua)
+            .into_lua_err()?
             .with_title(&title)
-            .with_webview(|x| x.with_url("https://luneweb.github.io/docs/"));
+            .with_webview(|x| x.with_url("https://luneweb.github.io/docs/"))
+            .into_lua_err()?;
         let id = window.inner.id();
 
-        window.finalize(lua);
+        window.finalize(lua).into_lua_err()?;
 
         Self { id }.into_lua(lua)
     }

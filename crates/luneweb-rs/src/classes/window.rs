@@ -20,22 +20,28 @@ impl Window {
         _WindowBuilder::new()
     }
 
-    pub fn new(lua: &mlua::Lua) -> Self {
-        let target = lua
-            .app_data_ref::<EventLoop>()
-            .expect("Couldn't find reference to EventLoop, make sure to finalize EventLoop before attempting to create a Window");
+    pub fn new(lua: &mlua::Lua) -> Result<Self, String> {
+        let Some(target) = lua.app_data_ref::<EventLoop>() else {
+            return Err("Couldn't find reference to EventLoop, make sure to finalize EventLoop before attempting to create a Window".into());
+        };
 
-        Self {
-            inner: Self::platform_specific()
-                .build(&target.inner)
-                .expect("Failed to create Window"),
+        let window = match Self::platform_specific().build(&target.inner) {
+            Ok(window) => window,
+            Err(err) => return Err(format!("Failed to create Window\nError: {err}")),
+        };
+
+        Ok(Self {
+            inner: window,
             webview: None,
-        }
+        })
     }
 
-    pub fn with_webview(mut self, webview_builder: fn(WebView) -> WebView) -> Self {
-        self.webview = Some(webview_builder(WebView::new(&self)));
-        self
+    pub fn with_webview(
+        mut self,
+        webview_builder: fn(WebView) -> Result<WebView, String>,
+    ) -> Result<Self, String> {
+        self.webview = Some(webview_builder(WebView::new(&self)?)?);
+        Ok(self)
     }
 
     pub fn with_title(self, title: &str) -> Self {
@@ -43,11 +49,13 @@ impl Window {
         self
     }
 
-    pub fn finalize(self, lua: &Lua) {
-        let mut target = lua
-            .app_data_mut::<EventLoop>()
-            .expect("Couldn't find reference to EventLoop, make sure to finalize EventLoop before attempting to create a Window");
+    pub fn finalize(self, lua: &Lua) -> Result<(), String> {
+        let Some(mut target) = lua.app_data_mut::<EventLoop>() else {
+            return Err("Couldn't find reference to EventLoop, make sure to finalize EventLoop before attempting to create a Window".into());
+        };
 
-        target.windows.push(self)
+        target.windows.push(self);
+
+        Ok(())
     }
 }

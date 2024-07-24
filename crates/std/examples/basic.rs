@@ -16,8 +16,7 @@ async fn main() -> mlua::Result<()> {
 
     let chunk = lua.load(SCRIPT).set_compiler(compiler);
 
-    globals.set("WindowBuilder", StandardLibrary::Window.into_lua(&lua)?)?;
-    globals.set("task", lune_std_task::module(&lua)?)?;
+    luneweb_std::inject_globals(&lua, &globals)?;
 
     EventLoop::new().finalize(&lua, &scheduler);
 

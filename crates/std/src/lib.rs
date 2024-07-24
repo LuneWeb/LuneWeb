@@ -23,3 +23,11 @@ impl StandardLibrary {
         Ok(table)
     }
 }
+
+/// Make sure to call this after Scheduler is created
+pub fn inject_globals(lua: &mlua::Lua, table: &mlua::Table) -> mlua::Result<()> {
+    table.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
+    table.set("task", lune_std_task::module(lua)?)?;
+
+    Ok(())
+}

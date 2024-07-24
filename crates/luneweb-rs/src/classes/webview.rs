@@ -21,18 +21,20 @@ impl WebView {
         }
     }
 
-    pub fn new(target: &Window) -> Self {
-        Self {
-            inner: Self::platform_specific(target)
-                .build()
-                .expect("Failed to create WebView"),
-        }
+    pub fn new(target: &Window) -> Result<Self, String> {
+        let webview = match Self::platform_specific(target).build() {
+            Ok(webview) => webview,
+            Err(err) => return Err(format!("Failed to create WebView\nError: {err}")),
+        };
+
+        Ok(Self { inner: webview })
     }
 
-    pub fn with_url(self, url: &str) -> Self {
-        self.inner
-            .load_url(url)
-            .unwrap_or_else(|err| panic!("Failed to load url '{url}'\n{err}"));
-        self
+    pub fn with_url(self, url: &str) -> Result<Self, String> {
+        if let Err(err) = self.inner.load_url(url) {
+            return Err(format!("Failed to load url '{url}'\n{err}"));
+        }
+
+        Ok(self)
     }
 }
