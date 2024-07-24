@@ -9,13 +9,24 @@ pub struct Window {
 }
 
 impl Window {
+    fn platform_specific() -> _WindowBuilder {
+        #[cfg(target_os = "linux")]
+        {
+            use tao::platform::unix::WindowBuilderExtUnix;
+            _WindowBuilder::new().with_default_vbox(false)
+        }
+
+        #[cfg(not(target_os = "linux"))]
+        _WindowBuilder::new()
+    }
+
     pub fn new(lua: &mlua::Lua) -> Self {
         let target = lua
             .app_data_ref::<EventLoop>()
             .expect("Couldn't find reference to EventLoop, make sure to finalize EventLoop before attempting to create a Window");
 
         Self {
-            inner: _WindowBuilder::new()
+            inner: Self::platform_specific()
                 .build(&target.inner)
                 .expect("Failed to create Window"),
             webview: None,
