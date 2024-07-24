@@ -7,8 +7,6 @@ use tao::{
     window::WindowId,
 };
 
-use crate::classes::window::Window;
-
 use super::EventLoop;
 
 pub enum EventLoopAction {
@@ -86,12 +84,17 @@ impl EventLoop {
         let action = self.await_action();
 
         self.take_action(&action);
-    }
 
-    fn get_window(&self, window_id: WindowId) -> Option<&Window> {
-        self.windows
-            .iter()
-            .find(|window| window.inner.id() == window_id)
+        if self.windows.is_empty() {
+            // dont do any checks when there
+            // arent any windows created yet
+            return;
+        }
+
+        if self.windows.iter().all(|window| !window.inner.is_visible()) {
+            // All windows are closed
+            std::process::exit(0)
+        }
     }
 }
 

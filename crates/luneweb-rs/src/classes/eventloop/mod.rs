@@ -1,6 +1,9 @@
 use mlua::IntoLua;
 use mlua_luau_scheduler::Scheduler;
-use tao::event_loop::{EventLoop as _EventLoop, EventLoopBuilder as _EventLoopBuilder};
+use tao::{
+    event_loop::{EventLoop as _EventLoop, EventLoopBuilder as _EventLoopBuilder},
+    window::WindowId,
+};
 
 use super::window::Window;
 
@@ -34,5 +37,11 @@ impl EventLoop {
         wrapped
             .into_lua(lua)
             .expect("Failed to wrapped Rust function into Lua value")
+    }
+
+    pub fn get_window(&self, window_id: WindowId) -> Option<&Window> {
+        self.windows
+            .iter()
+            .find(|window| window.inner.id() == window_id)
     }
 }

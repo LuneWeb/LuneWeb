@@ -1,11 +1,22 @@
-declare class App
-  function onLoad(self, message: any): ()
-
-  function shareMessage(self, message: any): ()
-  function sendMessage(self, channel: string, message: any): any
-
-  function exit(self, exitCode: number): ()
-  function run(self): ()
+declare class Task
+  cancel: (thread: thread): (),
+  defer: <T...>(functionOrThread: thread | (T...) -> ...any, ...: T...): thread,
+  delay: <T...>(
+    duration: number,
+    functionOrThread: thread | (T...) -> ...any,
+    ...: T...
+  ): thread,
+  spawn: <T...>(functionOrThread: thread | (T...) -> ...any, ...: T...): thread,
+  wait: (duration: number?): number,
 end
 
-declare app: App
+declare class Window
+  visible: boolean
+  title: string
+end
+
+declare WindowBuilder: {
+  new: (title: string) -> Window,
+}
+
+declare task: Task

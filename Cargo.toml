@@ -1,4 +1,9 @@
 [workspace]
 default-members = ["crates/cli"]
-members = ["crates/app", "crates/cli", "crates/luneweb-rs"]
+members = [
+    "crates/app",
+    "crates/cli",
+    "crates/luneweb-rs",
+    "crates/luneweb-std",
+]
 resolver = "2"

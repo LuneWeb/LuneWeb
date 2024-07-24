@@ -33,8 +33,8 @@ impl Window {
         }
     }
 
-    pub fn with_webview(mut self) -> Self {
-        self.webview = Some(WebView::new(&self));
+    pub fn with_webview(mut self, webview_builder: fn(WebView) -> WebView) -> Self {
+        self.webview = Some(webview_builder(WebView::new(&self)));
         self
     }
 

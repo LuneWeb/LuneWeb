@@ -28,4 +28,11 @@ impl WebView {
                 .expect("Failed to create WebView"),
         }
     }
+
+    pub fn with_url(self, url: &str) -> Self {
+        self.inner
+            .load_url(url)
+            .unwrap_or_else(|err| panic!("Failed to load url '{url}'\n{err}"));
+        self
+    }
 }
