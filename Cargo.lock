@@ -2121,10 +2121,19 @@ version = "0.1.0"
 dependencies = [
  "lune-std-task 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "luneweb-rs",
+ "luneweb-std-window",
  "mlua",
  "mlua-luau-scheduler 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "tao",
  "tokio",
+]
+
+[[package]]
+name = "luneweb-std-window"
+version = "0.1.0"
+dependencies = [
+ "luneweb-rs",
+ "mlua",
+ "tao",
 ]
 
 [[package]]

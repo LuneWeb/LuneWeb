@@ -1,0 +1,9 @@
+[package]
+name = "luneweb-std-window"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+luneweb-rs = { version = "0.1.0", path = "../luneweb-rs" }
+mlua = { version = "0.9.9", features = ["luau", "async"] }
+tao = "0.28.1"

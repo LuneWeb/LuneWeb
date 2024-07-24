@@ -1,6 +1,4 @@
-use window::LuaWindow;
-
-pub mod window;
+use luneweb_std_window::LuaWindow;
 
 pub enum StandardLibrary {
     Window,

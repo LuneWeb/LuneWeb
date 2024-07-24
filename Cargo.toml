@@ -4,6 +4,7 @@ members = [
     "crates/app",
     "crates/cli",
     "crates/luneweb-rs",
-    "crates/luneweb-std",
+    "crates/std",
+    "crates/std-window",
 ]
 resolver = "2"
