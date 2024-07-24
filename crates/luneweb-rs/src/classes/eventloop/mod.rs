@@ -20,10 +20,7 @@ impl EventLoop {
         }
     }
 
-    pub fn finalize(self, lua: &mlua::Lua) {
-        let scheduler = lua.app_data_ref::<Scheduler>()
-            .expect("Couldn't find reference to Scheduler, make sure to create and run an scheduler before finalizing EventLoop");
-
+    pub fn finalize(self, lua: &mlua::Lua, scheduler: &Scheduler) {
         scheduler
             .push_thread_front(self.lua_function(lua).as_function().unwrap(), ())
             .expect("Failed to push EventLoop thread into Scheduler");
