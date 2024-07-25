@@ -15,5 +15,5 @@ declare class Window
 end
 
 declare WindowBuilder: {
-  new: (title: string) -> Window,
+  new: (title: string, url: string) -> Window,
 }

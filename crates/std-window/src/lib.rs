@@ -47,11 +47,11 @@ pub struct LuaWindow {
 
 impl LuaWindow {
     #[allow(clippy::new_ret_no_self)]
-    pub fn new(lua: &mlua::Lua, title: String) -> mlua::Result<mlua::Value> {
+    pub fn new(lua: &mlua::Lua, (title, url): (String, String)) -> mlua::Result<mlua::Value> {
         let window = Window::new(lua)
             .into_lua_err()?
             .with_title(&title)
-            .with_webview(|x| x.with_url("https://luneweb.github.io/docs/"))
+            .with_webview(move |x| x.with_url(&url))
             .into_lua_err()?;
         let id = window.inner.id();
 
