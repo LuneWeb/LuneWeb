@@ -12,6 +12,7 @@ declare class Window
   webview: WebView
   visible: boolean
   title: string
+  url: string
 end
 
 declare WindowBuilder: {

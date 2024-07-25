@@ -1,6 +1,6 @@
 local task = require("@lune/task")
 
-local window = WindowBuilder.new("Window1")
+local window = WindowBuilder.new("Window1", "https://github.com/luneweb")
 local listen = window.message:listen()
 
 return {

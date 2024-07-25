@@ -23,4 +23,29 @@ impl mlua::UserData for LuaWebview {
             Ok(())
         });
     }
+
+    fn add_fields<'lua, F: mlua::UserDataFields<'lua, Self>>(fields: &mut F) {
+        fields.add_field_method_get("url", |lua, this| {
+            inner_window!(let window << lua, this.id);
+
+            let Some(webview) = &window.webview else {
+                return Err(mlua::Error::RuntimeError(
+                    "WebView is missing from Window".into(),
+                ));
+            };
+
+            webview.inner.url().into_lua_err()
+        });
+        fields.add_field_method_set("url", |lua, this, url: String| {
+            inner_window!(let window << lua, this.id);
+
+            let Some(webview) = &window.webview else {
+                return Err(mlua::Error::RuntimeError(
+                    "WebView is missing from Window".into(),
+                ));
+            };
+
+            webview.inner.load_url(&url).into_lua_err()
+        });
+    }
 }
