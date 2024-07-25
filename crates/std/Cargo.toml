@@ -5,8 +5,10 @@ edition = "2021"
 
 [dependencies]
 mlua-luau-scheduler = "0.0.2"
-lune-std-task = "0.1.1"
-lune-std-serde = "0.1.1"
+lune-std = { version = "0.1.1", default-features = false, features = [
+    "task",
+    "serde",
+] }
 luneweb-std-window = { version = "0.1.0", path = "../std-window" }
 luneweb-rs = { version = "0.1.0", path = "../rust" }
 tokio = { version = "1.38.0", features = ["full"] }

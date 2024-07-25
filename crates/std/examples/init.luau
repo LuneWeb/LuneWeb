@@ -1,16 +1,15 @@
-local window = WindowBuilder.new("Window1")
-local listener = window.message:listen()
+local app = require("./window")
 
 local function loaded()
-	window.webview:eval("console.log('Hello, World!')")
-	window.webview:eval([[
+	app.window.webview:eval("console.log('Hello, World!')")
+	app.window.webview:eval([[
 	window.luneweb.postMessage({
 		success: true
 	})
 	]])
 end
 
-task.spawn(listener, function(_message: string)
+app.listen(function(_message: string)
 	local message = serde.decode("json", _message)
 
 	if message == "loaded" then
