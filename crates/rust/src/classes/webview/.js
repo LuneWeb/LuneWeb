@@ -32,7 +32,7 @@ Object.defineProperty(window, "luneweb", {
       }
 
       if (window.luneweb.channels[channel]) {
-        window.luneweb.channels[channel](value);
+        window.luneweb.channels[channel](JSON.parse(value));
       } else {
         console.error(`Calling non-existent channel '${channel}'`);
       }

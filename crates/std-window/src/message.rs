@@ -3,7 +3,10 @@ use mlua_luau_scheduler::LuaSchedulerExt;
 use tao::window::WindowId;
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
-use crate::inner_window;
+use crate::{
+    inner_window,
+    serde::{json_to_lua, lua_to_json},
+};
 
 pub struct LuaMessage {
     pub(crate) id: WindowId,
@@ -33,7 +36,7 @@ impl mlua::UserData for LuaMessage {
 
                         loop {
                             if let Some(value) = stream.next().await {
-                                lua.push_thread_front(callback.clone(), value)?;
+                                lua.push_thread_front(callback.clone(), json_to_lua(value, lua))?;
                             }
                         }
 
@@ -43,16 +46,21 @@ impl mlua::UserData for LuaMessage {
             ))
         });
 
-        methods.add_method("send", |lua, this, (channel, message): (String, String)| {
-            inner_window!(let window << lua, this.id);
+        methods.add_method(
+            "send",
+            |lua, this, (channel, message): (String, mlua::Value)| {
+                inner_window!(let window << lua, this.id);
 
-            let Some(webview) = &window.webview else {
-                return Err(mlua::Error::RuntimeError(
-                    "WebView is missing from Window".into(),
-                ));
-            };
+                let Some(webview) = &window.webview else {
+                    return Err(mlua::Error::RuntimeError(
+                        "WebView is missing from Window".into(),
+                    ));
+                };
 
-            webview.call_js_channel(channel, message).into_lua_err()
-        });
+                let js_message = lua_to_json(message, lua)?.to_string_lossy().to_string();
+
+                webview.call_js_channel(channel, js_message).into_lua_err()
+            },
+        );
     }
 }

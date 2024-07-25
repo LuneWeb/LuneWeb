@@ -7,6 +7,7 @@ use tao::window::WindowId;
 use webview::LuaWebview;
 
 pub mod message;
+mod serde;
 pub mod webview;
 
 /**
