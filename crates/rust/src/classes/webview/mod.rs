@@ -23,7 +23,7 @@ impl WebView {
 
         #[cfg(not(target_os = "linux"))]
         {
-            _WebViewBuilder::new(target.inner)
+            _WebViewBuilder::new(&target.inner)
         }
     }
 
