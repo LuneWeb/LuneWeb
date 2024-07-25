@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+mlua-luau-scheduler = "0.0.2"
+tokio-stream = { version = "0.1.15", features = ["sync"] }
 luneweb-rs = { version = "0.1.0", path = "../rust" }
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 tao = "0.28.1"

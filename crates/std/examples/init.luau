@@ -1,23 +1,21 @@
-local window1 = WindowBuilder.new("Window1")
-local window2 = WindowBuilder.new("Window2")
+local window = WindowBuilder.new("Window1")
+local listener = window.message:listen()
 
-task.spawn(function()
-	while true do
-		task.wait(1)
-		window1.title = "Hello"
-		window2.title = "World"
-		task.wait(1)
-		window1.title = "World"
-		window2.title = "Hello"
+local function loaded()
+	window.webview:eval("console.log('Hello, World!')")
+	window.webview:eval([[
+	window.luneweb.postMessage({
+		success: true
+	})
+	]])
+end
 
-		window1.message:eval("console.log('Loop finished')")
-		window2.message:eval("console.log('Loop finished')")
+task.spawn(listener, function(_message: string)
+	local message = serde.decode("json", _message)
+
+	if message == "loaded" then
+		loaded()
+	elseif typeof(message) == "table" and message.success then
+		print("Success")
 	end
 end)
-
-task.wait(10)
-
-window1.visible = false
-window2.visible = false
-
--- app exits once all windows are invisible

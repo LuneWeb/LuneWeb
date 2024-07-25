@@ -4,8 +4,10 @@ use luneweb_rs::classes::window::Window;
 use message::LuaMessage;
 use mlua::{ExternalResult, IntoLua};
 use tao::window::WindowId;
+use webview::LuaWebview;
 
 pub mod message;
+pub mod webview;
 
 /**
 
@@ -39,6 +41,7 @@ macro_rules! inner_window {
 pub struct LuaWindow {
     pub(crate) id: WindowId,
     pub message: Rc<LuaMessage>,
+    pub webview: Rc<LuaWebview>,
 }
 
 impl LuaWindow {
@@ -56,6 +59,7 @@ impl LuaWindow {
         Self {
             id,
             message: Rc::new(LuaMessage { id }),
+            webview: Rc::new(LuaWebview { id }),
         }
         .into_lua(lua)
     }
@@ -64,6 +68,7 @@ impl LuaWindow {
 impl mlua::UserData for LuaWindow {
     fn add_fields<'lua, F: mlua::UserDataFields<'lua, Self>>(fields: &mut F) {
         fields.add_field_method_get("message", |_, this| Ok(Rc::clone(&this.message)));
+        fields.add_field_method_get("webview", |_, this| Ok(Rc::clone(&this.webview)));
 
         fields.add_field_method_get("title", |lua, this| {
             inner_window!(let window << lua, this.id);

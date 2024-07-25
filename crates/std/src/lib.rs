@@ -28,6 +28,7 @@ impl StandardLibrary {
 pub fn inject_globals(lua: &mlua::Lua, table: &mlua::Table) -> mlua::Result<()> {
     table.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
     table.set("task", lune_std_task::module(lua)?)?;
+    table.set("serde", lune_std_serde::module(lua)?)?;
 
     Ok(())
 }
