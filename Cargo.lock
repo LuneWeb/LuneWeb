@@ -1852,6 +1852,25 @@ dependencies = [
 [[package]]
 name = "lune-roblox"
 version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1906e4321a20f64b3c3479e44d23fe918193399c2a303b3cda2ea11ba3c54309"
+dependencies = [
+ "glam",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "once_cell",
+ "rand 0.8.5",
+ "rbx_binary",
+ "rbx_dom_weak",
+ "rbx_reflection",
+ "rbx_reflection_database",
+ "rbx_xml",
+ "thiserror",
+]
+
+[[package]]
+name = "lune-roblox"
+version = "0.1.2"
 source = "git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd#94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 dependencies = [
  "glam",
@@ -1873,7 +1892,15 @@ version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "737595ca3c532f248a29af3f268ca0ce281bf269d9e1fa86efce338617e591ce"
 dependencies = [
+ "lune-std-datetime 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-fs 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-luau 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-net 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-process 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-regex 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-roblox 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lune-std-serde 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-std-stdio 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lune-std-task 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "mlua",
@@ -1888,15 +1915,15 @@ name = "lune-std"
 version = "0.1.3"
 source = "git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd#94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 dependencies = [
- "lune-std-datetime",
- "lune-std-fs",
- "lune-std-luau",
- "lune-std-net",
- "lune-std-process",
- "lune-std-regex",
- "lune-std-roblox",
+ "lune-std-datetime 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
+ "lune-std-fs 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
+ "lune-std-luau 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
+ "lune-std-net 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
+ "lune-std-process 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
+ "lune-std-regex 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
+ "lune-std-roblox 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "lune-std-serde 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
- "lune-std-stdio",
+ "lune-std-stdio 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "lune-std-task 0.1.1 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "lune-utils 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "mlua",
@@ -1904,6 +1931,19 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "lune-std-datetime"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d2e9989aeac72f5713ef02a2bd143ec7e79eef0e3bcacfa006aea9962e31d955"
+dependencies = [
+ "chrono",
+ "chrono_lc",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "thiserror",
 ]
 
 [[package]]
@@ -1921,13 +1961,36 @@ dependencies = [
 [[package]]
 name = "lune-std-fs"
 version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "007a01b061903333af814088624fb5c6c2f325d52090e0ac5e5932ef9970c835"
+dependencies = [
+ "bstr",
+ "lune-std-datetime 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "tokio",
+]
+
+[[package]]
+name = "lune-std-fs"
+version = "0.1.1"
 source = "git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd#94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 dependencies = [
  "bstr",
- "lune-std-datetime",
+ "lune-std-datetime 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "lune-utils 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "mlua",
  "tokio",
+]
+
+[[package]]
+name = "lune-std-luau"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fce60ab25dbd5291544a5c6e2bf3137bae5179d5cea84d0ed8ea821a138b3420"
+dependencies = [
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
 ]
 
 [[package]]
@@ -1937,6 +2000,29 @@ source = "git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b
 dependencies = [
  "lune-utils 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "mlua",
+]
+
+[[package]]
+name = "lune-std-net"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d746b7ed2b5818efc78b13374da312d71eff915d378d19aecd0482347aa5372f"
+dependencies = [
+ "bstr",
+ "futures-util",
+ "http 1.1.0",
+ "http-body-util",
+ "hyper 1.4.1",
+ "hyper-tungstenite",
+ "hyper-util",
+ "lune-std-serde 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "mlua-luau-scheduler 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "reqwest",
+ "tokio",
+ "tokio-tungstenite",
+ "urlencoding",
 ]
 
 [[package]]
@@ -1964,6 +2050,21 @@ dependencies = [
 [[package]]
 name = "lune-std-process"
 version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f905b423c1190dc0ac18de6123893244e9b7815fa1bacd33b1c7f2c1dca86a1"
+dependencies = [
+ "directories",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "mlua-luau-scheduler 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "os_str_bytes",
+ "pin-project",
+ "tokio",
+]
+
+[[package]]
+name = "lune-std-process"
+version = "0.1.2"
 source = "git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd#94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 dependencies = [
  "directories",
@@ -1973,6 +2074,18 @@ dependencies = [
  "os_str_bytes",
  "pin-project",
  "tokio",
+]
+
+[[package]]
+name = "lune-std-regex"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "832721b970112a4e9288f03fb0b3c0e1623e6a784cadb45d0d65339ba14dae1a"
+dependencies = [
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "regex",
+ "self_cell",
 ]
 
 [[package]]
@@ -1989,9 +2102,23 @@ dependencies = [
 [[package]]
 name = "lune-std-roblox"
 version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af0566a7a853e459c1b0c34653fcbc70e89f07fbaa777c4e26af996ba5e5533d"
+dependencies = [
+ "lune-roblox 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "mlua-luau-scheduler 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "once_cell",
+ "rbx_cookie",
+]
+
+[[package]]
+name = "lune-std-roblox"
+version = "0.1.2"
 source = "git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd#94dc83f19c3ea8bc072898f39dfb9b3a90e77abd"
 dependencies = [
- "lune-roblox",
+ "lune-roblox 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "lune-utils 0.1.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
  "mlua",
  "mlua-luau-scheduler 0.0.2 (git+https://github.com/LuneWeb/Lune?rev=94dc83f19c3ea8bc072898f39dfb9b3a90e77abd)",
@@ -2046,6 +2173,19 @@ dependencies = [
  "sha3",
  "tokio",
  "toml",
+]
+
+[[package]]
+name = "lune-std-stdio"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ad17542a8865b91e9c34466c56ed7c29628f321b567c737acf430d44f2dc0b4"
+dependencies = [
+ "dialoguer",
+ "lune-utils 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mlua",
+ "mlua-luau-scheduler 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tokio",
 ]
 
 [[package]]
@@ -2172,6 +2312,7 @@ dependencies = [
 name = "luneweb-std-window"
 version = "0.1.0"
 dependencies = [
+ "lune-std-serde 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "luneweb-rs",
  "mlua",
  "mlua-luau-scheduler 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",

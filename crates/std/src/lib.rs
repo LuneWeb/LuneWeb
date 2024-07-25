@@ -25,28 +25,10 @@ impl StandardLibrary {
 }
 
 /// Make sure to call this after Scheduler is created
-pub fn inject_globals(lua: &mlua::Lua, sandbox: bool) -> mlua::Result<()> {
+pub fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
     let globals = lua.globals();
 
     globals.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
-
-    for lib in lune_std::LuneStandardLibrary::ALL {
-        let module = lib.module(lua)?;
-        globals.set(lib.name(), &module[0])?;
-    }
-
-    for lib in lune_std::LuneStandardGlobal::ALL {
-        globals.set(lib.name(), lib.create(lua)?)?;
-    }
-
-    if sandbox {
-        lua.sandbox(true)?;
-
-        lua.globals().set(
-            lune_std::LuneStandardGlobal::GTable.name(),
-            lune_std::LuneStandardGlobal::GTable.create(lua)?,
-        )?;
-    }
 
     Ok(())
 }
