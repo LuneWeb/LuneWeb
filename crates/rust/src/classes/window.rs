@@ -36,9 +36,9 @@ impl Window {
         })
     }
 
-    pub fn with_webview(
+    pub fn with_webview<T: Fn(WebView) -> Result<WebView, String>>(
         mut self,
-        webview_builder: fn(WebView) -> Result<WebView, String>,
+        webview_builder: T,
     ) -> Result<Self, String> {
         self.webview = Some(webview_builder(WebView::new(&self)?)?);
         Ok(self)
