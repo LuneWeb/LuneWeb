@@ -4,6 +4,8 @@ local listen = window.message:listen()
 return {
 	window = window,
 	listen = function(callback)
-		task.spawn(listen, callback)
+		task.spawn(listen, function(message: string)
+			callback(serde.decode("json", message))
+		end)
 	end,
 }

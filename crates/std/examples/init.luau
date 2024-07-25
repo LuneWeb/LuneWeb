@@ -9,9 +9,7 @@ local function loaded()
 	]])
 end
 
-app.listen(function(_message: string)
-	local message = serde.decode("json", _message)
-
+app.listen(function(message)
 	if message == "loaded" then
 		loaded()
 	elseif typeof(message) == "table" and message.success then
