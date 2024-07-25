@@ -1,6 +1,0 @@
-[dev]
-url = "http://localhost:5173/"
-
-[app]
-name = "Basic App"
-luau = "src/init.luau"

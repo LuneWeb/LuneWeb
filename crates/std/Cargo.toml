@@ -1,0 +1,15 @@
+[package]
+name = "luneweb-std"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mlua-luau-scheduler = "0.0.2"
+luneweb-std-window = { version = "0.1.0", path = "../std-window" }
+luneweb-rs = { version = "0.1.0", path = "../rust" }
+tokio = { version = "1.38.0", features = ["full"] }
+mlua = { version = "0.9.9", features = ["luau", "async"] }
+
+### used in examples
+[dev-dependencies]
+lune-std = { version = "0.1.1" }

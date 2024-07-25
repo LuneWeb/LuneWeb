@@ -1,20 +1,9 @@
 /**
- * @ignore
- * used internally to send messages from Luau to Javascript
+ * Opens a channel and creates a listener for it
  *
  * ### Example
  * ```ts
- * window.luneweb.shareMessage("Hello from Luau!")
- * ```
- */
-export const shareMessage = window.luneweb.shareMessage;
-
-/**
- * listens to messages shared by `window.luneweb.shareMessage`
- *
- * ### Example
- * ```ts
- * window.luneweb.listen(message => {
+ * listen("ChannelName", (message) => {
  *    console.log(`Message shared from Luau: ${message}`)
  * })
  * ```
@@ -22,29 +11,15 @@ export const shareMessage = window.luneweb.shareMessage;
 export const listen = window.luneweb.listen;
 
 /**
- * @ignore
- * used internally to send messages from Luau to a Javascript channel
+ * Sends a message to the Rust backend
+ *
+ * ### Note
+ *
+ * Provided value will be stringified into JSON before getting sent to the backend
  *
  * ### Example
  * ```ts
- * window.luneweb.sendMessage("Channel1", "Hello from Luau!")
+ * postMessage({ a: true, b: false, c: 1000 })
  * ```
  */
-export const sendMessage = window.luneweb.sendMessage;
-
-/**
- * crates a Channel which will receive messages from `window.luneweb.sendMessage`
- *
- * you can return values back to the sender (should be Luau if it was sent internally) aswell
- *
- * ### Example
- * ```ts
- * window.luneweb.createChannel("Channel1", message => {
- *    console.log(`Channel1 received message from Luau: ${message}`)
- *
- *    // you can return anything you want back to the sender
- *    return true
- * })
- * ```
- */
-export const createChannel = window.luneweb.createChannel;
+export const postMessage = window.luneweb.postMessage;

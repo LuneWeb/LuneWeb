@@ -3,7 +3,7 @@
   "type": "module",
   "module": "out/index.js",
   "main": "out/index.js",
-  "version": "0.3.0-pre2",
+  "version": "0.3.0-pre3",
   "description": "luau and typescript type definitions for luneweb",
   "scripts": {
     "prepare": "tsc"

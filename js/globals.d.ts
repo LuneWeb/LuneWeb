@@ -1,11 +1,12 @@
 export {};
 
 interface Luneweb {
-  shareMessage(message?: any): void;
-  sendMessage(channel: string, message?: any): void;
+  channels: { [channel: string]: (message: any) => void };
 
-  listen(callback: (message?: any) => void): void;
-  createChannel(channel: string, callback: (message?: any) => void): void;
+  postMessage: (value: any) => void;
+  listen: (channel: string, callback: (message: any) => void) => void;
+
+  callChannel: (channel: string, message: any) => void;
 }
 
 declare global {
