@@ -2,11 +2,10 @@ local datetime = require("@lune/datetime")
 local task = require("@lune/task")
 
 local window = WindowBuilder.new("Lune+Tauri", "http://localhost:5173")
-local listen = window.message:listen()
 
 print("Running luneweb", _VERSION)
 
-task.spawn(listen, function(message)
+task.spawn(window.message.listen, window.message, function(message)
 	if message == "loaded" then
 		window.message:send("print", "Hello, WebView!")
 		window.message:send("print", {

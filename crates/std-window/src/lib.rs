@@ -4,6 +4,7 @@ use luneweb_rs::classes::window::Window;
 use message::LuaMessage;
 use mlua::{ExternalResult, IntoLua};
 use tao::window::WindowId;
+use tokio::sync::watch;
 use webview::LuaWebview;
 
 pub mod message;
@@ -59,7 +60,10 @@ impl LuaWindow {
 
         Self {
             id,
-            message: Rc::new(LuaMessage { id }),
+            message: Rc::new(LuaMessage {
+                id,
+                tx: Rc::new(watch::Sender::new(String::new())),
+            }),
             webview: Rc::new(LuaWebview { id }),
         }
         .into_lua(lua)

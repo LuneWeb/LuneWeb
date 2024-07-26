@@ -2059,7 +2059,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb"
-version = "0.3.0-pre3"
+version = "0.3.0"
 dependencies = [
  "clap",
  "directories",
@@ -2074,7 +2074,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-rs"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "mlua",
  "mlua-luau-scheduler",
@@ -2085,7 +2085,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-std"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "lune-std",
  "luneweb-rs",
@@ -2097,13 +2097,14 @@ dependencies = [
 
 [[package]]
 name = "luneweb-std-window"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "lune-std-serde",
  "luneweb-rs",
  "mlua",
  "mlua-luau-scheduler",
  "tao",
+ "tokio",
  "tokio-stream",
 ]
 

@@ -1,6 +1,8 @@
+type Callback = (message: any) -> ()
+
 declare class Message
   function send(self, channel: string, message: any): ()
-  function listen(self): (callback: (message: any) -> ()) -> () 
+  function listen(self, callback: Callback): () 
 end
 
 declare class WebView

@@ -1,4 +1,5 @@
-use tokio::sync::watch;
+use std::{rc::Rc, sync::Mutex};
+
 use wry::{http::Request, WebView as _WebView, WebViewBuilder as _WebViewBuilder};
 
 use super::window::Window;
@@ -7,7 +8,7 @@ mod message;
 
 pub struct WebView {
     pub inner: _WebView,
-    pub messages: watch::Receiver<String>,
+    pub message_pool: Rc<Mutex<Vec<String>>>,
 }
 
 const JS_IMPL: &str = include_str!(".js");
@@ -28,9 +29,14 @@ impl WebView {
     }
 
     pub fn new(target: &Window) -> Result<Self, String> {
-        let (tx, rx) = watch::channel(String::from("undefined"));
+        let pool_inner: Rc<Mutex<Vec<String>>> = Rc::new(Mutex::new(Vec::new()));
+        let pool = Rc::clone(&pool_inner);
+
         let ipc = move |message: Request<String>| {
-            let _ = tx.send(message.into_body());
+            pool_inner
+                .lock()
+                .expect("Failed to lock message pool")
+                .insert(0, message.body().to_string());
         };
 
         let webview = match Self::platform_specific(target)
@@ -44,7 +50,7 @@ impl WebView {
 
         Ok(Self {
             inner: webview,
-            messages: rx,
+            message_pool: pool,
         })
     }
 
