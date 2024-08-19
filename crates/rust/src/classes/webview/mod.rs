@@ -61,4 +61,14 @@ impl WebView {
 
         Ok(self)
     }
+
+    pub fn with_dev(self, dev: bool) -> Result<Self, String> {
+        if dev {
+            self.inner.open_devtools();
+        } else {
+            self.inner.close_devtools();
+        }
+
+        Ok(self)
+    }
 }

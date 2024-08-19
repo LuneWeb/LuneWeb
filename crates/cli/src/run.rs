@@ -22,13 +22,9 @@ pub async fn run(src: PathBuf) -> Result<(), mlua::Error> {
     luneweb_std::inject_globals(&lua)?;
     lune_std::inject_globals(&lua)?;
 
-    // lune only allows dots and digits in version string
-    let version = VERSION
-        .chars()
-        .take_while(is_valid_version_char)
-        .collect::<String>();
-
-    lune_std::set_global_version(&lua, version);
+    let _version = lune_std::LuneStandardGlobal::Version;
+    lua.globals()
+        .set(_version.name(), format!("luneweb {VERSION}"))?;
 
     lua.sandbox(true)?;
 
@@ -43,8 +39,4 @@ pub async fn run(src: PathBuf) -> Result<(), mlua::Error> {
     scheduler.run().await;
 
     Ok(())
-}
-
-fn is_valid_version_char(c: &char) -> bool {
-    matches!(c, '0'..='9' | '.')
 }

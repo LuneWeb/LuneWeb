@@ -1,6 +1,8 @@
 local task = require("@lune/task")
 
-local window = WindowBuilder.new("Basic", "about:blank")
+local window = WindowBuilder.new("Basic", "about:blank", true)
+
+print(_VERSION)
 
 task.spawn(window.message.listen, window.message, function(x)
 	print("listener1:", x)

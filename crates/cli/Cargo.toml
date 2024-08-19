@@ -1,6 +1,6 @@
 [package]
 name = "luneweb"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 [[bin]]
@@ -9,9 +9,9 @@ path = "src/main.rs"
 
 [dependencies]
 mlua-luau-scheduler = "0.0.2"
-luneweb-std = { version = "1.0.0", path = "../std" }
-luneweb-rs = { version = "1.0.0", path = "../rust" }
-lune-std = "0.1.1"
+luneweb-std = { version = "1.1.0", path = "../std" }
+luneweb-rs = { version = "1.1.0", path = "../rust" }
+lune-std = "0.1.4"
 
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 tokio = { version = "1.38.0", features = ["full"] }
