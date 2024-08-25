@@ -42,6 +42,7 @@ impl WebView {
         let webview = match Self::platform_specific(target)
             .with_initialization_script(JS_IMPL)
             .with_ipc_handler(ipc)
+            .with_devtools(true)
             .build()
         {
             Ok(webview) => webview,
