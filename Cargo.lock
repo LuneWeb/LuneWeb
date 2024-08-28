@@ -2123,7 +2123,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb"
-version = "0.4.1"
+version = "0.5.1"
 dependencies = [
  "clap",
  "directories",
@@ -2161,7 +2161,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-std-window"
-version = "1.1.0"
+version = "2.1.0"
 dependencies = [
  "lune-std-serde",
  "luneweb-rs",
