@@ -1,5 +1,11 @@
 type Callback = (message: any) -> ()
 
+type WindowConfig = {
+  title: string?,
+  url: string?,
+  dev: boolean?,
+}
+
 declare class Message
   function send(self, channel: string, message: any): ()
   function listen(self, callback: Callback): () 
@@ -18,5 +24,5 @@ declare class Window
 end
 
 declare WindowBuilder: {
-  new: (title: string, url: string, dev: boolean?) -> Window,
+  new: (config: WindowConfig) -> Window,
 }

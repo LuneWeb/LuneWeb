@@ -1,6 +1,9 @@
 local task = require("@lune/task")
 
-local window = WindowBuilder.new("Basic", "about:blank", true)
+local window = WindowBuilder.new({
+	title = "Basic",
+	dev = true,
+})
 
 print(_VERSION)
 
