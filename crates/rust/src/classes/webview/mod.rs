@@ -9,6 +9,7 @@ mod message;
 pub struct WebView {
     pub inner: _WebView,
     pub message_pool: Rc<Mutex<Vec<String>>>,
+    pub dev_attached: bool,
 }
 
 const JS_IMPL: &str = include_str!(".js");
@@ -28,7 +29,7 @@ impl WebView {
         }
     }
 
-    pub fn new(target: &Window) -> Result<Self, String> {
+    pub fn new(target: &Window, dev: bool) -> Result<Self, String> {
         let pool_inner: Rc<Mutex<Vec<String>>> = Rc::new(Mutex::new(Vec::new()));
         let pool = Rc::clone(&pool_inner);
 
@@ -42,7 +43,7 @@ impl WebView {
         let webview = match Self::platform_specific(target)
             .with_initialization_script(JS_IMPL)
             .with_ipc_handler(ipc)
-            .with_devtools(true)
+            .with_devtools(dev)
             .build()
         {
             Ok(webview) => webview,
@@ -52,6 +53,7 @@ impl WebView {
         Ok(Self {
             inner: webview,
             message_pool: pool,
+            dev_attached: dev,
         })
     }
 
@@ -63,13 +65,15 @@ impl WebView {
         Ok(self)
     }
 
-    pub fn with_dev(self, dev: bool) -> Result<Self, String> {
+    pub fn toggle_dev(&self, dev: bool) {
+        if !self.dev_attached {
+            println!("[Warn] tried to toggle dev tools but webview doesn't have dev tools attached to it");
+        }
+
         if dev {
             self.inner.open_devtools();
         } else {
             self.inner.close_devtools();
         }
-
-        Ok(self)
     }
 }

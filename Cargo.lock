@@ -2138,7 +2138,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-rs"
-version = "1.1.1"
+version = "2.1.1"
 dependencies = [
  "mlua",
  "mlua-luau-scheduler",

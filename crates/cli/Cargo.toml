@@ -10,7 +10,7 @@ path = "src/main.rs"
 [dependencies]
 mlua-luau-scheduler = "0.0.2"
 luneweb-std = { version = "1.1.0", path = "../std" }
-luneweb-rs = { version = "1.1.1", path = "../rust" }
+luneweb-rs = { version = "2.1.1", path = "../rust" }
 lune-std = "0.1.4"
 
 mlua = { version = "0.9.9", features = ["luau", "async"] }

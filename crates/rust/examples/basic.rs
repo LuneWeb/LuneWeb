@@ -10,12 +10,12 @@ async fn main() -> Result<(), String> {
 
     Window::new(&lua)?
         .with_title("window (1)")
-        .with_webview(|x| x.with_url("https://roblox.com"))?
+        .with_webview(false, |x| x.with_url("https://roblox.com"))?
         .finalize(&lua)?;
 
     Window::new(&lua)?
         .with_title("window (2)")
-        .with_webview(|x| x.with_url("https://luneweb.github.io/docs/"))?
+        .with_webview(false, |x| x.with_url("https://luneweb.github.io/docs/"))?
         .finalize(&lua)?;
 
     scheduler.run().await;

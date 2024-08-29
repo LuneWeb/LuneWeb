@@ -71,9 +71,13 @@ impl LuaWindow {
         let window = Window::new(lua)
             .into_lua_err()?
             .with_title(&config.title)
-            .with_webview(move |x| x.with_url(&config.url)?.with_dev(config.dev))
+            .with_webview(config.dev, move |x| x.with_url(&config.url))
             .into_lua_err()?;
         let id = window.inner.id();
+
+        if let Some(webview) = &window.webview {
+            webview.toggle_dev(config.dev);
+        }
 
         window.finalize(lua).into_lua_err()?;
 
