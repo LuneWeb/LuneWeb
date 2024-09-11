@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, rc::Rc};
 
 use luneweb_rs::classes::eventloop::EventLoop;
 use mlua_luau_scheduler::Scheduler;
@@ -7,7 +7,11 @@ use tokio::fs::{self, canonicalize};
 use crate::VERSION;
 
 pub async fn run(src: PathBuf) -> Result<(), mlua::Error> {
-    let lua = mlua::Lua::new();
+    let lua = Rc::new(mlua::Lua::new());
+
+    lua.set_app_data(Rc::downgrade(&lua));
+    lua.set_app_data(Vec::<String>::new());
+
     let scheduler = Scheduler::new(&lua);
     let compiler = mlua::Compiler::new()
         .set_coverage_level(2)
