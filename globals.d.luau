@@ -27,6 +27,8 @@ declare WindowBuilder: {
   new: (config: WindowConfig) -> Window,
 }
 
-declare dom: {
-  
-}
+declare class Dom
+
+end
+
+declare dom: Dom

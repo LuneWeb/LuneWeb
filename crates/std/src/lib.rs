@@ -1,5 +1,6 @@
 use luneweb_std_dom::LuaDom;
 use luneweb_std_window::LuaWindow;
+use mlua::IntoLua;
 
 pub enum StandardLibrary {
     Window,
@@ -16,19 +17,18 @@ impl StandardLibrary {
         }
     }
 
-    pub fn into_lua(self, lua: &mlua::Lua) -> mlua::Result<mlua::Table> {
-        let table = lua.create_table()?;
-
+    pub fn into_lua(self, lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
         match self {
             Self::Window => {
+                let table = lua.create_table()?;
                 table.set("new", mlua::Function::wrap(LuaWindow::new))?;
+                table.into_lua(lua)
             }
             Self::Dom => {
                 LuaDom::init_middleware(lua)?;
+                LuaDom::new().into_lua(lua)
             }
-        };
-
-        Ok(table)
+        }
     }
 }
 
