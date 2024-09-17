@@ -23,9 +23,9 @@ pub async fn run(src: PathBuf) -> Result<(), mlua::Error> {
         .set_compiler(compiler)
         .set_name(canonicalize(src).await?.to_string_lossy());
 
+    luneweb_rs::classes::webview::Middlewares::init(&lua)?;
     luneweb_std::inject_globals(&lua)?;
     lune_std::inject_globals(&lua)?;
-    luneweb_rs::classes::webview::Middlewares::init(&lua)?;
 
     let _version = lune_std::LuneStandardGlobal::Version;
     lua.globals()

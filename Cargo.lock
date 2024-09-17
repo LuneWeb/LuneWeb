@@ -2156,6 +2156,7 @@ version = "1.1.1"
 dependencies = [
  "lune-std",
  "luneweb-rs",
+ "luneweb-std-dom",
  "luneweb-std-window",
  "mlua",
  "mlua-luau-scheduler",
@@ -2165,6 +2166,10 @@ dependencies = [
 [[package]]
 name = "luneweb-std-dom"
 version = "0.1.0"
+dependencies = [
+ "luneweb-rs",
+ "mlua",
+]
 
 [[package]]
 name = "luneweb-std-window"

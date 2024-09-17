@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+luneweb-rs = { version = "3.1.1", path = "../rust" }
+mlua = { version = "0.9.9", features = ["luau", "async"] }

@@ -26,3 +26,7 @@ end
 declare WindowBuilder: {
   new: (config: WindowConfig) -> Window,
 }
+
+declare dom: {
+  
+}
