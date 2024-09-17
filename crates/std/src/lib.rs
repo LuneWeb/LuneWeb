@@ -26,7 +26,7 @@ impl StandardLibrary {
             }
             Self::Dom => {
                 LuaDom::init_middleware(lua)?;
-                LuaDom::new().into_lua(lua)
+                LuaDom::load(lua)
             }
         }
     }

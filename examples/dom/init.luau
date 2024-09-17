@@ -3,4 +3,6 @@ local window = WindowBuilder.new({
 	dev = true,
 })
 
+local body = dom.body(window)
+
 print(dom)

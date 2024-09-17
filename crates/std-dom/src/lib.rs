@@ -7,9 +7,9 @@ impl LuaDom {
         Middlewares::add_middleware(lua, include_str!("middleware.js"))
     }
 
-    pub fn new() -> Self {
-        Self {}
+    pub fn load(lua: &mlua::Lua) -> mlua::Result<mlua::Value<'_>> {
+        lua.load(include_str!("library.luau"))
+            .set_name("std-dom")
+            .call(())
     }
 }
-
-impl mlua::UserData for LuaDom {}
