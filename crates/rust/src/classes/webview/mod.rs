@@ -1,8 +1,7 @@
-use std::{rc::Rc, sync::Mutex};
-
-use wry::{http::Request, WebView as _WebView, WebViewBuilder as _WebViewBuilder};
-
 use super::window::Window;
+use mlua::ExternalResult;
+use std::{rc::Rc, sync::Mutex};
+use wry::{http::Request, WebView as _WebView, WebViewBuilder as _WebViewBuilder};
 
 mod message;
 
@@ -12,7 +11,26 @@ pub struct WebView {
     pub dev_attached: bool,
 }
 
-const JS_IMPL: &str = include_str!(".js");
+#[derive(Debug, Default)]
+pub struct Middlewares {
+    vec: Vec<String>,
+}
+
+impl Middlewares {
+    pub fn init(lua: &mlua::Lua) -> mlua::Result<()> {
+        lua.set_app_data(Self::default());
+
+        Self::add_middleware(lua, include_str!(".js"))
+    }
+
+    pub fn add_middleware(lua: &mlua::Lua, middleware: &str) -> mlua::Result<()> {
+        let mut middlewares = lua.app_data_mut::<Self>().ok_or("Middlewares not found in lua app data container, make sure to call Middlewares::init method on the lua instance").into_lua_err()?;
+
+        middlewares.vec.push(middleware.into());
+
+        Ok(())
+    }
+}
 
 impl WebView {
     fn platform_specific(target: &Window) -> _WebViewBuilder {
@@ -29,7 +47,7 @@ impl WebView {
         }
     }
 
-    pub fn new(target: &Window, dev: bool) -> Result<Self, String> {
+    pub fn new(lua: &mlua::Lua, target: &Window, dev: bool) -> Result<Self, String> {
         let pool_inner: Rc<Mutex<Vec<String>>> = Rc::new(Mutex::new(Vec::new()));
         let pool = Rc::clone(&pool_inner);
 
@@ -40,12 +58,19 @@ impl WebView {
                 .insert(0, message.body().to_string());
         };
 
-        let webview = match Self::platform_specific(target)
-            .with_initialization_script(JS_IMPL)
+        let middlewares = lua
+            .app_data_ref::<Middlewares>()
+            .ok_or("Middlewares not found in lua app data container, make sure to call Middlewares::init method on the lua instance")?;
+
+        let mut webview_builder = Self::platform_specific(target)
             .with_ipc_handler(ipc)
-            .with_devtools(dev)
-            .build()
-        {
+            .with_devtools(dev);
+
+        for middleware in middlewares.vec.iter() {
+            webview_builder = webview_builder.with_initialization_script(middleware);
+        }
+
+        let webview = match webview_builder.build() {
             Ok(webview) => webview,
             Err(err) => return Err(format!("Failed to create WebView\nError: {err}")),
         };
@@ -66,7 +91,7 @@ impl WebView {
     }
 
     pub fn toggle_dev(&self, dev: bool) {
-        if !self.dev_attached {
+        if dev & !self.dev_attached {
             println!("[Warn] tried to toggle dev tools but webview doesn't have dev tools attached to it");
         }
 

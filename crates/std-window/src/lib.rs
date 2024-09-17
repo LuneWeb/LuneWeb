@@ -71,7 +71,7 @@ impl LuaWindow {
         let window = Window::new(lua)
             .into_lua_err()?
             .with_title(&config.title)
-            .with_webview(config.dev, move |x| x.with_url(&config.url))
+            .with_webview(lua, config.dev, move |x| x.with_url(&config.url))
             .into_lua_err()?;
         let id = window.inner.id();
 
