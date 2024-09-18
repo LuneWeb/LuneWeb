@@ -46,7 +46,7 @@ local function getDom(window: Window): Dom
 	end)
 
 	--- @yields
-	--- Sends message to webview and waits for webview to return value
+	--- Sends message to webview and waits for webview to return
 	function dom._message(channel: string, message: any): any
 		messageId += 1
 
