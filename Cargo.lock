@@ -2161,7 +2161,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-rs"
-version = "3.1.1"
+version = "1.0.0"
 dependencies = [
  "include_dir",
  "mlua",
@@ -2173,7 +2173,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-std"
-version = "1.2.1"
+version = "1.0.0"
 dependencies = [
  "lune-std",
  "luneweb-rs",
@@ -2185,7 +2185,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb-std-window"
-version = "2.1.1"
+version = "1.0.0"
 dependencies = [
  "lune-std-serde",
  "luneweb-rs",

@@ -1,16 +1,16 @@
 [package]
 name = "luneweb-std"
-version = "1.2.1"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
 mlua-luau-scheduler = "0.0.2"
-luneweb-rs = { version = "3.1.1", path = "../rust" }
+luneweb-rs = { version = "1.0.0", path = "../rust" }
 tokio = { version = "1.40.0", features = ["full"] }
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 
 # STDs
-luneweb-std-window = { version = "2.1.1", path = "../std-window" }
+luneweb-std-window = { version = "1.0.0", path = "../std-window" }
 
 ### used in examples
 [dev-dependencies]

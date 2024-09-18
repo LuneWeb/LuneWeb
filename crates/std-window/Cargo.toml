@@ -1,6 +1,6 @@
 [package]
 name = "luneweb-std-window"
-version = "2.1.1"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
@@ -8,6 +8,6 @@ mlua-luau-scheduler = "0.0.2"
 lune-std-serde = "0.1.2"
 tokio = { version = "1.40.0", features = ["full"] }
 tokio-stream = { version = "0.1.16", features = ["sync"] }
-luneweb-rs = { version = "3.1.1", path = "../rust" }
+luneweb-rs = { version = "1.0.0", path = "../rust" }
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 tao = "0.28.1"
