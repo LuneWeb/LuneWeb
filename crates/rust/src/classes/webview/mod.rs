@@ -23,6 +23,8 @@ impl Middlewares {
     pub fn init(lua: &mlua::Lua) -> mlua::Result<()> {
         lua.set_app_data(Self::default());
 
+        Self::add_middleware(lua, include_str!("middleware.js"))?;
+
         for middleware in BUILTIN_MIDDLEWARES.files() {
             let Some(ext) = middleware.path().extension() else {
                 continue;
