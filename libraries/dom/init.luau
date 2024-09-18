@@ -54,7 +54,7 @@ local function getDom(window: Window): Dom
 		_window = window,
 	}
 
-	task.spawn(window.message.listen, window.message, function(message)
+	window.message:listen(function(message)
 		if typeof(message) ~= "table" then
 			return
 		end

@@ -1,6 +1,9 @@
-use std::{rc::Rc, time::Duration};
+use std::{
+    rc::{Rc, Weak},
+    time::Duration,
+};
 
-use mlua::ExternalResult;
+use mlua::{ExternalResult, IntoLua};
 use mlua_luau_scheduler::{LuaSchedulerExt, LuaSpawnExt};
 use tao::window::WindowId;
 use tokio::sync::watch;
@@ -54,6 +57,7 @@ impl mlua::UserData for LuaMessage {
     fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         #[allow(unreachable_code)]
         methods.add_async_method("listen", |lua, this, callback: mlua::Function| async move {
+            let callback_reg_key = lua.create_registry_value(callback)?;
             let rx = this.tx.subscribe();
             let mut stream = WatchStream::from_changes(rx);
 
@@ -61,11 +65,25 @@ impl mlua::UserData for LuaMessage {
                 this.watch_pool(lua)?;
             }
 
-            loop {
-                if let Some(message) = stream.next().await {
-                    lua.push_thread_front(callback.clone(), json_to_lua(message, lua))?;
+            let inner_lua = lua
+                .app_data_ref::<Weak<mlua::Lua>>()
+                .expect("Missing weak lua reference")
+                .upgrade()
+                .expect("Failed to upgrade weak pointer to lua");
+
+            lua.spawn_local(async move {
+                let callback: mlua::Function = inner_lua
+                    .registry_value(&callback_reg_key)
+                    .expect("Failed to get callback function from registry");
+
+                loop {
+                    if let Some(message) = stream.next().await {
+                        inner_lua
+                            .push_thread_front(callback.clone(), json_to_lua(message, &inner_lua))
+                            .expect("Failed to call callback function");
+                    }
                 }
-            }
+            });
 
             Ok(())
         });

@@ -1,5 +1,3 @@
-local task = require("@lune/task")
-
 local window = WindowBuilder.new({
 	title = "Basic",
 	dev = true,
@@ -7,10 +5,11 @@ local window = WindowBuilder.new({
 
 print(_VERSION)
 
-task.spawn(window.message.listen, window.message, function(x)
+window.message:listen(function(x)
 	print("listener1:", x)
 end)
-task.spawn(window.message.listen, window.message, function(x)
+
+window.message:listen(function(x)
 	print("listener2:", x)
 end)
 
