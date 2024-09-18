@@ -3,24 +3,24 @@ local messageId = 0
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
-	dom: Dom,
-	id: number,
+	_dom: Dom,
+	_id: number,
 }
 
 export type Dom = {
-	message: (channel: string, message: any) -> any,
-	body: (Window) -> DomElement,
+	_message: (channel: string, message: any) -> any,
+	body: (self: Dom, window: Window) -> DomElement,
 }
 
 local function createElement(dom: Dom, id: number?): DomElement
 	local element = {
-		dom = dom,
-		id = id,
+		_dom = dom,
+		_id = id,
 	}
 
 	function element.querySelector(self: DomElement, tag: string): DomElement?
-		local value = self.dom.message("dom-querySelect", {
-			id = self.id,
+		local value = self._dom._message("dom-querySelect", {
+			id = self._id,
 			tag = tag,
 		})
 
@@ -47,7 +47,7 @@ local function getDom(window: Window): Dom
 
 	--- @yields
 	--- Sends message to webview and waits for webview to return value
-	function dom.message(channel: string, message: any): any
+	function dom._message(channel: string, message: any): any
 		messageId += 1
 
 		messageThreads[messageId] = coroutine.running()
@@ -59,10 +59,10 @@ local function getDom(window: Window): Dom
 		return coroutine.yield()
 	end
 
-	function dom.body(): DomElement
-		local value = dom.message("dom-get-body", nil)
+	function dom.body(self: Dom): DomElement
+		local value = self._message("dom-get-body", nil)
 
-		return createElement(dom, value.elementId)
+		return createElement(self, value.elementId)
 	end
 
 	return dom
