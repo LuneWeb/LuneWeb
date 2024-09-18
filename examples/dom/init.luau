@@ -1,9 +1,13 @@
-local dom = require("@luneweb/dom")
 local window = WindowBuilder.new({
 	title = "Basic",
 	dev = true,
 })
 
-local body = dom.body(window)
+local dom = require("@luneweb/dom")(window)
 
-print(dom)
+window.message:listen(function(msg)
+	if msg == "loaded" then
+		local body = dom.body()
+		local div = body:querySelector("div")
+	end
+end)
