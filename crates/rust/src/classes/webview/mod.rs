@@ -1,7 +1,10 @@
 use super::window::Window;
+use include_dir::{include_dir, Dir};
 use mlua::ExternalResult;
 use std::{rc::Rc, sync::Mutex};
 use wry::{http::Request, WebView as _WebView, WebViewBuilder as _WebViewBuilder};
+
+const BUILTIN_MIDDLEWARES: Dir<'static> = include_dir!("middlewares");
 
 mod message;
 
@@ -20,7 +23,19 @@ impl Middlewares {
     pub fn init(lua: &mlua::Lua) -> mlua::Result<()> {
         lua.set_app_data(Self::default());
 
-        Self::add_middleware(lua, include_str!(".js"))
+        for middleware in BUILTIN_MIDDLEWARES.files() {
+            let Some(ext) = middleware.path().extension() else {
+                continue;
+            };
+
+            if ext != "js" {
+                continue;
+            }
+
+            Self::add_middleware(lua, &String::from_utf8_lossy(middleware.contents()))?;
+        }
+
+        Ok(())
     }
 
     pub fn add_middleware(lua: &mlua::Lua, middleware: &str) -> mlua::Result<()> {

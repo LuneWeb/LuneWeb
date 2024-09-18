@@ -26,13 +26,3 @@ end
 declare WindowBuilder: {
   new: (config: WindowConfig) -> Window,
 }
-
-declare class DomElement
-
-end
-
-declare class Dom
-  body: (window: Window) -> DomElement,
-end
-
-declare dom: Dom

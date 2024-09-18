@@ -9,3 +9,5 @@ tokio = { version = "1.40.0", features = ["full"] }
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 wry = { version = "0.42.0", features = ["devtools"] }
 tao = "0.28.1"
+
+include_dir = "0.7.4"

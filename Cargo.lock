@@ -1725,6 +1725,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "include_dir"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "923d117408f1e49d914f1a379a309cffe4f18c05cf4e3d12e613a15fc81bd0dd"
+dependencies = [
+ "include_dir_macros",
+]
+
+[[package]]
+name = "include_dir_macros"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7cab85a7ed0bd5f0e76d93846e0147172bed2e2d3f859bcc33a8d9699cad1a75"
+dependencies = [
+ "proc-macro2",
+ "quote",
+]
+
+[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2130,6 +2149,7 @@ version = "0.6.3"
 dependencies = [
  "clap",
  "directories",
+ "include_dir",
  "lune-std",
  "luneweb-rs",
  "luneweb-std",
@@ -2143,6 +2163,7 @@ dependencies = [
 name = "luneweb-rs"
 version = "3.1.1"
 dependencies = [
+ "include_dir",
  "mlua",
  "mlua-luau-scheduler",
  "tao",
@@ -2156,19 +2177,10 @@ version = "1.2.1"
 dependencies = [
  "lune-std",
  "luneweb-rs",
- "luneweb-std-dom",
  "luneweb-std-window",
  "mlua",
  "mlua-luau-scheduler",
  "tokio",
-]
-
-[[package]]
-name = "luneweb-std-dom"
-version = "0.1.0"
-dependencies = [
- "luneweb-rs",
- "mlua",
 ]
 
 [[package]]

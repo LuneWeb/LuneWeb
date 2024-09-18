@@ -1,10 +1,8 @@
-use luneweb_std_dom::LuaDom;
 use luneweb_std_window::LuaWindow;
 use mlua::IntoLua;
 
 pub enum StandardLibrary {
     Window,
-    Dom,
 }
 
 impl StandardLibrary {
@@ -12,7 +10,6 @@ impl StandardLibrary {
     pub fn from_str<T: AsRef<str>>(str: &T) -> Option<Self> {
         match str.as_ref() {
             "window" => Some(Self::Window),
-            "dom" => Some(Self::Dom),
             _ => None,
         }
     }
@@ -24,10 +21,6 @@ impl StandardLibrary {
                 table.set("new", mlua::Function::wrap(LuaWindow::new))?;
                 table.into_lua(lua)
             }
-            Self::Dom => {
-                LuaDom::init_middleware(lua)?;
-                LuaDom::load(lua)
-            }
         }
     }
 }
@@ -37,7 +30,6 @@ pub fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
     let globals = lua.globals();
 
     globals.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
-    globals.set("dom", StandardLibrary::Dom.into_lua(lua)?)?;
 
     Ok(())
 }

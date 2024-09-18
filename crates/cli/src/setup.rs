@@ -1,11 +1,13 @@
 use std::path::PathBuf;
 
+use include_dir::{include_dir, Dir};
 use once_cell::sync::Lazy;
 use tokio::fs;
 
 use crate::VERSION;
 
 pub const TYPE_DEFS: &str = include_str!("../../../globals.d.luau");
+pub const LIBRARIES: Dir<'static> = include_dir!("libraries");
 
 pub static HOME_PATH: Lazy<PathBuf> = Lazy::new(|| {
     directories::BaseDirs::new()
@@ -22,14 +24,26 @@ pub async fn install_typedefs() -> Result<(), std::io::Error> {
     let path = HOME_PATH.join(format!(".type_defs-{VERSION}.d.luau"));
 
     if path.exists() {
-        println!("Deleting existing type definitions for this version");
         fs::remove_file(&path).await?;
     }
 
-    println!("Installing type definition files");
     fs::write(&path, TYPE_DEFS).await?;
 
-    println!("Installed type definition files at {path:?}");
+    println!("Installed luau type definitions file at {path:?}");
+
+    Ok(())
+}
+
+pub async fn install_libraries() -> Result<(), std::io::Error> {
+    let dir = HOME_PATH.join(format!(".libraries-{VERSION}"));
+
+    if dir.exists() {
+        fs::remove_dir_all(&dir).await?;
+    }
+
+    LIBRARIES.extract(&dir)?;
+
+    println!("Installed luau libraries at {dir:?}");
 
     Ok(())
 }
@@ -37,6 +51,7 @@ pub async fn install_typedefs() -> Result<(), std::io::Error> {
 pub async fn run() -> Result<(), mlua::Error> {
     create_home().await?;
     install_typedefs().await?;
+    install_libraries().await?;
 
     Ok(())
 }

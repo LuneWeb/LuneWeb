@@ -1,3 +1,4 @@
+local dom = require("@luneweb/dom")
 local window = WindowBuilder.new({
 	title = "Basic",
 	dev = true,
