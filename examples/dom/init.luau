@@ -1,9 +1,11 @@
+local getDom = require("@luneweb/dom")
+
 local window = WindowBuilder.new({
 	title = "Basic",
 	dev = true,
 })
 
-local dom = require("@luneweb/dom")(window)
+local dom = getDom(window)
 
 window.message:listen(function(msg)
 	if msg == "loaded" then
