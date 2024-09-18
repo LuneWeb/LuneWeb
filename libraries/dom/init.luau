@@ -3,13 +3,16 @@ local messageId = 0
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
+	setStyle: (DomElement, style: string, value: string) -> (),
+	getStyle: (DomElement, style: string) -> string,
 	_dom: Dom,
 	_id: number,
 }
 
 export type Dom = {
+	_window: Window,
 	_message: (channel: string, message: any) -> any,
-	body: (self: Dom, window: Window) -> DomElement,
+	body: (Dom) -> DomElement,
 }
 
 local function createElement(dom: Dom, id: number?): DomElement
@@ -27,12 +30,29 @@ local function createElement(dom: Dom, id: number?): DomElement
 		return createElement(dom, value.elementId)
 	end
 
+	function element.setStyle(self: DomElement, style: string, value: string)
+		self._dom._message("dom-setStyle", {
+			id = self._id,
+			style = style,
+			value = value,
+		})
+	end
+
+	function element.getStyle(self: DomElement, style: string): string
+		return self._dom._message("dom-getStyle", {
+			id = self._id,
+			style = style,
+		})
+	end
+
 	return element
 end
 
 local function getDom(window: Window): Dom
-	local dom = {}
 	local messageThreads = {}
+	local dom = {
+		_window = window,
+	}
 
 	task.spawn(window.message.listen, window.message, function(message)
 		if typeof(message) ~= "table" then

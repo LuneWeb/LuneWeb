@@ -48,3 +48,13 @@ domListen("dom-querySelect", (message) => {
     elementId,
   };
 });
+
+domListen("dom-setStyle", (message) => {
+  const element = elements[message.id];
+  element.style[message.style] = message.value;
+});
+
+domListen("dom-getStyle", (message) => {
+  const element = elements[message.id];
+  return element.style[message.style];
+});

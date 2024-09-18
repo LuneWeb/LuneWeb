@@ -7,7 +7,11 @@ local dom = require("@luneweb/dom")(window)
 
 window.message:listen(function(msg)
 	if msg == "loaded" then
-		local body = dom.body()
+		local body = dom:body()
 		local div = body:querySelector("div")
+
+		div:setStyle("backgroundColor", "black")
+
+		print(div:getStyle("backgroundColor"))
 	end
 end)
