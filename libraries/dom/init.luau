@@ -1,4 +1,3 @@
-local task = require("@lune/task")
 local messageId = 0
 
 export type DomElement = {
