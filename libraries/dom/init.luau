@@ -101,9 +101,11 @@ local function initDom(window: Window): Dom
 	channels.register(dom._window)
 
 	function dom.createElement(self: Dom, tag: string): DomElement
-		return channels.message(self._window, "dom-createElement", {
+		local value = channels.message(self._window, "dom-createElement", {
 			tag = tag,
 		})
+
+		return createElement(self, value.elementId)
 	end
 
 	do

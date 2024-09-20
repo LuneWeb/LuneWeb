@@ -1,16 +1,7 @@
-const cache = {};
-const elements = {};
-let reservedId = 0;
+const elements = [];
 
 function domElementToId(element) {
-  if (cache[element]) {
-    return cache[element];
-  }
-
-  cache[element] = reservedId++;
-  elements[reservedId] = element;
-
-  return domElementToId(element);
+  return elements.push(element) - 1;
 }
 
 function domListen(channel, callback) {
@@ -31,7 +22,7 @@ function domListen(channel, callback) {
   });
 }
 
-domListen("dom-getBody", (message) => {
+domListen("dom-getBody", (_) => {
   const elementId = domElementToId(document.body);
 
   return {

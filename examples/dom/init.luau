@@ -7,17 +7,21 @@ local window = WindowBuilder.new({
 
 -- useDom.once
 useDom.connect(window, function(dom)
-	local div = dom.body:querySelector("div")
+	local text = dom:createElement("h1")
+	local audio = dom:createElement("audio")
 
-	div:listen("mouseenter", function()
-		div:setStyle("backgroundColor", "black")
-		div:setStyle("color", "white")
-		div:setInner("Hey!")
+	text:appendChild(audio)
+	dom.body:appendChild(text)
+
+	dom.body:listen("mouseenter", function()
+		dom.body:setStyle("backgroundColor", "black")
+		text:setStyle("color", "white")
+		text:setProp("innerText", "Hey!")
 	end)
 
-	div:listen("mouseleave", function()
-		div:setStyle("backgroundColor", "white")
-		div:setStyle("color", "black")
-		div:setInner("Bye!")
+	dom.body:listen("mouseleave", function()
+		dom.body:setStyle("backgroundColor", "white")
+		text:setStyle("color", "black")
+		text:setProp("innerText", "Bye!")
 	end)
 end)
