@@ -5,7 +5,8 @@ local window = WindowBuilder.new({
 	dev = true,
 })
 
-useDom(window, function(dom)
+-- useDom.connect
+useDom.once(window, function(dom)
 	local div = dom.body:querySelector("div")
 
 	div:listen("mouseenter", function()

@@ -111,4 +111,16 @@ local function useDom(window: Window, callback: (Dom) -> ()): () -> ()
 	end
 end
 
-return useDom
+return {
+	connect = function(window, callback)
+		return useDom(window, callback)
+	end,
+	once = function(window, callback)
+		local dc
+
+		dc = useDom(window, function(dom)
+			callback(dom)
+			dc()
+		end)
+	end,
+}
