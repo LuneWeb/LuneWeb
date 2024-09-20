@@ -18,6 +18,7 @@ export type Dom = {
 	_listeners: { () -> () },
 	_window: Window,
 	_loaded: boolean,
+	createElement: (Dom, tag: string) -> DomElement,
 	body: DomElement?,
 }
 
@@ -90,6 +91,12 @@ local function initDom(window: Window): Dom
 	}
 
 	channels.register(dom._window)
+
+	function dom.createElement(self: Dom, tag: string): DomElement
+		return channels.message(self._window, "dom-createElement", {
+			tag = tag,
+		})
+	end
 
 	do
 		dom._window.message:listen(function(message)

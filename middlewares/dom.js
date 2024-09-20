@@ -49,6 +49,14 @@ domListen("dom-querySelect", (message) => {
   };
 });
 
+domListen("dom-createElement", (message) => {
+  const elementId = domElementToId(document.createElement(message.tag));
+
+  return {
+    elementId,
+  };
+});
+
 domListen("dom-setProp", (message) => {
   const element = elements[message.id];
   element[message.k] = message.v;
