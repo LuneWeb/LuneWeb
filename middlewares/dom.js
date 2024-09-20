@@ -54,6 +54,11 @@ domListen("dom-setProp", (message) => {
   element[message.k] = message.v;
 });
 
+domListen("dom-getProp", (message) => {
+  const element = elements[message.id];
+  return element[message.k];
+});
+
 domListen("dom-setStyle", (message) => {
   const element = elements[message.id];
   element.style[message.style] = message.value;

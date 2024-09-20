@@ -2,6 +2,7 @@ export type Channel =
 	"dom-getBody"
 	| "dom-querySelect"
 	| "dom-setProp"
+	| "dom-getProp"
 	| "dom-setStyle"
 	| "dom-getStyle"
 	| "dom-createListener"

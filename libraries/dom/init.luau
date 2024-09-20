@@ -4,7 +4,8 @@ local doms: { [Window]: Dom } = {}
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
-	setProp: (DomElement, k: string, v: string) -> (),
+	setProp: (DomElement, k: string, v: any) -> (),
+	getProp: (DomElement, k: string) -> any,
 	setStyle: (DomElement, style: string, value: string) -> (),
 	getStyle: (DomElement, style: string) -> string,
 	listen: (DomElement, event: string, callback: () -> ()) -> (),
@@ -37,11 +38,18 @@ local function createElement(dom: Dom, id: number?): DomElement
 		return createElement(dom, value.elementId)
 	end
 
-	function element.setProp(self: DomElement, k: string, v: string)
+	function element.setProp(self: DomElement, k: string, v: any): ()
 		task.spawn(channels.message, self._dom._window, "dom-setProp" :: "dom-setProp", {
 			id = self._id,
 			k = k,
 			v = v,
+		})
+	end
+
+	function element.getProp(self: DomElement, k: string): any
+		return channels.message(self._dom._window, "dom-getProp", {
+			id = self._id,
+			k = k,
 		})
 	end
 
