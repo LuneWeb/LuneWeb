@@ -10,8 +10,12 @@ window.message:listen(function(msg)
 		local dom = getDom(window)
 		local div = dom.body:querySelector("div")
 
-		div:setStyle("backgroundColor", "black")
+		div:listen("mouseenter", function()
+			div:setStyle("backgroundColor", "black")
+		end)
 
-		print(div:getStyle("backgroundColor"))
+		div:listen("mouseleave", function()
+			div:setStyle("backgroundColor", "white")
+		end)
 	end
 end)

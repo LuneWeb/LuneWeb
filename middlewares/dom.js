@@ -31,7 +31,7 @@ function domListen(channel, callback) {
   });
 }
 
-domListen("dom-get-body", (message) => {
+domListen("dom-getBody", (message) => {
   const elementId = domElementToId(document.body);
 
   return {
@@ -57,4 +57,15 @@ domListen("dom-setStyle", (message) => {
 domListen("dom-getStyle", (message) => {
   const element = elements[message.id];
   return element.style[message.style];
+});
+
+domListen("dom-createListener", (message) => {
+  const element = elements[message.id];
+  const listenerId = message.listenerId;
+
+  element.addEventListener(message.event, () => {
+    window.luneweb.postMessage({
+      listenerId,
+    });
+  });
 });
