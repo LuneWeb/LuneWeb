@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use mlua::{ExternalResult, IntoLua};
+use mlua::ExternalResult;
 use mlua_luau_scheduler::{LuaSchedulerExt, LuaSpawnExt};
 use tao::window::WindowId;
 use tokio::sync::watch;

@@ -1,4 +1,4 @@
-local messageId = 0
+local channels = require("./channels")
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
@@ -10,7 +10,6 @@ export type DomElement = {
 
 export type Dom = {
 	_window: Window,
-	_message: (channel: string, message: any) -> any,
 	body: (Dom) -> DomElement,
 }
 
@@ -21,7 +20,7 @@ local function createElement(dom: Dom, id: number?): DomElement
 	}
 
 	function element.querySelector(self: DomElement, tag: string): DomElement?
-		local value = self._dom._message("dom-querySelect", {
+		local value = channels.message(self._dom._window, "dom-querySelect", {
 			id = self._id,
 			tag = tag,
 		})
@@ -30,7 +29,7 @@ local function createElement(dom: Dom, id: number?): DomElement
 	end
 
 	function element.setStyle(self: DomElement, style: string, value: string)
-		self._dom._message("dom-setStyle", {
+		channels.message(self._dom._window, "dom-setStyle", {
 			id = self._id,
 			style = style,
 			value = value,
@@ -38,7 +37,7 @@ local function createElement(dom: Dom, id: number?): DomElement
 	end
 
 	function element.getStyle(self: DomElement, style: string): string
-		return self._dom._message("dom-getStyle", {
+		return channels.message(self._dom._window, "dom-getStyle", {
 			id = self._id,
 			style = style,
 		})
@@ -48,38 +47,14 @@ local function createElement(dom: Dom, id: number?): DomElement
 end
 
 local function getDom(window: Window): Dom
-	local messageThreads = {}
 	local dom = {
 		_window = window,
 	}
 
-	window.message:listen(function(message)
-		if typeof(message) ~= "table" then
-			return
-		end
-
-		if messageThreads[message.messageId] then
-			coroutine.resume(messageThreads[message.messageId], message.value)
-			messageThreads[message.messageId] = nil
-		end
-	end)
-
-	--- @yields
-	--- Sends message to webview and waits for webview to return
-	function dom._message(channel: string, message: any): any
-		messageId += 1
-
-		messageThreads[messageId] = coroutine.running()
-		window.message:send(channel, {
-			id = messageId,
-			value = message,
-		})
-
-		return coroutine.yield()
-	end
+	channels.register(dom._window)
 
 	function dom.body(self: Dom): DomElement
-		local value = self._message("dom-get-body", nil)
+		local value = channels.message(self._window, "dom-get-body", nil)
 
 		return createElement(self, value.elementId)
 	end
