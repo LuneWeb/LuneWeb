@@ -1,4 +1,10 @@
-export type Channel = "dom-getBody" | "dom-querySelect" | "dom-setStyle" | "dom-getStyle" | "dom-createListener"
+export type Channel =
+	"dom-getBody"
+	| "dom-querySelect"
+	| "dom-setInner"
+	| "dom-setStyle"
+	| "dom-getStyle"
+	| "dom-createListener"
 
 local messageId = 0
 local messageThreads = {}

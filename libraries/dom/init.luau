@@ -1,8 +1,10 @@
 local channels = require("./channels")
+local task = require("@lune/task")
 local doms: { [Window]: Dom } = {}
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
+	setInner: (DomElement, html: string) -> (),
 	setStyle: (DomElement, style: string, value: string) -> (),
 	getStyle: (DomElement, style: string) -> string,
 	listen: (DomElement, event: string, callback: () -> ()) -> (),
@@ -35,8 +37,15 @@ local function createElement(dom: Dom, id: number?): DomElement
 		return createElement(dom, value.elementId)
 	end
 
+	function element.setInner(self: DomElement, html: string)
+		task.spawn(channels.message, self._dom._window, "dom-setInner" :: "dom-setInner", {
+			id = self._id,
+			html = html,
+		})
+	end
+
 	function element.setStyle(self: DomElement, style: string, value: string)
-		channels.message(self._dom._window, "dom-setStyle", {
+		task.spawn(channels.message, self._dom._window, "dom-setStyle" :: "dom-setStyle", {
 			id = self._id,
 			style = style,
 			value = value,
