@@ -49,9 +49,9 @@ domListen("dom-querySelect", (message) => {
   };
 });
 
-domListen("dom-setInner", (message) => {
+domListen("dom-setProp", (message) => {
   const element = elements[message.id];
-  element.innerHTML = message.html;
+  element[message.k] = message.v;
 });
 
 domListen("dom-setStyle", (message) => {

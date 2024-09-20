@@ -4,7 +4,7 @@ local doms: { [Window]: Dom } = {}
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
-	setInner: (DomElement, html: string) -> (),
+	setProp: (DomElement, k: string, v: string) -> (),
 	setStyle: (DomElement, style: string, value: string) -> (),
 	getStyle: (DomElement, style: string) -> string,
 	listen: (DomElement, event: string, callback: () -> ()) -> (),
@@ -37,10 +37,11 @@ local function createElement(dom: Dom, id: number?): DomElement
 		return createElement(dom, value.elementId)
 	end
 
-	function element.setInner(self: DomElement, html: string)
-		task.spawn(channels.message, self._dom._window, "dom-setInner" :: "dom-setInner", {
+	function element.setProp(self: DomElement, k: string, v: string)
+		task.spawn(channels.message, self._dom._window, "dom-setProp" :: "dom-setProp", {
 			id = self._id,
-			html = html,
+			k = k,
+			v = v,
 		})
 	end
 

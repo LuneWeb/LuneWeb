@@ -1,7 +1,7 @@
 export type Channel =
 	"dom-getBody"
 	| "dom-querySelect"
-	| "dom-setInner"
+	| "dom-setProp"
 	| "dom-setStyle"
 	| "dom-getStyle"
 	| "dom-createListener"
