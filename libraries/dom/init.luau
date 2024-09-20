@@ -11,8 +11,10 @@ export type DomElement = {
 }
 
 export type Dom = {
+	_callbacks: { (Dom) -> () },
 	_listeners: { () -> () },
 	_window: Window,
+	_loaded: boolean,
 	body: DomElement?,
 }
 
@@ -63,12 +65,20 @@ end
 
 local function useDom(window: Window, callback: (Dom) -> ()): ()
 	if doms[window] then
-		return doms[window]
+		table.insert(doms[window]._callbacks, callback)
+
+		if doms[window]._loaded then
+			callback(doms[window])
+		end
+
+		return
 	end
 
 	local dom = {
 		_window = window,
 		_listeners = {},
+		_callbacks = { callback },
+		_loaded = false,
 	}
 
 	channels.register(dom._window)
@@ -79,17 +89,20 @@ local function useDom(window: Window, callback: (Dom) -> ()): ()
 				table.clear(dom._listeners)
 
 				dom.body = createElement(dom, channels.message(dom._window, "dom-getBody", nil).elementId)
+				dom._loaded = true
 
-				callback(dom)
+				for _, callback in dom._callbacks do
+					callback(dom)
+				end
 			elseif typeof(message) == "table" then
 				if message.listenerId and dom._listeners[message.listenerId] then
 					dom._listeners[message.listenerId]()
 				end
 			end
 		end)
-	end
 
-	doms[dom._window] = dom
+		doms[dom._window] = dom
+	end
 
 	return dom
 end
