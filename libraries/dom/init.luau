@@ -1,4 +1,5 @@
 local channels = require("./channels")
+local doms: { [Window]: Dom } = {}
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
@@ -7,12 +8,12 @@ export type DomElement = {
 	listen: (DomElement, event: string, callback: () -> ()) -> (),
 	_dom: Dom,
 	_id: number,
-	_listeners: { () -> () },
 }
 
 export type Dom = {
+	_listeners: { () -> () },
 	_window: Window,
-	body: DomElement,
+	body: DomElement?,
 }
 
 local function createElement(dom: Dom, id: number?): DomElement
@@ -21,7 +22,6 @@ local function createElement(dom: Dom, id: number?): DomElement
 	local element = {
 		_dom = dom,
 		_id = id,
-		_listeners = {},
 	}
 
 	function element.querySelector(self: DomElement, tag: string): DomElement?
@@ -49,44 +49,49 @@ local function createElement(dom: Dom, id: number?): DomElement
 	end
 
 	function element.listen(self: DomElement, event: string, callback: () -> ())
-		table.insert(self._listeners, callback)
+		table.insert(self._dom._listeners, callback)
 
 		channels.message(self._dom._window, "dom-createListener", {
 			id = self._id,
 			event = event,
-			listenerId = #self._listeners,
+			listenerId = #self._dom._listeners,
 		})
-	end
-
-	do
-		element._dom._window.message:listen(function(message)
-			if typeof(message) ~= "table" then
-				return
-			end
-
-			if message.listenerId and element._listeners[message.listenerId] then
-				element._listeners[message.listenerId]()
-			end
-		end)
 	end
 
 	return element
 end
 
---[[
-Must be called everytime the page is (re)loaded
-]]
-local function getDom(window: Window): Dom
+local function useDom(window: Window, callback: (Dom) -> ()): ()
+	if doms[window] then
+		return doms[window]
+	end
+
 	local dom = {
 		_window = window,
+		_listeners = {},
 	}
 
+	channels.register(dom._window)
+
 	do
-		channels.register(dom._window)
-		dom.body = createElement(dom, channels.message(dom._window, "dom-getBody", nil).elementId)
+		dom._window.message:listen(function(message)
+			if message == "loaded" then
+				table.clear(dom._listeners)
+
+				dom.body = createElement(dom, channels.message(dom._window, "dom-getBody", nil).elementId)
+
+				callback(dom)
+			elseif typeof(message) == "table" then
+				if message.listenerId and dom._listeners[message.listenerId] then
+					dom._listeners[message.listenerId]()
+				end
+			end
+		end)
 	end
+
+	doms[dom._window] = dom
 
 	return dom
 end
 
-return getDom
+return useDom
