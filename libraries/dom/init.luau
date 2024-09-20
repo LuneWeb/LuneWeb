@@ -63,21 +63,11 @@ local function createElement(dom: Dom, id: number?): DomElement
 	return element
 end
 
-local function useDom(window: Window, callback: (Dom) -> ()): ()
-	if doms[window] then
-		table.insert(doms[window]._callbacks, callback)
-
-		if doms[window]._loaded then
-			callback(doms[window])
-		end
-
-		return
-	end
-
+local function initDom(window: Window): Dom
 	local dom = {
 		_window = window,
 		_listeners = {},
-		_callbacks = { callback },
+		_callbacks = {},
 		_loaded = false,
 	}
 
@@ -105,6 +95,20 @@ local function useDom(window: Window, callback: (Dom) -> ()): ()
 	end
 
 	return dom
+end
+
+local function useDom(window: Window, callback: (Dom) -> ()): () -> ()
+	local dom = doms[window] or initDom(window)
+
+	table.insert(dom._callbacks, callback)
+
+	if dom._loaded then
+		callback(dom)
+	end
+
+	return function()
+		table.remove(dom._callbacks, table.find(dom._callbacks, callback))
+	end
 end
 
 return useDom
