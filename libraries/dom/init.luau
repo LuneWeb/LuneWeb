@@ -4,6 +4,7 @@ local doms: { [Window]: Dom } = {}
 
 export type DomElement = {
 	querySelector: (DomElement, tag: string) -> DomElement?,
+	appendChild: (DomElement, child: DomElement) -> (),
 	setProp: (DomElement, k: string, v: any) -> (),
 	getProp: (DomElement, k: string) -> any,
 	setStyle: (DomElement, style: string, value: string) -> (),
@@ -37,6 +38,13 @@ local function createElement(dom: Dom, id: number?): DomElement
 		})
 
 		return createElement(dom, value.elementId)
+	end
+
+	function element.appendChild(self: DomElement, child: DomElement)
+		task.spawn(channels.message, self._dom._window, "dom-appendChild" :: "dom-appendChild", {
+			id = self._id,
+			childId = child._id,
+		})
 	end
 
 	function element.setProp(self: DomElement, k: string, v: any): ()

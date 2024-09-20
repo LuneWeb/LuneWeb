@@ -39,6 +39,14 @@ domListen("dom-getBody", (message) => {
   };
 });
 
+domListen("dom-createElement", (message) => {
+  const elementId = domElementToId(document.createElement(message.tag));
+
+  return {
+    elementId,
+  };
+});
+
 domListen("dom-querySelect", (message) => {
   const elementId = domElementToId(
     elements[message.id].querySelector(message.tag)
@@ -49,12 +57,10 @@ domListen("dom-querySelect", (message) => {
   };
 });
 
-domListen("dom-createElement", (message) => {
-  const elementId = domElementToId(document.createElement(message.tag));
-
-  return {
-    elementId,
-  };
+domListen("dom-appendChild", (message) => {
+  const element = elements[message.id];
+  const child = elements[message.childId];
+  element.appendChild(child);
 });
 
 domListen("dom-setProp", (message) => {
