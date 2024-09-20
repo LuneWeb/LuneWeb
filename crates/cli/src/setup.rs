@@ -39,6 +39,8 @@ pub async fn install_libraries() -> Result<(), std::io::Error> {
 
     if dir.exists() {
         fs::remove_dir_all(&dir).await?;
+    } else {
+        fs::create_dir_all(&dir).await?;
     }
 
     LIBRARIES.extract(&dir)?;
