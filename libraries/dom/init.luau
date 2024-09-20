@@ -10,7 +10,7 @@ export type DomElement = {
 
 export type Dom = {
 	_window: Window,
-	body: (Dom) -> DomElement,
+	body: DomElement,
 }
 
 local function createElement(dom: Dom, id: number?): DomElement
@@ -46,17 +46,17 @@ local function createElement(dom: Dom, id: number?): DomElement
 	return element
 end
 
+--[[
+Must be called everytime the page is (re)loaded
+]]
 local function getDom(window: Window): Dom
 	local dom = {
 		_window = window,
 	}
 
-	channels.register(dom._window)
-
-	function dom.body(self: Dom): DomElement
-		local value = channels.message(self._window, "dom-get-body", nil)
-
-		return createElement(self, value.elementId)
+	do
+		channels.register(dom._window)
+		dom.body = createElement(dom, channels.message(dom._window, "dom-get-body", nil).elementId)
 	end
 
 	return dom

@@ -5,12 +5,10 @@ local window = WindowBuilder.new({
 	dev = true,
 })
 
-local dom = getDom(window)
-
 window.message:listen(function(msg)
 	if msg == "loaded" then
-		local body = dom:body()
-		local div = body:querySelector("div")
+		local dom = getDom(window)
+		local div = dom.body:querySelector("div")
 
 		div:setStyle("backgroundColor", "black")
 
