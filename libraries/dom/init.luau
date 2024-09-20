@@ -115,7 +115,7 @@ local function initDom(window: Window): Dom
 				dom._loaded = true
 
 				for _, callback in dom._callbacks do
-					callback(dom)
+					task.spawn(callback, dom)
 				end
 			elseif typeof(message) == "table" then
 				if message.listenerId and dom._listeners[message.listenerId] then
@@ -136,7 +136,7 @@ local function useDom(window: Window, callback: (Dom) -> ()): () -> ()
 	table.insert(dom._callbacks, callback)
 
 	if dom._loaded then
-		callback(dom)
+		task.spawn(callback, dom)
 	end
 
 	return function()
@@ -152,7 +152,7 @@ return {
 		local dc
 
 		dc = useDom(window, function(dom)
-			callback(dom)
+			task.spawn(callback, dom)
 			dc()
 		end)
 	end,
