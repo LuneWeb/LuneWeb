@@ -156,8 +156,8 @@ return {
 	once = function(window, callback)
 		local dc
 
-		dc = useDom(window, function(dom)
-			task.spawn(callback, dom)
+		dc = useDom(window, function(...)
+			task.spawn(callback, ...)
 			dc()
 		end)
 	end,
