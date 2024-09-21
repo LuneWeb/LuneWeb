@@ -1797,6 +1797,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "javascriptcore"
+version = "0.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65317c3c7104750ffe7d808805d43db129791537fd556a40285bd6ba96732465"
+dependencies = [
+ "javascriptcore-macros",
+ "javascriptcore-sys",
+ "thiserror",
+]
+
+[[package]]
+name = "javascriptcore-macros"
+version = "0.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07c506824b687e670b6884d2ff99976bb4fd373fea9ff3fc29d45f9153df1d00"
+dependencies = [
+ "quote",
+ "syn 2.0.77",
+]
+
+[[package]]
 name = "javascriptcore-rs"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1817,6 +1838,15 @@ dependencies = [
  "gobject-sys",
  "libc",
  "system-deps",
+]
+
+[[package]]
+name = "javascriptcore-sys"
+version = "0.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cb51ed1fdf76de7e841e8e934700f9587ee827285696d50357262209dcc5850"
+dependencies = [
+ "pkg-config",
 ]
 
 [[package]]
@@ -2145,7 +2175,7 @@ dependencies = [
 
 [[package]]
 name = "luneweb"
-version = "0.6.0-beta3"
+version = "0.6.0-beta4"
 dependencies = [
  "clap",
  "directories",
@@ -2187,6 +2217,7 @@ dependencies = [
 name = "luneweb-std-window"
 version = "1.0.0"
 dependencies = [
+ "javascriptcore",
  "lune-std-serde",
  "luneweb-rs",
  "mlua",

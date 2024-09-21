@@ -9,5 +9,6 @@ lune-std-serde = "0.1.2"
 tokio = { version = "1.40.0", features = ["full"] }
 tokio-stream = { version = "0.1.16", features = ["sync"] }
 luneweb-rs = { version = "1.0.0", path = "../rust" }
+javascriptcore = "0.0.6"
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 tao = "0.28.1"

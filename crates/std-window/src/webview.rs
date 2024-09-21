@@ -10,6 +10,14 @@ pub struct LuaWebview {
 impl mlua::UserData for LuaWebview {
     fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("eval", |lua, this, src: String| {
+            javascriptcore::check_script_syntax(&Default::default(), src.clone(), "", 1).map_err(
+                |err| {
+                    mlua::Error::runtime(format!(
+                        "The script that youre trying to evaluate has syntax error\n{err}"
+                    ))
+                },
+            )?;
+
             inner_window!(let window << lua, this.id);
 
             let Some(webview) = &window.webview else {
