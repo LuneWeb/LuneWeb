@@ -142,7 +142,10 @@ local function useDom(window: Window, callback: (Dom) -> ()): () -> ()
 	end
 
 	return function()
-		table.remove(dom._callbacks, table.find(dom._callbacks, callback))
+		local i = table.find(dom._callbacks, callback)
+		assert(i, "callback was already disconnected")
+
+		table.remove(dom._callbacks, i)
 	end
 end
 
