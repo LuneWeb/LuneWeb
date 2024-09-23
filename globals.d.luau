@@ -23,6 +23,22 @@ declare class Window
   url: string
 end
 
+declare class AudioDevice
+  function len(self): number
+  function appendAudioSource(self, source: AudioSource): ()
+  function play(self): ()
+  function pause(self): ()
+  function clear(self): ()
+end
+
+declare class AudioSource
+end
+
 declare WindowBuilder: {
   new: (config: WindowConfig) -> Window,
+}
+
+declare Audio: {
+  newAudioDevice: () -> AudioDevice,
+  newAudioSource: (buffer) -> AudioSource,
 }
