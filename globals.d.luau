@@ -24,7 +24,6 @@ declare class Window
 end
 
 declare class AudioDevice
-  function len(self): number
   function appendAudioSource(self, source: AudioSource): ()
   function play(self): ()
   function pause(self): ()
@@ -39,6 +38,6 @@ declare WindowBuilder: {
 }
 
 declare Audio: {
-  newAudioDevice: () -> AudioDevice,
-  newAudioSource: (buffer) -> AudioSource,
+  device: AudioDevice,
+  sourceFromBuffer: (content: buffer) -> AudioSource,
 }
