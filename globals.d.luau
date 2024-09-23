@@ -24,6 +24,7 @@ declare class Window
 end
 
 declare class AudioSource
+  duration: number
   position: number
 end
 
