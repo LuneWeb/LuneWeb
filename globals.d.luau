@@ -40,4 +40,4 @@ declare WindowBuilder: {
 
 declare AudioBuilder: {
   fromBuffer: (content: buffer) -> AudioSource,
-}
+}?

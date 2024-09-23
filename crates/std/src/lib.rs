@@ -25,9 +25,11 @@ impl StandardLibrary {
                 table.into_lua(lua)
             }
             Self::Audio => {
-                LuaAudioDevice::init(lua)?;
-
                 let table = lua.create_table()?;
+                table.set(
+                    "fromBuffer",
+                    mlua::Function::wrap(LuaAudioSource::from_buffer),
+                )?;
                 table.set(
                     "fromBuffer",
                     mlua::Function::wrap(LuaAudioSource::from_buffer),
@@ -43,7 +45,11 @@ pub fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
     let globals = lua.globals();
 
     globals.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
-    globals.set("AudioBuilder", StandardLibrary::Audio.into_lua(lua)?)?;
+
+    if LuaAudioDevice::init(lua).is_ok() {
+        // only add AudioBuilder on supported machines
+        globals.set("AudioBuilder", StandardLibrary::Audio.into_lua(lua)?)?;
+    }
 
     Ok(())
 }

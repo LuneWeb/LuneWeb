@@ -7,15 +7,7 @@ pub struct LuaAudioDevice {
 
 impl LuaAudioDevice {
     pub fn init(lua: &Lua) -> LuaResult<()> {
-        match Self::new(lua, ()) {
-            Ok(device) => {
-                lua.set_app_data(device);
-            }
-
-            // give a warning instead of an error so the app can work
-            // on machines that dont have audio devices (e.g. when using WSL)
-            Err(_) => println!("[Warn] failed to get an audio device, errors should be expected when using the audio library"),
-        }
+        lua.set_app_data(Self::new(lua, ())?);
 
         Ok(())
     }
