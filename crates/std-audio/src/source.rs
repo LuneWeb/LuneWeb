@@ -43,4 +43,24 @@ impl LuaUserData for LuaAudioSource {
             Ok(())
         });
     }
+
+    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
+        methods.add_method("play", |_, this, _: ()| {
+            this.sink.play();
+
+            Ok(())
+        });
+
+        methods.add_method("pause", |_, this, _: ()| {
+            this.sink.pause();
+
+            Ok(())
+        });
+
+        methods.add_method("stop", |_, this, _: ()| {
+            this.sink.stop();
+
+            Ok(())
+        });
+    }
 }
