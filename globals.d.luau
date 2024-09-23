@@ -39,5 +39,5 @@ declare WindowBuilder: {
 }
 
 declare AudioBuilder: {
-  new: (content: buffer) -> AudioSource,
+  fromBuffer: (content: buffer) -> AudioSource,
 }

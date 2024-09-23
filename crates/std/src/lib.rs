@@ -28,7 +28,10 @@ impl StandardLibrary {
                 LuaAudioDevice::init(lua)?;
 
                 let table = lua.create_table()?;
-                table.set("new", mlua::Function::wrap(LuaAudioSource::new))?;
+                table.set(
+                    "fromBuffer",
+                    mlua::Function::wrap(LuaAudioSource::from_buffer),
+                )?;
                 table.into_lua(lua)
             }
         }

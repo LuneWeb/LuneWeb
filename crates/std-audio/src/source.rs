@@ -13,7 +13,7 @@ pub struct LuaAudioSource {
 }
 
 impl LuaAudioSource {
-    pub fn new(lua: &Lua, buffer: BString) -> LuaResult<Self> {
+    pub fn from_buffer(lua: &Lua, buffer: BString) -> LuaResult<Self> {
         let reader = BufReader::new(Cursor::new(buffer));
         let source = Decoder::new(reader).into_lua_err()?;
         let duration = source

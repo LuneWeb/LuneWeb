@@ -1,1 +1,1 @@
-local audio = AudioBuilder.new(buffer.create(0))
+local audio = AudioBuilder.fromBuffer(buffer.create(0))
