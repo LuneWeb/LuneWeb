@@ -24,6 +24,7 @@ declare class Window
 end
 
 declare class AudioSource
+  position: number
 end
 
 declare WindowBuilder: {
