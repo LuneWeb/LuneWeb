@@ -1,4 +1,1 @@
-local source = Audio.sourceFromBuffer(buffer.create(0))
-
-Audio.device:appendAudioSource(source)
-Audio.device:play()
+local audio = AudioBuilder.new(buffer.create(0))

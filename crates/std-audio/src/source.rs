@@ -1,18 +1,23 @@
 use bstr::BString;
 use mlua::prelude::*;
-use rodio::Decoder;
+use rodio::{Decoder, Sink};
 use std::io::{BufReader, Cursor};
 
+use crate::device::LuaAudioDevice;
+
 pub struct LuaAudioSource {
-    pub source: Decoder<BufReader<Cursor<BString>>>,
+    pub sink: Sink,
 }
 
 impl LuaAudioSource {
-    pub fn new(_: &Lua, buffer: BString) -> LuaResult<Self> {
+    pub fn new(lua: &Lua, buffer: BString) -> LuaResult<Self> {
         let reader = BufReader::new(Cursor::new(buffer));
         let source = Decoder::new(reader).into_lua_err()?;
+        let sink = LuaAudioDevice::get(lua)?.sink()?;
 
-        Ok(Self { source })
+        sink.append(source);
+
+        Ok(Self { sink })
     }
 }
 

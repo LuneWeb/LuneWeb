@@ -1,48 +1,28 @@
-use crate::source::LuaAudioSource;
-use mlua::prelude::*;
+use mlua::{prelude::*, AppDataRef};
 use rodio::{OutputStream, OutputStreamHandle, Sink};
 
 pub struct LuaAudioDevice {
     pub output: (OutputStream, OutputStreamHandle),
-    pub sink: Sink,
 }
 
 impl LuaAudioDevice {
+    pub fn init(lua: &Lua) -> LuaResult<()> {
+        lua.set_app_data(Self::new(lua, ())?);
+
+        Ok(())
+    }
+
+    pub fn get(lua: &Lua) -> LuaResult<AppDataRef<Self>> {
+        lua.app_data_ref::<LuaAudioDevice>().ok_or(LuaError::runtime("Failed to get AudioDevice from app data container, make sure to call LuaAudioDevice::init before using the audio library"))
+    }
+
     pub fn new(_: &Lua, _: ()) -> LuaResult<Self> {
         let output = OutputStream::try_default().into_lua_err()?;
-        let sink = Sink::try_new(&output.1).into_lua_err()?;
 
-        Ok(Self { output, sink })
+        Ok(Self { output })
     }
-}
 
-impl LuaUserData for LuaAudioDevice {
-    fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
-        methods.add_meta_method(LuaMetaMethod::Len, |_, this, _: ()| Ok(this.sink.len()));
-
-        methods.add_method("appendAudioSource", |_, this, source: LuaAnyUserData| {
-            let source = source.take::<LuaAudioSource>()?;
-            this.sink.append(source.source);
-
-            Ok(())
-        });
-
-        methods.add_method("play", |_, this, _: ()| {
-            this.sink.play();
-
-            Ok(())
-        });
-
-        methods.add_method("pause", |_, this, _: ()| {
-            this.sink.pause();
-
-            Ok(())
-        });
-
-        methods.add_method("clear", |_, this, _: ()| {
-            this.sink.clear();
-
-            Ok(())
-        });
+    pub fn sink(&self) -> LuaResult<Sink> {
+        Sink::try_new(&self.output.1).into_lua_err()
     }
 }
