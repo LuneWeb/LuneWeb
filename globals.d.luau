@@ -24,8 +24,14 @@ declare class Window
 end
 
 declare class AudioSource
+  function play(self): ()
+  function pause(self): ()
+  function stop(self): ()
+
   duration: number
   position: number
+  volume: number
+  speed: number
 end
 
 declare WindowBuilder: {
