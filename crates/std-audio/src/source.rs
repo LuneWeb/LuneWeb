@@ -42,6 +42,20 @@ impl LuaUserData for LuaAudioSource {
 
             Ok(())
         });
+
+        fields.add_field_method_get("volume", |_, this| Ok(this.sink.volume()));
+        fields.add_field_method_set("volume", |_, this, volume: f32| {
+            this.sink.set_volume(volume);
+
+            Ok(())
+        });
+
+        fields.add_field_method_get("speed", |_, this| Ok(this.sink.speed()));
+        fields.add_field_method_set("speed", |_, this, speed: f32| {
+            this.sink.set_speed(speed);
+
+            Ok(())
+        });
     }
 
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
