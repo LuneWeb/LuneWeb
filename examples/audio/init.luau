@@ -1,10 +1,8 @@
 assert(AudioBuilder, "This machine doesn't have an audio device")
 
-local fs = require("@lune/fs") :: any
-local task = require("@lune/task") :: any
-local audio = AudioBuilder.fromBuffer(
-	buffer.fromstring(fs.readFile("F:\\DrumKits\\! Cxdy - go to drums\\#808(s)\\bomberman 808 @thecxdy.wav"))
-)
+local fs = require("@lune/fs")
+local task = require("@lune/task")
+local audio = AudioBuilder.fromBuffer(buffer.fromstring(fs.readFile("examples/audio/808.wav")))
 
 while true do
 	audio:play()
