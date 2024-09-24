@@ -9,12 +9,13 @@ use std::{
 
 pub struct LuaAudioSource {
     pub sink: Sink,
+    pub content: BString,
     pub duration: f64,
 }
 
 impl LuaAudioSource {
-    pub fn from_buffer(lua: &Lua, buffer: BString) -> LuaResult<Self> {
-        let reader = BufReader::new(Cursor::new(buffer));
+    pub fn from_buffer(lua: &Lua, content: BString) -> LuaResult<Self> {
+        let reader = BufReader::new(Cursor::new(content.clone()));
         let source = Decoder::new(reader).into_lua_err()?;
         let duration = source
             .total_duration()
@@ -24,15 +25,29 @@ impl LuaAudioSource {
             .as_secs_f64();
 
         let sink = LuaAudioDevice::get(lua)?.sink()?;
-        sink.append(source);
 
-        Ok(Self { sink, duration })
+        Ok(Self {
+            sink,
+            content,
+            duration,
+        })
     }
 }
 
 impl LuaUserData for LuaAudioSource {
     fn add_fields<'lua, F: LuaUserDataFields<'lua, Self>>(fields: &mut F) {
         fields.add_field_method_get("duration", |_, this| Ok(this.duration));
+
+        fields.add_field_method_get("paused", |_, this| Ok(this.sink.is_paused()));
+        fields.add_field_method_set("paused", |_, this, paused: bool| {
+            if paused {
+                this.sink.pause();
+            } else {
+                this.sink.play();
+            }
+
+            Ok(())
+        });
 
         fields.add_field_method_get("position", |_, this| Ok(this.sink.get_pos().as_secs_f64()));
         fields.add_field_method_set("position", |_, this, pos: f64| {
@@ -60,13 +75,12 @@ impl LuaUserData for LuaAudioSource {
 
     fn add_methods<'lua, M: LuaUserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("play", |_, this, _: ()| {
+            let reader = BufReader::new(Cursor::new(this.content.clone()));
+            let source = Decoder::new(reader).into_lua_err()?;
+
+            this.sink.clear();
+            this.sink.append(source);
             this.sink.play();
-
-            Ok(())
-        });
-
-        methods.add_method("pause", |_, this, _: ()| {
-            this.sink.pause();
 
             Ok(())
         });

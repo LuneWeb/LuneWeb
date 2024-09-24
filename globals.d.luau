@@ -25,10 +25,10 @@ end
 
 declare class AudioSource
   function play(self): ()
-  function pause(self): ()
   function stop(self): ()
 
   duration: number
+  paused: boolean
   position: number
   volume: number
   speed: number
