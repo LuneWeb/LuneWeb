@@ -46,7 +46,7 @@ pub fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
 
     globals.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
 
-    if LuaAudioDevice::init(lua).is_ok() {
+    if LuaAudioDevice::try_init(lua).is_ok() {
         // only add AudioBuilder on supported machines
         globals.set("AudioBuilder", StandardLibrary::Audio.into_lua(lua)?)?;
     }

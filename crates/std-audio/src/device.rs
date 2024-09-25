@@ -6,7 +6,7 @@ pub struct LuaAudioDevice {
 }
 
 impl LuaAudioDevice {
-    pub fn init(lua: &Lua) -> LuaResult<()> {
+    pub fn try_init(lua: &Lua) -> LuaResult<()> {
         lua.set_app_data(Self::new(lua, ())?);
 
         Ok(())
