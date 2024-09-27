@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{env::current_dir, path::PathBuf};
 
 use include_dir::{include_dir, Dir};
 use once_cell::sync::Lazy;
@@ -15,6 +15,8 @@ pub static HOME_PATH: Lazy<PathBuf> = Lazy::new(|| {
         .home_dir()
         .join(".luneweb")
 });
+
+pub static PROJECT_PATH: Lazy<PathBuf> = Lazy::new(|| current_dir().unwrap().join(".luneweb"));
 
 pub async fn create_home() -> Result<(), std::io::Error> {
     fs::create_dir_all(&*HOME_PATH).await
@@ -35,7 +37,7 @@ pub async fn install_typedefs() -> Result<(), std::io::Error> {
 }
 
 pub async fn install_libraries() -> Result<(), std::io::Error> {
-    let dir = HOME_PATH.join(format!(".libraries-{VERSION}"));
+    let dir = PROJECT_PATH.join(format!(".libraries-{VERSION}"));
 
     if dir.exists() {
         fs::remove_dir_all(&dir).await?;
