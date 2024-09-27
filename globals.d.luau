@@ -8,7 +8,7 @@ type WindowConfig = {
 
 declare class Message
   function send(self, channel: string, message: any): ()
-  function listen(self, callback: Callback): () 
+  function listen(self, callback: Callback): () -> ()
 end
 
 declare class WebView

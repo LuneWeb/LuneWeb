@@ -58,8 +58,8 @@ impl mlua::UserData for LuaMessage {
         #[allow(unreachable_code)]
         methods.add_async_method("listen", |lua, this, callback: mlua::Function| async move {
             let callback_reg_key = lua.create_registry_value(callback)?;
-            let rx = this.tx.subscribe();
-            let mut stream = WatchStream::from_changes(rx);
+            let (dc_tx, mut dc_rx) = watch::channel(false);
+            let mut stream = WatchStream::from_changes(this.tx.subscribe());
 
             if Rc::strong_count(&this.tx) < 2 {
                 this.watch_pool(lua)?;
@@ -77,15 +77,26 @@ impl mlua::UserData for LuaMessage {
                     .expect("Failed to get callback function from registry");
 
                 loop {
-                    if let Some(message) = stream.next().await {
-                        inner_lua
+                    tokio::select! {
+                        result = dc_rx.changed() => {
+                            if result.is_ok() {
+                                break
+                            }
+                        },
+                        Some(message) = stream.next() => {
+                            inner_lua
                             .push_thread_front(callback.clone(), json_to_lua(message, &inner_lua))
                             .expect("Failed to call callback function");
+                        }
                     }
                 }
             });
 
-            Ok(())
+            Ok(mlua::Function::wrap(move |_, _: ()| {
+                let _ = dc_tx.send(true);
+
+                Ok(())
+            }))
         });
 
         methods.add_method(
