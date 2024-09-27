@@ -12,6 +12,8 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - `WebView:eval` checks for syntax error in macos and linux
 
+- `AudioBuilder` global for creating audio instances
+
 ## [v0.6.0-beta3]
 
 - added methods `setProp`, `getProp` and `appendChild` to `DomElement`
