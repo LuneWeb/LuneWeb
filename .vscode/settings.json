@@ -7,5 +7,9 @@
   "luau-lsp.require.directoryAliases": {
     "@lune/": "~/.lune/.typedefs/0.8.8/",
     "@luneweb/": "./libraries/"
+  },
+  "luau-lsp.fflags.override": {
+    "LuauTypeSolverRelease": "644",
+    "LuauSolverV2": "true"
   }
 }
