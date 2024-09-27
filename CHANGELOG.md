@@ -12,7 +12,9 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 
 - `WebView:eval` checks for syntax error in macos and linux
 
-- `AudioBuilder` global for creating audio instances
+- `AudioBuilder?` global for creating audio instances
+
+[docs for AudioBuilder](https://github.com/LuneWeb/docs/blob/0.6.0/src/luau/audio_builder.md), [docs for AudioSource](https://github.com/LuneWeb/docs/blob/0.6.0/src/luau/audio_source.md)
 
 ## [v0.6.0-beta3]
 
