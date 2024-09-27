@@ -1,4 +1,10 @@
 [workspace]
 default-members = ["crates/cli"]
-members = ["crates/cli", "crates/rust", "crates/std", "crates/std-window"]
+members = [
+    "crates/cli",
+    "crates/rust",
+    "crates/std",
+    "crates/std-window",
+    "crates/std-audio",
+]
 resolver = "2"

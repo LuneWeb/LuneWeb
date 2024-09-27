@@ -1,8 +1,10 @@
+use luneweb_std_audio::{device::LuaAudioDevice, source::LuaAudioSource};
 use luneweb_std_window::LuaWindow;
 use mlua::IntoLua;
 
 pub enum StandardLibrary {
     Window,
+    Audio,
 }
 
 impl StandardLibrary {
@@ -10,6 +12,7 @@ impl StandardLibrary {
     pub fn from_str<T: AsRef<str>>(str: &T) -> Option<Self> {
         match str.as_ref() {
             "window" => Some(Self::Window),
+            "audio" => Some(Self::Audio),
             _ => None,
         }
     }
@@ -21,6 +24,18 @@ impl StandardLibrary {
                 table.set("new", mlua::Function::wrap(LuaWindow::new))?;
                 table.into_lua(lua)
             }
+            Self::Audio => {
+                let table = lua.create_table()?;
+                table.set(
+                    "fromBuffer",
+                    mlua::Function::wrap(LuaAudioSource::from_buffer),
+                )?;
+                table.set(
+                    "fromBuffer",
+                    mlua::Function::wrap(LuaAudioSource::from_buffer),
+                )?;
+                table.into_lua(lua)
+            }
         }
     }
 }
@@ -30,6 +45,11 @@ pub fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
     let globals = lua.globals();
 
     globals.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
+
+    if LuaAudioDevice::try_init(lua).is_ok() {
+        // only add AudioBuilder on supported machines
+        globals.set("AudioBuilder", StandardLibrary::Audio.into_lua(lua)?)?;
+    }
 
     Ok(())
 }

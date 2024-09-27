@@ -23,6 +23,21 @@ declare class Window
   url: string
 end
 
+declare class AudioSource
+  function play(self): ()
+  function stop(self): ()
+
+  duration: number
+  paused: boolean
+  position: number
+  volume: number
+  speed: number
+end
+
 declare WindowBuilder: {
   new: (config: WindowConfig) -> Window,
 }
+
+declare AudioBuilder: {
+  fromBuffer: (content: buffer) -> AudioSource,
+}?
