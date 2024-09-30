@@ -9,7 +9,7 @@
     "@luneweb/": "./libraries/"
   },
   "luau-lsp.fflags.override": {
-    "LuauTypeSolverRelease": "644",
+    "DFIntLuauTypeSolverRelease": "644",
     "LuauSolverV2": "true"
   }
 }
