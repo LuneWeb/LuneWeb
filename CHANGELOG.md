@@ -6,6 +6,10 @@ All notable changes to LuneWeb will be documented in this file.
 Note: In this file, do not use the hard wrap in the middle of a sentence for compatibility with GitHub comment style markdown rendering.
 -->
 
+## [v0.6.0-beta5]
+
+- Fixed frequent crashes caused by `Message:listen`
+
 ## [v0.6.0-beta4]
 
 - `Message:listen` returns a function for disconnecting itself
