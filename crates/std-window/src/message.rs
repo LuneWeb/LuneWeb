@@ -77,6 +77,8 @@ impl mlua::UserData for LuaMessage {
                     .expect("Failed to get callback function from registry");
 
                 loop {
+                    tokio::time::sleep(Duration::from_millis(16)).await;
+
                     tokio::select! {
                         result = dc_rx.changed() => {
                             if result.is_ok() {
