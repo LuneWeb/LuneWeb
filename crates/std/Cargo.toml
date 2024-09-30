@@ -3,6 +3,11 @@ name = "luneweb-std"
 version = "1.0.0"
 edition = "2021"
 
+[features]
+default = ["std-audio"]
+
+std-audio = ["luneweb-std-audio"]
+
 [dependencies]
 mlua-luau-scheduler = "0.0.2"
 luneweb-rs = { version = "1.0.0", path = "../rust" }
@@ -10,8 +15,8 @@ tokio = { version = "1.40.0", features = ["full"] }
 mlua = { version = "0.9.9", features = ["luau", "async"] }
 
 # STDs
-luneweb-std-window = { version = "1.0.0", path = "../std-window" }
-luneweb-std-audio = { version = "1.0.0", path = "../std-audio" }
+luneweb-std-window = { version = "1.0.0", path = "../std-window", optional = false }
+luneweb-std-audio = { version = "1.0.0", path = "../std-audio", optional = true }
 
 ### used in examples
 [dev-dependencies]

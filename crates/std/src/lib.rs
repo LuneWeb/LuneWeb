@@ -1,9 +1,11 @@
+#[cfg(feature = "std-audio")]
 use luneweb_std_audio::{device::LuaAudioDevice, source::LuaAudioSource};
 use luneweb_std_window::LuaWindow;
 use mlua::IntoLua;
 
 pub enum StandardLibrary {
     Window,
+    #[cfg(feature = "std-audio")]
     Audio,
 }
 
@@ -12,6 +14,7 @@ impl StandardLibrary {
     pub fn from_str<T: AsRef<str>>(str: &T) -> Option<Self> {
         match str.as_ref() {
             "window" => Some(Self::Window),
+            #[cfg(feature = "std-audio")]
             "audio" => Some(Self::Audio),
             _ => None,
         }
@@ -24,6 +27,7 @@ impl StandardLibrary {
                 table.set("new", mlua::Function::wrap(LuaWindow::new))?;
                 table.into_lua(lua)
             }
+            #[cfg(feature = "std-audio")]
             Self::Audio => {
                 let table = lua.create_table()?;
                 table.set(
@@ -46,6 +50,7 @@ pub fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
 
     globals.set("WindowBuilder", StandardLibrary::Window.into_lua(lua)?)?;
 
+    #[cfg(feature = "std-audio")]
     if LuaAudioDevice::try_init(lua).is_ok() {
         // only add AudioBuilder on supported machines
         globals.set("AudioBuilder", StandardLibrary::Audio.into_lua(lua)?)?;
