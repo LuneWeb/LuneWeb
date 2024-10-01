@@ -1,3 +1,5 @@
+use super::EventLoop;
+use std::collections::VecDeque;
 use tao::{
     event::{Event, WindowEvent},
     event_loop::ControlFlow,
@@ -5,17 +7,14 @@ use tao::{
     window::WindowId,
 };
 
-use super::EventLoop;
-
 pub enum EventLoopAction {
     CloseRequested(WindowId),
     RedrawRequest(WindowId),
-    None,
 }
 
 impl EventLoop {
-    fn await_action(&mut self) -> EventLoopAction {
-        let mut action = EventLoopAction::None;
+    fn await_actions(&mut self) -> VecDeque<EventLoopAction> {
+        let mut actions: VecDeque<EventLoopAction> = VecDeque::new();
 
         self.inner.run_return(|event, _target, control_flow| {
             if can_exit(&event) {
@@ -27,23 +26,21 @@ impl EventLoop {
                     window_id,
                     event: WindowEvent::CloseRequested,
                     ..
-                } => action = EventLoopAction::CloseRequested(window_id),
+                } => actions.push_back(EventLoopAction::CloseRequested(window_id)),
 
                 Event::RedrawRequested(window_id) => {
-                    action = EventLoopAction::RedrawRequest(window_id)
+                    actions.push_back(EventLoopAction::RedrawRequest(window_id));
                 }
 
                 _ => {}
             };
         });
 
-        action
+        actions
     }
 
     fn take_action(&self, action: &EventLoopAction) {
         match action {
-            EventLoopAction::None => {}
-
             EventLoopAction::RedrawRequest(window_id) => {
                 if let Some(window) = self.get_window(*window_id) {
                     window.inner.request_redraw();
@@ -59,9 +56,9 @@ impl EventLoop {
     }
 
     pub fn once(&mut self) {
-        let action = self.await_action();
-
-        self.take_action(&action);
+        for action in self.await_actions() {
+            self.take_action(&action);
+        }
     }
 }
 
