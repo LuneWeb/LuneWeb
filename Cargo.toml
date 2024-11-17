@@ -4,7 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-mlua = { version = "*", features = ["luau", "luau-jit", "async"] }
+mlua = { version = "*", features = [
+    "luau",
+    "luau-jit",
+    "async",
+    "send",
+    "error-send",
+] }
 
 smol = "*"
 flume = "*"
