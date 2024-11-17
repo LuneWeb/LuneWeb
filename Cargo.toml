@@ -1,0 +1,13 @@
+[package]
+name = "luneweb2"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mlua = { version = "*", features = ["luau", "luau-jit", "async"] }
+
+smol = "*"
+flume = "*"
+
+tao = "*"
+wry = { version = "*", features = ["devtools"] }
