@@ -1,5 +1,9 @@
 use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
 
+fn tao_tick(event: tao::event::Event<()>, control_flow: &mut tao::event_loop::ControlFlow) {
+    *control_flow = tao::event_loop::ControlFlow::Exit;
+}
+
 fn initialize_tao(stopped: Stopped) {
     #[cfg(any(
         target_os = "linux",
@@ -18,8 +22,11 @@ fn initialize_tao(stopped: Stopped) {
         .build();
 
     event_loop.run(move |event, _target, control_flow| {
-        *control_flow = tao::event_loop::ControlFlow::Exit;
-        stopped.stop();
+        tao_tick(event, control_flow);
+
+        if let tao::event_loop::ControlFlow::Exit = *control_flow {
+            stopped.stop();
+        }
     })
 }
 
