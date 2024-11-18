@@ -5,8 +5,6 @@ pub use thread::initialize_threads;
 mod stopper;
 mod thread;
 
-pub const ALWAYS_SINGLE_THREAD: bool = true;
-
 #[macro_export]
 macro_rules! main {
     (|$sched:ident, $proxy:ident| $main:block) => {

@@ -1,4 +1,5 @@
-use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
+use super::{Scheduler, Stopped};
+use crate::ALWAYS_SINGLE_THREAD;
 
 fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::app::AppProxy>) {
     #[cfg(any(
