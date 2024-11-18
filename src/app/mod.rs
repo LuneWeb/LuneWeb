@@ -38,6 +38,9 @@ impl App {
         std::thread::JoinHandle<()>,
     ) {
         let (send_proxy, receive_proxy) = flume::unbounded();
+
+        // `target.run` fully hijacks the calling thread
+        // which is why we don't spawn it in our smol executor
         let join = std::thread::Builder::new()
             .name("LuauApp".to_string())
             .spawn(move || {
