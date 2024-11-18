@@ -1,7 +1,7 @@
 use super::proxy::AppProxy;
 
 impl super::App {
-    pub(super) async fn tick(
+    pub(super) async fn process_event(
         &mut self,
         target_event: tao::event::Event<'_, AppProxy>,
         target: &tao::event_loop::EventLoopWindowTarget<AppProxy>,

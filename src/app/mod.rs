@@ -52,7 +52,7 @@ impl App {
 
                 target.run(move |event, target, control_flow| {
                     // runtime logic here
-                    smol::block_on(self.tick(event, target, control_flow))
+                    smol::block_on(self.process_event(event, target, control_flow))
                         .expect("Application tick failed");
                 });
             })
