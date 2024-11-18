@@ -18,11 +18,7 @@ fn main() {
         .detach();
 
     scheduler::initialize_threads(scheduler, |proxy| {
-        let (sender, receiver) = flume::bounded(1);
-        proxy
-            .send_event(app::AppEvent::CreateWindow(sender))
-            .expect("Failed to send event");
-        let window = receiver.recv().expect("Failed to receive window");
+        let window = proxy.create_window();
 
         println!("{:?}", window);
     });

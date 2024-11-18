@@ -11,10 +11,8 @@ pub struct Scheduler {
     pub executor: smol::Executor<'static>,
     pub(crate) stopped: Stopped,
 
-    pub(crate) send_proxy:
-        async_broadcast::Sender<tao::event_loop::EventLoopProxy<crate::app::AppEvent>>,
-    pub recv_proxy:
-        async_broadcast::Receiver<tao::event_loop::EventLoopProxy<crate::app::AppEvent>>,
+    pub(crate) send_proxy: async_broadcast::Sender<crate::app::AppProxy>,
+    pub recv_proxy: async_broadcast::Receiver<crate::app::AppProxy>,
 }
 
 impl Scheduler {

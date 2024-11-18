@@ -6,6 +6,21 @@ pub enum AppEvent {
     CreateWindow(flume::Sender<Arc<Window>>),
 }
 
+#[derive(Debug, Clone)]
+pub struct AppProxy {
+    pub(crate) proxy: tao::event_loop::EventLoopProxy<AppEvent>,
+}
+
+impl AppProxy {
+    pub fn create_window(&self) -> Arc<Window> {
+        let (sender, receiver) = flume::bounded(1);
+        self.proxy
+            .send_event(AppEvent::CreateWindow(sender))
+            .expect("Failed to send event");
+        receiver.recv().expect("Failed to receive window")
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct AppHandle {
     pub(crate) windows: HashMap<WindowId, Arc<Window>>,

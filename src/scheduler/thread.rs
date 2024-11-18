@@ -1,9 +1,6 @@
 use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
 
-fn initialize_tao(
-    stopped: Stopped,
-    send_proxy: async_broadcast::Sender<tao::event_loop::EventLoopProxy<crate::app::AppEvent>>,
-) {
+fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::app::AppProxy>) {
     #[cfg(any(
         target_os = "linux",
         target_os = "dragonfly",
@@ -22,7 +19,8 @@ fn initialize_tao(
             .build();
 
     let proxy = event_loop.create_proxy();
-    smol::block_on(send_proxy.broadcast(proxy)).expect("Failed to broadcast app proxy");
+    smol::block_on(send_proxy.broadcast(crate::app::AppProxy { proxy }))
+        .expect("Failed to broadcast app proxy");
 
     let mut app_handle = crate::app::AppHandle {
         windows: Default::default(),
@@ -45,7 +43,7 @@ fn initialize_tao(
 
 pub fn initialize_threads(
     mut scheduler: Scheduler,
-    f: impl FnOnce(tao::event_loop::EventLoopProxy<crate::app::AppEvent>) + Send + 'static,
+    f: impl FnOnce(crate::app::AppProxy) + Send + 'static,
 ) {
     let threads_count = std::thread::available_parallelism()
         .map_or(1, |x| x.get())
