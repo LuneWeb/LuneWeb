@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use tao::window::{Window, WindowId};
 
 #[derive(Debug, Clone)]

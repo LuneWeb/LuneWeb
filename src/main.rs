@@ -17,5 +17,7 @@ fn main() {
         })
         .detach();
 
-    scheduler::initialize_threads(scheduler);
+    scheduler::initialize_threads(scheduler, |proxy| {
+        println!("{:?}", proxy);
+    });
 }

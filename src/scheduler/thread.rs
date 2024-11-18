@@ -1,6 +1,9 @@
 use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
 
-fn initialize_tao(stopped: Stopped) {
+fn initialize_tao(
+    stopped: Stopped,
+    send_proxy: async_broadcast::Sender<tao::event_loop::EventLoopProxy<crate::app::AppEvent>>,
+) {
     #[cfg(any(
         target_os = "linux",
         target_os = "dragonfly",
@@ -17,6 +20,9 @@ fn initialize_tao(stopped: Stopped) {
         tao::event_loop::EventLoopBuilder::with_user_event()
             .with_any_thread(true)
             .build();
+
+    let proxy = event_loop.create_proxy();
+    smol::block_on(send_proxy.broadcast(proxy)).expect("Failed to broadcast app proxy");
 
     let app_handle = crate::app::AppHandle {
         windows: Default::default(),
@@ -37,7 +43,10 @@ fn initialize_tao(stopped: Stopped) {
     })
 }
 
-pub fn initialize_threads(scheduler: Scheduler) {
+pub fn initialize_threads(
+    mut scheduler: Scheduler,
+    f: impl FnOnce(tao::event_loop::EventLoopProxy<crate::app::AppEvent>) + Send + 'static,
+) {
     let threads_count = std::thread::available_parallelism()
         .map_or(1, |x| x.get())
         .clamp(1, 8);
@@ -50,18 +59,31 @@ pub fn initialize_threads(scheduler: Scheduler) {
         // single thread
         let stopped = scheduler.stopped.clone();
 
+        scheduler
+            .executor
+            .spawn(async move {
+                f(scheduler
+                    .recv_proxy
+                    .recv()
+                    .await
+                    .expect("Failed to receive proxy"));
+            })
+            .detach();
+
         std::thread::Builder::new()
             .name("user-thread".to_owned())
             .spawn(move || smol::block_on(scheduler.executor.run(scheduler.stopped.wait())))
             .expect("Failed to create thread");
 
-        initialize_tao(stopped);
+        initialize_tao(stopped, scheduler.send_proxy);
     } else {
         // multi thread
         std::thread::scope(|scope| {
             std::thread::Builder::new()
                 .name(format!("tao-thread"))
-                .spawn_scoped(scope, || initialize_tao(scheduler.stopped.clone()))
+                .spawn_scoped(scope, || {
+                    initialize_tao(scheduler.stopped.clone(), scheduler.send_proxy)
+                })
                 .expect("Failed to create thread");
 
             for i in 1..threads_count {
@@ -73,6 +95,8 @@ pub fn initialize_threads(scheduler: Scheduler) {
                     .spawn_scoped(scope, || smol::block_on(executor.run(stopped.wait())))
                     .expect("Failed to create thread");
             }
+
+            f(smol::block_on(scheduler.recv_proxy.recv()).expect("Failed to receive proxy"));
         });
     }
 }
