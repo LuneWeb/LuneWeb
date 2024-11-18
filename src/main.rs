@@ -1,28 +1,37 @@
-use std::sync::Arc;
+use scheduler::Scheduler;
 
-mod app;
+// mod app;
 mod scheduler;
 
+fn manage_scheduler(scheduler: Scheduler) {
+    let threads_count = std::thread::available_parallelism()
+        .map_or(1, |x| x.get())
+        .clamp(1, 8);
+
+    if threads_count == 1 {
+        // single thread
+        std::thread::Builder::new()
+            .name("user-thread".to_owned())
+            .spawn(move || smol::block_on(scheduler.executor.run(scheduler.stopped.wait())))
+            .expect("Failed to create thread");
+    } else {
+        // multi thread
+        std::thread::scope(|scope| {
+            for i in 0..threads_count {
+                let executor = &scheduler.executor;
+                let stopped = &scheduler.stopped;
+
+                std::thread::Builder::new()
+                    .name(format!("user-thread-{i}"))
+                    .spawn_scoped(scope, || smol::block_on(executor.run(stopped.wait())))
+                    .expect("Failed to create thread");
+            }
+        });
+    }
+}
+
 fn main() {
-    let app = app::App::default();
-    let scheduler = Arc::clone(&app.scheduler);
+    let scheduler = Scheduler::new();
 
-    let lua = mlua::Lua::new();
-    let chunk = lua.load(std::fs::read_to_string("app.luau").unwrap());
-    let (proxy, join) = app.run();
-
-    scheduler
-        .spawn(async move {
-            let window = app::proxy::AppProxy::create_window(proxy).await?;
-            println!("{window:?}");
-
-            Ok::<_, mlua::Error>(())
-        })
-        .detach();
-
-    scheduler.spawn(chunk.exec_async()).detach();
-
-    scheduler.run();
-
-    join.join().expect("Failed to join");
+    manage_scheduler(scheduler);
 }
