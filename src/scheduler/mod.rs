@@ -13,7 +13,9 @@ macro_rules! main {
         fn main() {
             let $sched = Scheduler::new();
 
-            scheduler::initialize_threads($sched.clone(), move |$proxy| $main);
+            scheduler::initialize_threads($sched.clone(), move |$proxy| {
+                smol::block_on(async move $main)
+            });
         }
     };
 }
