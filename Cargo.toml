@@ -15,7 +15,7 @@ mlua = { version = "*", features = [
 smol = "*"
 flume = "*"
 async-broadcast = "0.7.1"
-event-listener = "5.3.1"
+async-event = "0.2.1"
 
 tao = "*"
 wry = { version = "*", features = ["devtools"] }

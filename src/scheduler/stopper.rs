@@ -1,37 +1,43 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::{
+    fmt::Debug,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub(crate) struct Stopped {
-    event: event_listener::Event,
-    flag: AtomicBool,
+    event: Arc<async_event::Event>,
+    flag: Arc<AtomicBool>,
+}
+
+impl Debug for Stopped {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.flag.fmt(f)
+    }
 }
 
 impl Stopped {
     pub(super) fn new() -> Self {
         Self {
-            event: event_listener::Event::new(),
-            flag: AtomicBool::new(false),
+            event: Arc::new(async_event::Event::new()),
+            flag: Arc::new(AtomicBool::new(false)),
         }
     }
 
     pub(crate) async fn wait(&self) {
-        loop {
-            if self.flag.load(Ordering::Relaxed) {
-                return;
-            }
-
-            event_listener::listener!(&self.event => listener);
-
-            if self.flag.load(Ordering::Acquire) {
-                return;
-            }
-
-            listener.await;
+        if self.flag.load(Ordering::Relaxed) {
+            return;
         }
+
+        self.event
+            .wait_until(|| self.flag.load(Ordering::Relaxed).then_some(()))
+            .await;
     }
 
     pub(crate) fn stop(&self) {
-        self.flag.store(true, Ordering::SeqCst);
-        self.event.notify_additional(usize::MAX);
+        self.flag.store(true, Ordering::Relaxed);
+        self.event.notify_all();
     }
 }
