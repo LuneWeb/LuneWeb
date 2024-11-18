@@ -29,7 +29,7 @@ fn initialize_tao(stopped: Stopped) {
     })
 }
 
-fn manage_scheduler(scheduler: Scheduler) {
+fn initialize_threads(scheduler: Scheduler) {
     let threads_count = std::thread::available_parallelism()
         .map_or(1, |x| x.get())
         .clamp(1, 8);
@@ -81,5 +81,5 @@ fn main() {
         })
         .detach();
 
-    manage_scheduler(scheduler);
+    initialize_threads(scheduler);
 }
