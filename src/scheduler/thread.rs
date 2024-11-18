@@ -44,8 +44,6 @@ fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::a
     let mut app_handle = crate::app::AppHandle::default();
 
     event_loop.run(move |event, target, control_flow| {
-        smol::block_on(app_handle.process());
-
         match event {
             tao::event::Event::UserEvent(app_event) => {
                 smol::block_on(app_handle.process_app_event(app_event, target));
@@ -59,6 +57,8 @@ fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::a
                 }
             }
         }
+
+        smol::block_on(app_handle.process());
     })
 }
 
