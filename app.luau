@@ -7,6 +7,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
+	task.wait(1)
 	app.createWindow()
 	print("Task2")
 end)
