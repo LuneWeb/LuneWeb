@@ -1,3 +1,4 @@
+use std::sync::Arc;
 pub(crate) use stopper::Stopped;
 pub use thread::initialize_threads;
 
@@ -6,9 +7,23 @@ mod thread;
 
 pub const ALWAYS_SINGLE_THREAD: bool = false;
 
+#[macro_export]
+macro_rules! main {
+    (|$executor:ident, $proxy:ident| $main:block) => {
+        use std::sync::Arc;
+
+        fn main() {
+            let sched = Scheduler::new();
+            let $executor = Arc::clone(&sched.executor);
+
+            scheduler::initialize_threads(sched, move |$proxy| $main);
+        }
+    };
+}
+
 #[derive(Debug)]
 pub struct Scheduler {
-    pub executor: smol::Executor<'static>,
+    pub executor: Arc<smol::Executor<'static>>,
     pub(crate) stopped: Stopped,
 
     pub(crate) send_proxy: async_broadcast::Sender<crate::app::AppProxy>,
@@ -20,7 +35,7 @@ impl Scheduler {
         let channel_proxy = async_broadcast::broadcast(1);
 
         Self {
-            executor: smol::Executor::new(),
+            executor: Arc::new(smol::Executor::new()),
             stopped: Stopped::new(),
 
             send_proxy: channel_proxy.0,

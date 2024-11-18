@@ -1,25 +1,17 @@
 use scheduler::Scheduler;
-use std::time::Duration;
 
 // mod app;
 pub mod app;
 mod scheduler;
 
-fn main() {
-    let scheduler = Scheduler::new();
+main!(|executor, proxy| {
+    let window = proxy.create_window();
 
-    scheduler
-        .executor
+    executor
         .spawn(async move {
-            println!("Hey!");
-            smol::Timer::after(Duration::from_secs(1)).await;
-            println!("Hi!");
+            println!("spawned");
         })
         .detach();
 
-    scheduler::initialize_threads(scheduler, |proxy| {
-        let window = proxy.create_window();
-
-        println!("{:?}", window);
-    });
-}
+    println!("{:?}", window);
+});
