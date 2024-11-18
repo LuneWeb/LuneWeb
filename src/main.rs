@@ -1,6 +1,5 @@
 use scheduler::Scheduler;
 
-// mod app;
 pub mod app;
 mod scheduler;
 
