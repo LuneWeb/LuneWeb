@@ -17,15 +17,21 @@ use tao::platform::windows::EventLoopBuilderExtWindows;
 
 #[derive(Debug)]
 pub struct App {
-    pub closed: (async_broadcast::Sender<()>, async_broadcast::Receiver<()>),
+    pub scheduler: Arc<crate::scheduler::Scheduler>,
 
     windows: HashMap<tao::window::WindowId, Arc<tao::window::Window>>,
+    closed: (async_broadcast::Sender<()>, async_broadcast::Receiver<()>),
 }
 
 impl Default for App {
     fn default() -> Self {
+        let closed_broadcast = async_broadcast::broadcast(1);
+        let closed_recv = closed_broadcast.1.clone();
+
         Self {
-            closed: async_broadcast::broadcast(1),
+            closed: closed_broadcast,
+            scheduler: Arc::new(crate::scheduler::Scheduler::new(closed_recv)),
+
             windows: Default::default(),
         }
     }
@@ -42,7 +48,7 @@ impl App {
         true
     }
 
-    pub async fn run(
+    pub fn run(
         mut self,
     ) -> (
         tao::event_loop::EventLoopProxy<proxy::AppProxy>,
@@ -73,8 +79,7 @@ impl App {
             .expect("Failed to spawn a thread for application");
 
         let proxy = receive_proxy
-            .recv_async()
-            .await
+            .recv()
             .expect("Failed to receive proxy from application thread");
 
         (proxy, join)

@@ -1,12 +1,20 @@
 use std::future::Future;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Scheduler {
     smol_executor: smol::Executor<'static>,
+    closed_recv: async_broadcast::Receiver<()>,
 }
 
 impl Scheduler {
-    pub fn run(&self, closed_broadcast: async_broadcast::Receiver<()>) {
+    pub fn new(closed_recv: async_broadcast::Receiver<()>) -> Self {
+        Self {
+            smol_executor: Default::default(),
+            closed_recv,
+        }
+    }
+
+    pub fn run(&self) {
         std::thread::scope(|scope| {
             let thread_nums = std::thread::available_parallelism().map_or(1, |x| x.get());
 
@@ -16,7 +24,7 @@ impl Scheduler {
                 std::thread::Builder::new()
                     .name(name)
                     .spawn_scoped(scope, || {
-                        let mut closed_inner = closed_broadcast.clone();
+                        let mut closed_inner = self.closed_recv.clone();
 
                         smol::block_on(self.smol_executor.run(closed_inner.recv()))
                             .expect("Failed to run executor");
