@@ -1,14 +1,14 @@
 mod app;
+mod scheduler;
 
 fn main() {
-    let executor = smol::Executor::new();
-
     let app = app::App::default();
+    let scheduler = scheduler::Scheduler::default();
     let closed = app.closed.1.clone();
 
     let (proxy, join) = smol::block_on(app.run());
 
-    executor
+    scheduler
         .spawn(async move {
             let (sender, receiver) = flume::unbounded();
 
@@ -24,23 +24,7 @@ fn main() {
         })
         .detach();
 
-    std::thread::scope(|scope| {
-        let thread_nums = std::thread::available_parallelism().map_or(1, |x| x.get());
-
-        for i in 0..thread_nums {
-            let name = format!("LuauApp-thread-{i}");
-
-            std::thread::Builder::new()
-                .name(name)
-                .spawn_scoped(scope, || {
-                    let mut closed_inner = closed.clone();
-
-                    smol::block_on(executor.run(closed_inner.recv()))
-                        .expect("Failed to run executor");
-                })
-                .expect("Failed to spawn thread");
-        }
-    });
+    scheduler.run(closed);
 
     join.join().expect("Failed to join");
 }
