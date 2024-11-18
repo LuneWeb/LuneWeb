@@ -8,9 +8,7 @@ impl super::App {
         control_flow: &mut tao::event_loop::ControlFlow,
     ) -> mlua::Result<()> {
         match target_event {
-            tao::event::Event::UserEvent(proxy) => {
-                super::proxy::process_proxy(self, proxy, target).await?
-            }
+            tao::event::Event::UserEvent(proxy) => self.process_proxy(proxy, target).await?,
 
             tao::event::Event::RedrawRequested(id) => {
                 if let Some(window) = self.windows.get(&id) {
