@@ -3,7 +3,7 @@ use scheduler::Scheduler;
 pub mod app;
 mod scheduler;
 
-pub const ALWAYS_SINGLE_THREAD: bool = true;
+pub const ALWAYS_SINGLE_THREAD: bool = false;
 pub const WINDOW_DEFAULT_TITLE: &str = "LuauApp";
 
 main!(|sched, proxy, lua| -> mlua::Result<()> {
