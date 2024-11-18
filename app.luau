@@ -1,19 +1,16 @@
 --!nocheck
 --!nolint UnknownGlobal
 
-task.spawn(function()
-	app.createWindow()
-	print("Task1")
-end)
-
-task.spawn(function()
-	task.wait(1)
-	app.createWindow()
-	print("Task2")
-end)
-
-task.spawn(function()
-	print("Task3")
-end)
-
 print("Hello, World!")
+
+spawn(function()
+	print("thread 2")
+
+	wait(1)
+
+	print("1 second passed in thread 2")
+end)
+
+wait(1)
+
+print("1 Second has passed!")

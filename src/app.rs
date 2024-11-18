@@ -7,6 +7,9 @@ pub enum AppEvent {
         sender: flume::Sender<Arc<Window>>,
         title: Option<String>,
     },
+    SpawnLuaThread {
+        thread: mlua::Thread,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -22,14 +25,30 @@ impl AppProxy {
             .expect("Failed to send event");
         receiver.recv().expect("Failed to receive window")
     }
+
+    pub fn spawn_lua_thread(&self, thread: mlua::Thread) {
+        self.proxy
+            .send_event(AppEvent::SpawnLuaThread { thread })
+            .expect("Failed to send event");
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct AppHandle {
     pub(crate) windows: HashMap<WindowId, Arc<Window>>,
+    pub(crate) lua_threads: Vec<mlua::Thread>,
 }
 
 impl AppHandle {
+    pub(crate) async fn process(&mut self) {
+        self.lua_threads = self
+            .lua_threads
+            .drain(..)
+            .filter(|thread| crate::scheduler::thread::process_lua_thread(thread, None))
+            .collect();
+        self.lua_threads.shrink_to_fit();
+    }
+
     pub(crate) async fn process_app_event(
         &mut self,
         event: AppEvent,
@@ -50,6 +69,10 @@ impl AppHandle {
                     .expect("Failed to send window");
 
                 self.windows.insert(window.id(), window);
+            }
+
+            AppEvent::SpawnLuaThread { thread } => {
+                self.lua_threads.push(thread);
             }
         }
     }

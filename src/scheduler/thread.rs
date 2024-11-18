@@ -1,6 +1,24 @@
 use super::{Scheduler, Stopped};
 use crate::ALWAYS_SINGLE_THREAD;
 
+pub fn process_lua_thread(thread: &mlua::Thread, args: Option<mlua::MultiValue>) -> bool {
+    match thread.resume::<mlua::Either<mlua::LightUserData, mlua::Value>>(args.unwrap_or_default())
+    {
+        Ok(v) => {
+            if v.is_left() && v.unwrap_left() == mlua::Lua::poll_pending() {
+                true
+            } else {
+                false
+            }
+        }
+        Err(err) => {
+            eprintln!("{err}");
+
+            false
+        }
+    }
+}
+
 fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::app::AppProxy>) {
     #[cfg(any(
         target_os = "linux",
@@ -23,20 +41,22 @@ fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::a
     smol::block_on(send_proxy.broadcast(crate::app::AppProxy { proxy }))
         .expect("Failed to broadcast app proxy");
 
-    let mut app_handle = crate::app::AppHandle {
-        windows: Default::default(),
-    };
+    let mut app_handle = crate::app::AppHandle::default();
 
-    event_loop.run(move |event, target, control_flow| match event {
-        tao::event::Event::UserEvent(app_event) => {
-            smol::block_on(app_handle.process_app_event(app_event, target));
-        }
+    event_loop.run(move |event, target, control_flow| {
+        smol::block_on(app_handle.process());
 
-        _ => {
-            smol::block_on(app_handle.process_tao_event(event, target, control_flow));
+        match event {
+            tao::event::Event::UserEvent(app_event) => {
+                smol::block_on(app_handle.process_app_event(app_event, target));
+            }
 
-            if let tao::event_loop::ControlFlow::Exit = *control_flow {
-                stopped.stop();
+            _ => {
+                smol::block_on(app_handle.process_tao_event(event, target, control_flow));
+
+                if let tao::event_loop::ControlFlow::Exit = *control_flow {
+                    stopped.stop();
+                }
             }
         }
     })

@@ -1,19 +1,22 @@
 use std::sync::Arc;
 pub(crate) use stopper::Stopped;
-pub use thread::initialize_threads;
 
 mod stopper;
-mod thread;
+pub mod thread;
 
 #[macro_export]
 macro_rules! main {
-    (|$sched:ident, $proxy:ident| $main:block) => {
+    (|$sched:ident, $proxy:ident, $lua:ident| -> $ret:ty $main:block) => {
         fn main() {
             let $sched = Scheduler::new();
 
-            scheduler::initialize_threads($sched.clone(), move |$proxy| {
-                smol::block_on(async move $main)
+            let outer_lua = mlua::Lua::new();
+            let $lua = outer_lua.clone();
+
+            scheduler::thread::initialize_threads($sched.clone(), move |$proxy| {
+                let _: $ret = smol::block_on(async move $main);
             });
+
         }
     };
 }
@@ -21,7 +24,6 @@ macro_rules! main {
 #[derive(Debug, Clone)]
 pub struct Scheduler {
     pub executor: Arc<smol::Executor<'static>>,
-    pub lua: mlua::Lua,
     pub(crate) stopped: Stopped,
 
     pub(crate) send_proxy: async_broadcast::Sender<crate::app::AppProxy>,
@@ -34,7 +36,6 @@ impl Scheduler {
 
         Self {
             executor: Arc::new(smol::Executor::new()),
-            lua: mlua::Lua::new(),
             stopped: Stopped::new(),
 
             send_proxy: channel_proxy.0,
