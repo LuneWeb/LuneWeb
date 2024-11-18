@@ -1,6 +1,9 @@
 use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
 
-fn tao_tick(event: tao::event::Event<()>, control_flow: &mut tao::event_loop::ControlFlow) {
+fn tao_tick(
+    event: tao::event::Event<crate::app::AppEvent>,
+    control_flow: &mut tao::event_loop::ControlFlow,
+) {
     *control_flow = tao::event_loop::ControlFlow::Exit;
 }
 
@@ -17,15 +20,26 @@ fn initialize_tao(stopped: Stopped) {
     #[cfg(target_os = "windows")]
     use tao::platform::windows::EventLoopBuilderExtWindows;
 
-    let event_loop = tao::event_loop::EventLoopBuilder::new()
-        .with_any_thread(true)
-        .build();
+    let event_loop: tao::event_loop::EventLoop<crate::app::AppEvent> =
+        tao::event_loop::EventLoopBuilder::with_user_event()
+            .with_any_thread(true)
+            .build();
 
-    event_loop.run(move |event, _target, control_flow| {
-        tao_tick(event, control_flow);
+    let app_handle = crate::app::AppHandle {
+        windows: Default::default(),
+    };
 
-        if let tao::event_loop::ControlFlow::Exit = *control_flow {
-            stopped.stop();
+    event_loop.run(move |event, _target, control_flow| match event {
+        tao::event::Event::UserEvent(app_event) => {
+            app_handle.process_app_event(app_event);
+        }
+
+        _ => {
+            app_handle.process_tao_event(event, control_flow);
+
+            if let tao::event_loop::ControlFlow::Exit = *control_flow {
+                stopped.stop();
+            }
         }
     })
 }
