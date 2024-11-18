@@ -3,7 +3,10 @@ use tao::window::{Window, WindowBuilder, WindowId};
 
 #[derive(Debug, Clone)]
 pub enum AppEvent {
-    CreateWindow(flume::Sender<Arc<Window>>),
+    CreateWindow {
+        sender: flume::Sender<Arc<Window>>,
+        title: Option<String>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -12,10 +15,10 @@ pub struct AppProxy {
 }
 
 impl AppProxy {
-    pub fn create_window(&self) -> Arc<Window> {
+    pub fn create_window(&self, title: Option<String>) -> Arc<Window> {
         let (sender, receiver) = flume::bounded(1);
         self.proxy
-            .send_event(AppEvent::CreateWindow(sender))
+            .send_event(AppEvent::CreateWindow { sender, title })
             .expect("Failed to send event");
         receiver.recv().expect("Failed to receive window")
     }
@@ -33,10 +36,10 @@ impl AppHandle {
         target: &tao::event_loop::EventLoopWindowTarget<AppEvent>,
     ) {
         match event {
-            AppEvent::CreateWindow(sender) => {
+            AppEvent::CreateWindow { sender, title } => {
                 let window = Arc::new(
                     WindowBuilder::new()
-                        .with_title("LuauApp")
+                        .with_title(title.unwrap_or(crate::WINDOW_DEFAULT_TITLE.to_owned()))
                         .build(&target)
                         .expect("Failed to create window"),
                 );
