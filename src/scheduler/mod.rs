@@ -1,6 +1,8 @@
 pub(crate) use stopper::Stopped;
+pub use thread::initialize_threads;
 
 mod stopper;
+mod thread;
 
 #[derive(Debug)]
 pub struct Scheduler {
