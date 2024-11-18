@@ -1,6 +1,4 @@
-use super::AppProxy;
-use mlua::ExternalResult;
-use std::sync::Arc;
+use super::proxy::AppProxy;
 
 impl super::App {
     pub(super) async fn tick(
@@ -10,22 +8,9 @@ impl super::App {
         control_flow: &mut tao::event_loop::ControlFlow,
     ) -> mlua::Result<()> {
         match target_event {
-            tao::event::Event::UserEvent(proxy) => match proxy {
-                AppProxy::CreateWindow { send_window } => {
-                    let window = Arc::new(
-                        tao::window::WindowBuilder::new()
-                            .build(&target)
-                            .into_lua_err()?,
-                    );
-
-                    send_window
-                        .send_async(Arc::clone(&window))
-                        .await
-                        .into_lua_err()?;
-
-                    self.windows.insert(window.id(), window);
-                }
-            },
+            tao::event::Event::UserEvent(proxy) => {
+                super::proxy::process_proxy(self, proxy, target).await?
+            }
 
             tao::event::Event::RedrawRequested(id) => {
                 if let Some(window) = self.windows.get(&id) {

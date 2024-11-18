@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+pub mod proxy;
 mod tick;
 
 #[cfg(any(
@@ -13,13 +14,6 @@ use tao::platform::unix::EventLoopBuilderExtUnix;
 
 #[cfg(target_os = "windows")]
 use tao::platform::windows::EventLoopBuilderExtWindows;
-
-#[derive(Debug)]
-pub enum AppProxy {
-    CreateWindow {
-        send_window: flume::Sender<Arc<tao::window::Window>>,
-    },
-}
 
 #[derive(Debug, Default)]
 pub struct App {
@@ -40,14 +34,14 @@ impl App {
     pub async fn run(
         mut self,
     ) -> (
-        tao::event_loop::EventLoopProxy<AppProxy>,
+        tao::event_loop::EventLoopProxy<proxy::AppProxy>,
         std::thread::JoinHandle<()>,
     ) {
         let (send_proxy, receive_proxy) = flume::unbounded();
         let join = std::thread::Builder::new()
             .name("LuauApp".to_string())
             .spawn(move || {
-                let target: tao::event_loop::EventLoop<AppProxy> =
+                let target: tao::event_loop::EventLoop<proxy::AppProxy> =
                     tao::event_loop::EventLoopBuilder::with_user_event()
                         .with_any_thread(true)
                         .build();

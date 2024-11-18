@@ -8,7 +8,7 @@ fn main() {
         let (sender, receiver) = flume::unbounded();
 
         proxy
-            .send_event(app::AppProxy::CreateWindow {
+            .send_event(app::proxy::AppProxy::CreateWindow {
                 send_window: sender,
             })
             .expect("Failed to send event");
