@@ -21,6 +21,7 @@ macro_rules! main {
 #[derive(Debug, Clone)]
 pub struct Scheduler {
     pub executor: Arc<smol::Executor<'static>>,
+    pub lua: mlua::Lua,
     pub(crate) stopped: Stopped,
 
     pub(crate) send_proxy: async_broadcast::Sender<crate::app::AppProxy>,
@@ -33,6 +34,7 @@ impl Scheduler {
 
         Self {
             executor: Arc::new(smol::Executor::new()),
+            lua: mlua::Lua::new(),
             stopped: Stopped::new(),
 
             send_proxy: channel_proxy.0,
