@@ -9,19 +9,16 @@ pub const ALWAYS_SINGLE_THREAD: bool = false;
 
 #[macro_export]
 macro_rules! main {
-    (|$executor:ident, $proxy:ident| $main:block) => {
-        use std::sync::Arc;
-
+    (|$sched:ident, $proxy:ident| $main:block) => {
         fn main() {
-            let sched = Scheduler::new();
-            let $executor = Arc::clone(&sched.executor);
+            let $sched = Scheduler::new();
 
-            scheduler::initialize_threads(sched, move |$proxy| $main);
+            scheduler::initialize_threads($sched.clone(), move |$proxy| $main);
         }
     };
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Scheduler {
     pub executor: Arc<smol::Executor<'static>>,
     pub(crate) stopped: Stopped,
