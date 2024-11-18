@@ -1,12 +1,5 @@
 use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
 
-fn tao_tick(
-    event: tao::event::Event<crate::app::AppEvent>,
-    control_flow: &mut tao::event_loop::ControlFlow,
-) {
-    *control_flow = tao::event_loop::ControlFlow::Exit;
-}
-
 fn initialize_tao(stopped: Stopped) {
     #[cfg(any(
         target_os = "linux",
