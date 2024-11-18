@@ -1,5 +1,4 @@
-use super::{Scheduler, Stopped};
-use crate::ALWAYS_SINGLE_THREAD;
+use super::{Scheduler, Stopped, ALWAYS_SINGLE_THREAD};
 
 fn initialize_tao(stopped: Stopped) {
     #[cfg(any(
@@ -28,6 +27,10 @@ pub fn initialize_threads(scheduler: Scheduler) {
     let threads_count = std::thread::available_parallelism()
         .map_or(1, |x| x.get())
         .clamp(1, 8);
+
+    if ALWAYS_SINGLE_THREAD {
+        println!("[warn] ALWAYS_SINGLE_THREAD is set to true");
+    }
 
     if threads_count == 1 || ALWAYS_SINGLE_THREAD {
         // single thread

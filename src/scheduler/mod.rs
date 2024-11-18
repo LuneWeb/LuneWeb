@@ -4,6 +4,8 @@ pub use thread::initialize_threads;
 mod stopper;
 mod thread;
 
+pub const ALWAYS_SINGLE_THREAD: bool = false;
+
 #[derive(Debug)]
 pub struct Scheduler {
     pub executor: smol::Executor<'static>,

@@ -4,14 +4,8 @@ use std::time::Duration;
 // mod app;
 mod scheduler;
 
-pub const ALWAYS_SINGLE_THREAD: bool = false;
-
 fn main() {
     let scheduler = Scheduler::new();
-
-    if ALWAYS_SINGLE_THREAD {
-        println!("[warn] ALWAYS_SINGLE_THREAD is set to true");
-    }
 
     scheduler
         .executor
