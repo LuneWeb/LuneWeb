@@ -27,6 +27,12 @@ impl super::App {
                     }
 
                     if self.should_exit() {
+                        self.closed
+                            .0
+                            .broadcast(())
+                            .await
+                            .expect("Failed to broadcast closing signal");
+
                         *control_flow = tao::event_loop::ControlFlow::Exit;
                     }
                 }

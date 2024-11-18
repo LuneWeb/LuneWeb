@@ -15,9 +15,20 @@ use tao::platform::unix::EventLoopBuilderExtUnix;
 #[cfg(target_os = "windows")]
 use tao::platform::windows::EventLoopBuilderExtWindows;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct App {
+    pub closed: (async_broadcast::Sender<()>, async_broadcast::Receiver<()>),
+
     windows: HashMap<tao::window::WindowId, Arc<tao::window::Window>>,
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self {
+            closed: async_broadcast::broadcast(1),
+            windows: Default::default(),
+        }
+    }
 }
 
 impl App {
