@@ -10,14 +10,7 @@ fn main() {
 
     scheduler
         .spawn(async move {
-            let (sender, receiver) = flume::unbounded();
-
-            proxy
-                .send_event(app::proxy::AppProxy::CreateWindow {
-                    send_window: sender,
-                })
-                .expect("Failed to send event");
-            let window = receiver.recv().unwrap();
+            let window = app::proxy::AppProxy::create_window(proxy).await?;
             println!("{window:?}");
 
             Ok::<_, mlua::Error>(())

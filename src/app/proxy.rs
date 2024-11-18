@@ -8,6 +8,22 @@ pub enum AppProxy {
     },
 }
 
+impl AppProxy {
+    pub async fn create_window(
+        proxy: tao::event_loop::EventLoopProxy<Self>,
+    ) -> mlua::Result<Arc<tao::window::Window>> {
+        let (sender, receiver) = flume::unbounded();
+
+        proxy
+            .send_event(Self::CreateWindow {
+                send_window: sender,
+            })
+            .into_lua_err()?;
+
+        receiver.recv().into_lua_err()
+    }
+}
+
 impl super::App {
     pub(super) async fn process_proxy(
         &mut self,
