@@ -24,17 +24,17 @@ fn initialize_tao(
     let proxy = event_loop.create_proxy();
     smol::block_on(send_proxy.broadcast(proxy)).expect("Failed to broadcast app proxy");
 
-    let app_handle = crate::app::AppHandle {
+    let mut app_handle = crate::app::AppHandle {
         windows: Default::default(),
     };
 
-    event_loop.run(move |event, _target, control_flow| match event {
+    event_loop.run(move |event, target, control_flow| match event {
         tao::event::Event::UserEvent(app_event) => {
-            app_handle.process_app_event(app_event);
+            smol::block_on(app_handle.process_app_event(app_event, target));
         }
 
         _ => {
-            app_handle.process_tao_event(event, control_flow);
+            smol::block_on(app_handle.process_tao_event(event, target, control_flow));
 
             if let tao::event_loop::ControlFlow::Exit = *control_flow {
                 stopped.stop();

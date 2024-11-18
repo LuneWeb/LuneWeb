@@ -13,7 +13,7 @@ mlua = { version = "*", features = [
 ] }
 
 smol = "*"
-# flume = "*"
+flume = "*"
 async-broadcast = "0.7.1"
 async-event = "0.2.1"
 
