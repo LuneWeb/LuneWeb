@@ -4,7 +4,7 @@ mod scheduler;
 fn main() {
     let app = app::App::default();
     let scheduler = scheduler::Scheduler::default();
-    let closed = app.closed.1.clone();
+    let closed_broadcast = app.closed.1.clone();
 
     let (proxy, join) = smol::block_on(app.run());
 
@@ -17,7 +17,7 @@ fn main() {
         })
         .detach();
 
-    scheduler.run(closed);
+    scheduler.run(closed_broadcast);
 
     join.join().expect("Failed to join");
 }
