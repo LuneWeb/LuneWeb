@@ -1469,7 +1469,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "luneweb2"
+name = "luneweb"
 version = "2.0.0-rc1"
 dependencies = [
  "async-broadcast",
