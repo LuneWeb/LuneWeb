@@ -1,10 +1,7 @@
-use crate::{app::AppProxy, scheduler, utils::table_builder::TableBuilder};
+use crate::{scheduler, utils::table_builder::TableBuilder, LuaAppProxyMethods};
 use mlua::IntoLua;
 
-pub(super) fn create(lua: &mlua::Lua, proxy: &AppProxy) -> mlua::Result<mlua::Value> {
-    let spawn_proxy = proxy.clone();
-    let defer_proxy = proxy.clone();
-
+pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
     TableBuilder::new(lua)?
         .with_async_function("wait", |_, secs: Option<f64>| async move {
             if let Some(secs) = secs {
@@ -21,7 +18,7 @@ pub(super) fn create(lua: &mlua::Lua, proxy: &AppProxy) -> mlua::Result<mlua::Va
                 let thread = lua.create_thread(f)?;
 
                 if scheduler::thread::process_lua_thread(&thread, Some(args)) {
-                    spawn_proxy.spawn_lua_thread(thread, None);
+                    lua.get_app_proxy().spawn_lua_thread(thread, None);
                 };
 
                 Ok(())
@@ -32,7 +29,7 @@ pub(super) fn create(lua: &mlua::Lua, proxy: &AppProxy) -> mlua::Result<mlua::Va
             move |lua, (f, args): (mlua::Function, mlua::MultiValue)| {
                 let thread = lua.create_thread(f)?;
 
-                defer_proxy.spawn_lua_thread(thread, Some(args));
+                lua.get_app_proxy().spawn_lua_thread(thread, Some(args));
 
                 Ok(())
             },
