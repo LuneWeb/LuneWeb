@@ -18,10 +18,10 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
                 let thread = lua.create_thread(f)?;
 
                 if scheduler::thread::process_lua_thread(&thread, Some(args)) {
-                    lua.get_app_proxy().spawn_lua_thread(thread, None);
+                    lua.get_app_proxy().spawn_lua_thread(thread.clone(), None);
                 };
 
-                Ok(())
+                Ok(thread)
             },
         )?
         .with_function(
@@ -29,9 +29,10 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
             move |lua, (f, args): (mlua::Function, mlua::MultiValue)| {
                 let thread = lua.create_thread(f)?;
 
-                lua.get_app_proxy().spawn_lua_thread(thread, Some(args));
+                lua.get_app_proxy()
+                    .spawn_lua_thread(thread.clone(), Some(args));
 
-                Ok(())
+                Ok(thread)
             },
         )?
         .build_readonly()?
