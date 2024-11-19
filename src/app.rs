@@ -9,6 +9,7 @@ pub enum AppEvent {
     },
     SpawnLuaThread {
         thread: mlua::Thread,
+        args: Option<mlua::MultiValue>,
     },
 }
 
@@ -26,9 +27,9 @@ impl AppProxy {
         receiver.recv().expect("Failed to receive window")
     }
 
-    pub fn spawn_lua_thread(&self, thread: mlua::Thread) {
+    pub fn spawn_lua_thread(&self, thread: mlua::Thread, args: Option<mlua::MultiValue>) {
         self.proxy
-            .send_event(AppEvent::SpawnLuaThread { thread })
+            .send_event(AppEvent::SpawnLuaThread { thread, args })
             .expect("Failed to send event");
     }
 }
@@ -36,7 +37,7 @@ impl AppProxy {
 #[derive(Debug, Default)]
 pub(crate) struct AppHandle {
     pub(crate) windows: HashMap<WindowId, Arc<Window>>,
-    pub(crate) lua_threads: Vec<mlua::Thread>,
+    pub(crate) lua_threads: Vec<(mlua::Thread, mlua::MultiValue)>,
 }
 
 impl AppHandle {
@@ -44,7 +45,9 @@ impl AppHandle {
         self.lua_threads = self
             .lua_threads
             .drain(..)
-            .filter(|thread| crate::scheduler::thread::process_lua_thread(thread, None))
+            .filter(|(thread, args)| {
+                crate::scheduler::thread::process_lua_thread(thread, Some(args.to_owned()))
+            })
             .collect();
         self.lua_threads.shrink_to_fit();
     }
@@ -71,8 +74,8 @@ impl AppHandle {
                 self.windows.insert(window.id(), window);
             }
 
-            AppEvent::SpawnLuaThread { thread } => {
-                self.lua_threads.push(thread);
+            AppEvent::SpawnLuaThread { thread, args } => {
+                self.lua_threads.push((thread, args.unwrap_or_default()));
             }
         }
     }
