@@ -1,6 +1,5 @@
-use mlua::IntoLua;
-
 use crate::{app::AppProxy, scheduler, utils::table_builder::TableBuilder};
+use mlua::IntoLua;
 
 pub enum StandardLibrary {
     Task,
