@@ -14,3 +14,6 @@ end)
 task.wait(1)
 
 print("1 Second has passed!")
+
+local window = web.createWindow()
+print(window)

@@ -19,12 +19,15 @@ pub struct AppProxy {
 }
 
 impl AppProxy {
-    pub fn create_window(&self, title: Option<String>) -> Arc<Window> {
+    pub async fn create_window(&self, title: Option<String>) -> Arc<Window> {
         let (sender, receiver) = flume::bounded(1);
         self.proxy
             .send_event(AppEvent::CreateWindow { sender, title })
             .expect("Failed to send event");
-        receiver.recv().expect("Failed to receive window")
+        receiver
+            .recv_async()
+            .await
+            .expect("Failed to receive window")
     }
 
     pub fn spawn_lua_thread(&self, thread: mlua::Thread, args: Option<mlua::MultiValue>) {

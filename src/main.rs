@@ -20,8 +20,8 @@ main!(|sched, proxy, lua| -> mlua::Result<()> {
         lua_std::StandardLibrary::Task.into_lua(&lua, &proxy)?,
     )?;
 
-    let window = proxy.create_window(Some("Application".to_owned()));
-    println!("{window:?}");
+    lua.globals()
+        .set("web", lua_std::StandardLibrary::Web.into_lua(&lua, &proxy)?)?;
 
     proxy.spawn_lua_thread(thread, None);
 
