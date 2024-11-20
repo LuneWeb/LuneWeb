@@ -28,8 +28,6 @@ main!(|sched, proxy, lua| -> mlua::Result<()> {
             .into_function()?,
     )?;
 
-    lua_bindings::tao::register(&lua).expect("Failed to register tao types for luau");
-
     lua.set_app_data(proxy.clone());
 
     lua.globals()
