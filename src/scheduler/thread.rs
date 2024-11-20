@@ -20,22 +20,8 @@ pub fn process_lua_thread(thread: &mlua::Thread, args: Option<mlua::MultiValue>)
 }
 
 fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::app::AppProxy>) {
-    #[cfg(any(
-        target_os = "linux",
-        target_os = "dragonfly",
-        target_os = "freebsd",
-        target_os = "netbsd",
-        target_os = "openbsd"
-    ))]
-    use tao::platform::unix::EventLoopBuilderExtUnix;
-
-    #[cfg(target_os = "windows")]
-    use tao::platform::windows::EventLoopBuilderExtWindows;
-
     let event_loop: tao::event_loop::EventLoop<crate::app::AppEvent> =
-        tao::event_loop::EventLoopBuilder::with_user_event()
-            .with_any_thread(true)
-            .build();
+        tao::event_loop::EventLoopBuilder::with_user_event().build();
 
     let proxy = event_loop.create_proxy();
     smol::block_on(send_proxy.broadcast(crate::app::AppProxy { proxy }))
@@ -74,11 +60,8 @@ pub fn initialize_threads(
         println!("[warn] ALWAYS_SINGLE_THREAD is set to true");
     }
 
-    let stopped_inner = scheduler.stopped.clone();
-    std::thread::Builder::new()
-        .name(format!("tao"))
-        .spawn(|| initialize_tao(stopped_inner, scheduler.send_proxy))
-        .expect("Failed to create thread");
+    let stopped = scheduler.stopped.clone();
+    let send_proxy = scheduler.send_proxy.clone();
 
     scheduler
         .executor
@@ -89,20 +72,23 @@ pub fn initialize_threads(
 
     // smol executor thread
     if threads_count == 1 || ALWAYS_SINGLE_THREAD {
-        // single threaded (main thread)
-        smol::block_on(scheduler.executor.run(scheduler.stopped.wait()));
+        // single threaded
+        std::thread::Builder::new()
+            .name(format!("executor-0"))
+            .spawn(move || smol::block_on(scheduler.executor.run(scheduler.stopped.wait())))
+            .expect("Failed to create thread");
     } else {
         // multi threaded
-        std::thread::scope(|scope| {
-            for i in 1..threads_count {
-                let executor = &scheduler.executor;
-                let stopped = &scheduler.stopped;
+        for i in 0..threads_count {
+            let executor = scheduler.executor.clone();
+            let stopped = scheduler.stopped.clone();
 
-                std::thread::Builder::new()
-                    .name(format!("executor-{i}"))
-                    .spawn_scoped(scope, || smol::block_on(executor.run(stopped.wait())))
-                    .expect("Failed to create thread");
-            }
-        });
+            std::thread::Builder::new()
+                .name(format!("executor-{i}"))
+                .spawn(move || smol::block_on(executor.run(stopped.wait())))
+                .expect("Failed to create thread");
+        }
     }
+
+    initialize_tao(stopped, send_proxy);
 }
