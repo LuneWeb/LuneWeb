@@ -2,6 +2,7 @@ use scheduler::Scheduler;
 
 pub mod app;
 pub mod lua_bindings;
+pub mod lua_require;
 pub mod lua_std;
 mod scheduler;
 pub mod utils;
@@ -35,6 +36,11 @@ main!(|sched, proxy, lua| -> mlua::Result<()> {
 
     lua.globals()
         .set("web", lua_std::StandardLibrary::Web.into_lua(&lua)?)?;
+
+    lua.globals().set(
+        "require",
+        lua.create_async_function(lua_require::lua_require)?,
+    )?;
 
     proxy.spawn_lua_thread(thread, None);
 
