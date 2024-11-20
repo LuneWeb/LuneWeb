@@ -14,3 +14,7 @@ pub fn strip_alias(path: PathBuf) -> mlua::Result<Option<(String, String)>> {
         Ok(None)
     }
 }
+
+pub fn append_extension(path: PathBuf, extension: &str) -> PathBuf {
+    PathBuf::from(format!("{}.{extension}", path.to_string_lossy()))
+}
