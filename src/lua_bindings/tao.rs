@@ -27,6 +27,12 @@ pub fn register(lua: &mlua::Lua) -> mlua::Result<()> {
             this.set_visible(visible);
             Ok(())
         });
+
+        registry.add_meta_method(mlua::MetaMethod::Eq, |_, this, other: mlua::AnyUserData| {
+            let other = other.take::<Arc<tao::window::Window>>()?;
+
+            Ok(this.id() == other.id())
+        });
     })?;
 
     Ok(())
