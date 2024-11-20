@@ -74,48 +74,35 @@ pub fn initialize_threads(
         println!("[warn] ALWAYS_SINGLE_THREAD is set to true");
     }
 
+    let stopped_inner = scheduler.stopped.clone();
+    std::thread::Builder::new()
+        .name(format!("tao"))
+        .spawn(|| initialize_tao(stopped_inner, scheduler.send_proxy))
+        .expect("Failed to create thread");
+
+    scheduler
+        .executor
+        .spawn(async move {
+            f(smol::block_on(scheduler.recv_proxy.recv()).expect("Failed to receive proxy"))
+        })
+        .detach();
+
+    // smol executor thread
     if threads_count == 1 || ALWAYS_SINGLE_THREAD {
-        // single thread
-        let stopped = scheduler.stopped.clone();
-
-        scheduler
-            .executor
-            .spawn(async move {
-                f(scheduler
-                    .recv_proxy
-                    .recv()
-                    .await
-                    .expect("Failed to receive proxy"));
-            })
-            .detach();
-
-        std::thread::Builder::new()
-            .name("user-thread".to_owned())
-            .spawn(move || smol::block_on(scheduler.executor.run(scheduler.stopped.wait())))
-            .expect("Failed to create thread");
-
-        initialize_tao(stopped, scheduler.send_proxy);
+        // single threaded (main thread)
+        smol::block_on(scheduler.executor.run(scheduler.stopped.wait()));
     } else {
-        // multi thread
+        // multi threaded
         std::thread::scope(|scope| {
-            std::thread::Builder::new()
-                .name(format!("tao-thread"))
-                .spawn_scoped(scope, || {
-                    initialize_tao(scheduler.stopped.clone(), scheduler.send_proxy)
-                })
-                .expect("Failed to create thread");
-
             for i in 1..threads_count {
                 let executor = &scheduler.executor;
                 let stopped = &scheduler.stopped;
 
                 std::thread::Builder::new()
-                    .name(format!("user-thread-{i}"))
+                    .name(format!("executor-{i}"))
                     .spawn_scoped(scope, || smol::block_on(executor.run(stopped.wait())))
                     .expect("Failed to create thread");
             }
-
-            f(smol::block_on(scheduler.recv_proxy.recv()).expect("Failed to receive proxy"));
         });
     }
 }
