@@ -1,3 +1,4 @@
+use mlua::ExternalResult;
 use std::{collections::HashMap, sync::Arc};
 use tao::window::{Window, WindowBuilder, WindowId};
 
@@ -10,6 +11,10 @@ pub enum AppEvent {
     SpawnLuaThread {
         thread: mlua::Thread,
         args: Option<mlua::MultiValue>,
+    },
+    AwaitLuaThread {
+        sender: flume::Sender<mlua::Result<mlua::MultiValue>>,
+        thread: mlua::Thread,
     },
 }
 
@@ -35,22 +40,51 @@ impl AppProxy {
             .send_event(AppEvent::SpawnLuaThread { thread, args })
             .expect("Failed to send event");
     }
+
+    pub async fn await_lua_thread(&self, thread: mlua::Thread) -> mlua::Result<mlua::MultiValue> {
+        let (sender, receiver) = flume::bounded(1);
+        self.proxy
+            .send_event(AppEvent::AwaitLuaThread { sender, thread })
+            .into_lua_err()?;
+        receiver.recv_async().await.into_lua_err()?
+    }
 }
 
 #[derive(Debug, Default)]
 pub(crate) struct AppHandle {
     pub(crate) windows: HashMap<WindowId, Arc<Window>>,
     pub(crate) lua_threads: Vec<(mlua::Thread, mlua::MultiValue)>,
+    pub(crate) lua_thread_listeners:
+        HashMap<usize, Vec<flume::Sender<mlua::Result<mlua::MultiValue>>>>,
 }
 
 impl AppHandle {
     pub(crate) async fn process(&mut self) {
+        let mut cleanup: Vec<usize> = Vec::new();
+
+        for (thread, args) in &self.lua_threads {
+            if let Some(result) =
+                crate::scheduler::thread::process_lua_thread(thread, Some(args.to_owned()))
+            {
+                let thread_id = thread.to_pointer() as usize;
+
+                if let Some(listeners) = self.lua_thread_listeners.get(&thread_id) {
+                    for sender in listeners {
+                        sender
+                            .send_async(result.clone())
+                            .await
+                            .expect("Failed to send lua thread result");
+                    }
+                }
+
+                cleanup.push(thread_id);
+            }
+        }
+
         self.lua_threads = self
             .lua_threads
             .drain(..)
-            .filter(|(thread, args)| {
-                crate::scheduler::thread::process_lua_thread(thread, Some(args.to_owned()))
-            })
+            .filter(|x| !cleanup.contains(&(x.0.to_pointer() as usize)))
             .collect();
     }
 
@@ -78,6 +112,16 @@ impl AppHandle {
 
             AppEvent::SpawnLuaThread { thread, args } => {
                 self.lua_threads.push((thread, args.unwrap_or_default()));
+            }
+
+            AppEvent::AwaitLuaThread { sender, thread } => {
+                let thread_id = thread.to_pointer() as usize;
+
+                if let Some(listeners) = self.lua_thread_listeners.get_mut(&thread_id) {
+                    listeners.push(sender);
+                } else {
+                    self.lua_thread_listeners.insert(thread_id, vec![sender]);
+                }
             }
         }
     }

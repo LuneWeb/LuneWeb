@@ -17,7 +17,7 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
             move |lua, (f, args): (mlua::Function, mlua::MultiValue)| {
                 let thread = lua.create_thread(f)?;
 
-                if scheduler::thread::process_lua_thread(&thread, Some(args)) {
+                if scheduler::thread::process_lua_thread(&thread, Some(args)).is_none() {
                     lua.get_app_proxy().spawn_lua_thread(thread.clone(), None);
                 };
 

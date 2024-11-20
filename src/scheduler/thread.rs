@@ -1,20 +1,25 @@
 use super::{Scheduler, Stopped};
 use crate::ALWAYS_SINGLE_THREAD;
 
-pub fn process_lua_thread(thread: &mlua::Thread, args: Option<mlua::MultiValue>) -> bool {
-    match thread.resume::<mlua::Either<mlua::LightUserData, mlua::Value>>(args.unwrap_or_default())
-    {
+pub fn process_lua_thread(
+    thread: &mlua::Thread,
+    args: Option<mlua::MultiValue>,
+) -> Option<mlua::Result<mlua::MultiValue>> {
+    match thread.resume::<mlua::MultiValue>(args.unwrap_or_default()) {
         Ok(v) => {
-            if v.is_left() && v.unwrap_left() == mlua::Lua::poll_pending() {
-                true
+            if v.get(0).is_some_and(|x| {
+                x.as_light_userdata()
+                    .is_some_and(|x| x == mlua::Lua::poll_pending())
+            }) {
+                None
             } else {
-                false
+                Some(Ok(v))
             }
         }
         Err(err) => {
             eprintln!("{err}");
 
-            false
+            Some(Err(err))
         }
     }
 }

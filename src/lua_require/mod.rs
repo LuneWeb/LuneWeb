@@ -20,9 +20,10 @@ async fn load_module(lua: mlua::Lua, path: PathBuf) -> LuaResult<LuaMultiValue> 
     let thread = lua.create_thread(chunk.into_function()?)?;
     let proxy = lua.get_app_proxy();
 
-    proxy.spawn_lua_thread(thread, None);
+    proxy.spawn_lua_thread(thread.clone(), None);
+    let result = proxy.await_lua_thread(thread).await;
 
-    Ok(Default::default())
+    result
 }
 
 pub async fn lua_require(lua: Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
