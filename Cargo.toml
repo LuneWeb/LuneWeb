@@ -19,3 +19,4 @@ async-event = "0.2.1"
 
 tao = "*"
 wry = { version = "*", features = ["devtools"] }
+path-clean = "1.0.1"
