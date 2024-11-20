@@ -16,4 +16,9 @@ task.wait(1)
 print("1 Second has passed!")
 
 local window = web.createWindow()
-print(window)
+print(typeof(window), window.id == window.id)
+
+while true do
+	window.title = tostring(math.random(1, 100))
+	task.wait(1)
+end

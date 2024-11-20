@@ -1,6 +1,7 @@
 use scheduler::Scheduler;
 
 pub mod app;
+pub mod lua_bindings;
 pub mod lua_std;
 mod scheduler;
 pub mod utils;
@@ -26,6 +27,8 @@ main!(|sched, proxy, lua| -> mlua::Result<()> {
             .set_name("app.luau")
             .into_function()?,
     )?;
+
+    lua_bindings::tao::register(&lua).expect("Failed to register tao types for luau");
 
     lua.set_app_data(proxy.clone());
 

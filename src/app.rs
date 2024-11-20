@@ -103,13 +103,15 @@ impl AppHandle {
                 if let Some(window) = self.windows.get(&id) {
                     window.set_visible(false);
                 }
-
-                if self.windows.values().all(|x| !x.is_visible()) {
-                    *control_flow = tao::event_loop::ControlFlow::Exit;
-                }
             }
 
             _ => {}
+        }
+
+        if !self.windows.is_empty() {
+            if self.windows.values().all(|x| !x.is_visible()) {
+                *control_flow = tao::event_loop::ControlFlow::Exit;
+            }
         }
     }
 }
