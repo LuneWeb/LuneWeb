@@ -52,7 +52,6 @@ impl AppHandle {
                 crate::scheduler::thread::process_lua_thread(thread, Some(args.to_owned()))
             })
             .collect();
-        self.lua_threads.shrink_to_fit();
     }
 
     pub(crate) async fn process_app_event(
