@@ -32,6 +32,9 @@ pub async fn lua_require(lua: Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
         Err(mlua::Error::runtime(
             "Aliases are not supported in requires yet",
         ))
+
+        // TODO: find the final path by searching .luaurc files
+        // and pass it to load_module
     } else {
         load_module(lua, path).await
     }
