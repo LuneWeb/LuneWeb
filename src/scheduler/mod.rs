@@ -4,23 +4,6 @@ pub(crate) use stopper::Stopped;
 mod stopper;
 pub mod thread;
 
-#[macro_export]
-macro_rules! main {
-    (|$sched:ident, $proxy:ident, $lua:ident| -> $ret:ty $main:block) => {
-        fn main() {
-            let $sched = Scheduler::new();
-
-            let outer_lua = mlua::Lua::new();
-            let $lua = outer_lua.clone();
-
-            scheduler::thread::initialize_threads($sched.clone(), move |$proxy| {
-                let _: $ret = smol::block_on(async move $main);
-            });
-
-        }
-    };
-}
-
 #[derive(Debug, Clone)]
 pub struct Scheduler {
     pub executor: Arc<smol::Executor<'static>>,

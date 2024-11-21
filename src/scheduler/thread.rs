@@ -71,7 +71,7 @@ pub fn initialize_threads(
     scheduler
         .executor
         .spawn(async move {
-            f(smol::block_on(scheduler.recv_proxy.recv()).expect("Failed to receive proxy"))
+            f(smol::block_on(scheduler.recv_proxy.recv()).expect("Failed to receive proxy"));
         })
         .detach();
 

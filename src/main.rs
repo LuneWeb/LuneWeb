@@ -22,28 +22,41 @@ impl LuaAppProxyMethods for mlua::Lua {
     }
 }
 
-main!(|sched, proxy, lua| -> mlua::Result<()> {
-    let script_path = std::env::args().nth(1).unwrap_or("init.luau".to_string());
-    let thread = lua.create_thread(
-        lua.load(smol::fs::read_to_string(&script_path).await?)
-            .set_name(script_path)
-            .into_function()?,
-    )?;
+fn main() {
+    let sched = Scheduler::new();
+    let lua = mlua::Lua::new();
 
-    lua.set_app_data(proxy.clone());
+    // keep lua alive until the end of the scope
+    let _lua = lua.clone();
 
-    lua.globals()
-        .set("task", lua_std::StandardLibrary::Task.into_lua(&lua)?)?;
+    scheduler::thread::initialize_threads(sched.clone(), |proxy| {
+        if let Err(err) = smol::block_on::<mlua::Result<()>>(async move {
+            let script_path = std::env::args().nth(1).unwrap_or("init.luau".to_string());
+            let thread = lua.create_thread(
+                lua.load(smol::fs::read_to_string(&script_path).await?)
+                    .set_name(script_path)
+                    .into_function()?,
+            )?;
 
-    lua.globals()
-        .set("web", lua_std::StandardLibrary::Web.into_lua(&lua)?)?;
+            lua.set_app_data(proxy.clone());
 
-    lua.globals().set(
-        "require",
-        lua.create_async_function(lua_require::lua_require)?,
-    )?;
+            lua.globals()
+                .set("task", lua_std::StandardLibrary::Task.into_lua(&lua)?)?;
 
-    proxy.spawn_lua_thread(thread, None);
+            lua.globals()
+                .set("web", lua_std::StandardLibrary::Web.into_lua(&lua)?)?;
 
-    Ok(())
-});
+            lua.globals().set(
+                "require",
+                lua.create_async_function(lua_require::lua_require)?,
+            )?;
+
+            proxy.spawn_lua_thread(thread, None);
+
+            Ok(())
+        }) {
+            eprintln!("{err}");
+            std::process::exit(1);
+        };
+    });
+}
