@@ -23,9 +23,10 @@ impl LuaAppProxyMethods for mlua::Lua {
 }
 
 main!(|sched, proxy, lua| -> mlua::Result<()> {
+    let script_path = std::env::args().nth(1).unwrap_or("init.luau".to_string());
     let thread = lua.create_thread(
-        lua.load(smol::fs::read_to_string("app.luau").await?)
-            .set_name("app.luau")
+        lua.load(smol::fs::read_to_string(&script_path).await?)
+            .set_name(script_path)
             .into_function()?,
     )?;
 
