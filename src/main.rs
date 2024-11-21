@@ -1,4 +1,5 @@
 use scheduler::Scheduler;
+use std::path::PathBuf;
 
 pub mod app;
 pub mod lua_bindings;
@@ -32,11 +33,13 @@ fn main() {
     scheduler::thread::initialize_threads(sched.clone(), |proxy| {
         if let Err(err) = smol::block_on::<mlua::Result<()>>(async move {
             let script_path = std::env::args().nth(1).unwrap_or("init.luau".to_string());
-            let thread = lua.create_thread(
-                lua.load(smol::fs::read_to_string(&script_path).await?)
-                    .set_name(script_path)
-                    .into_function()?,
-            )?;
+            sched
+                .executor
+                .spawn(lua_require::utils::load_script(
+                    lua.clone(),
+                    PathBuf::from(script_path),
+                ))
+                .detach();
 
             lua.set_app_data(proxy.clone());
 
@@ -50,8 +53,6 @@ fn main() {
                 "require",
                 lua.create_async_function(lua_require::lua_require)?,
             )?;
-
-            proxy.spawn_lua_thread(thread, None);
 
             Ok(())
         }) {
