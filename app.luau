@@ -6,6 +6,11 @@ task.spawn(function()
 	print(`"./test_task" returned a {typeof(ret)}.`)
 end)
 
+task.spawn(function()
+	local ret = require("./test_task")
+	print(`"./test_task" returned a {typeof(ret)}.`)
+end)
+
 local window = web.createWindow()
 print(typeof(window), window.id == window.id)
 
