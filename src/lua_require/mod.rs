@@ -25,6 +25,25 @@ fn load_cache(lua: &mlua::Lua) -> mlua::AppDataRef<ModuleCache> {
     }
 }
 
+async fn load_script(lua: mlua::Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
+    let contents = smol::fs::read_to_string(&path)
+        .await
+        .map_err(|x| match x.kind() {
+            std::io::ErrorKind::NotFound => mlua::Error::runtime(format!(
+                "The system cannot find {} (os error 2)",
+                path.to_string_lossy()
+            )),
+            _ => x.into_lua_err(),
+        })?;
+
+    let chunk = lua.load(contents).set_name(path.to_string_lossy());
+    let thread = lua.create_thread(chunk.into_function()?)?;
+    let proxy = lua.get_app_proxy();
+
+    proxy.spawn_lua_thread(thread.clone(), None);
+    proxy.await_lua_thread(thread).await
+}
+
 async fn load_module(lua: mlua::Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
     let cached_module = {
         let cache = load_cache(&lua);
@@ -53,23 +72,7 @@ async fn load_module(lua: mlua::Lua, path: PathBuf) -> LuaResult<LuaMultiValue> 
         sender
     };
 
-    let contents = smol::fs::read_to_string(&path)
-        .await
-        .map_err(|x| match x.kind() {
-            std::io::ErrorKind::NotFound => mlua::Error::runtime(format!(
-                "The system cannot find {} (os error 2)",
-                path.to_string_lossy()
-            )),
-            _ => x.into_lua_err(),
-        })?;
-
-    let chunk = lua.load(contents).set_name(path.to_string_lossy());
-    let thread = lua.create_thread(chunk.into_function()?)?;
-    let proxy = lua.get_app_proxy();
-
-    proxy.spawn_lua_thread(thread.clone(), None);
-
-    let result = proxy.await_lua_thread(thread).await;
+    let result = load_script(lua.clone(), path.clone()).await;
 
     {
         cache_sender
@@ -87,8 +90,6 @@ async fn load_module(lua: mlua::Lua, path: PathBuf) -> LuaResult<LuaMultiValue> 
 }
 
 pub async fn lua_require(lua: Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
-    let path = append_extension(clean_path(path), "luau");
-
     if let Some((alias, path)) = strip_alias(path.clone())? {
         Err(mlua::Error::runtime(
             "Aliases are not supported in requires yet",
@@ -97,6 +98,16 @@ pub async fn lua_require(lua: Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
         // TODO: find the final path by searching .luaurc files
         // and pass it to load_module
     } else {
-        load_module(lua, path).await
+        let directory = PathBuf::from(
+            lua.inspect_stack(2)
+                .and_then(|x| x.source().source.map(|x| x.to_string()))
+                .expect("Failed to find script path from stack"),
+        )
+        .parent()
+        .map_or_else(|| PathBuf::new(), |x| x.to_path_buf());
+
+        let relative_path = directory.join(append_extension(clean_path(path), "luau"));
+
+        load_module(lua, relative_path).await
     }
 }
