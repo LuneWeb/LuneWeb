@@ -1,6 +1,7 @@
 use mlua::{UserDataFields, UserDataMethods};
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct LuaWindow(pub Arc<tao::window::Window>);
 
 impl mlua::UserData for LuaWindow {
@@ -28,6 +29,7 @@ impl mlua::UserData for LuaWindow {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct LuaWindowId(pub tao::window::WindowId);
 
 impl mlua::UserData for LuaWindowId {
