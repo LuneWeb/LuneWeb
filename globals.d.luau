@@ -8,6 +8,11 @@ declare class Window
     visible: boolean
 end
 
+declare class WebView
+    
+end
+
 declare web: {
     createWindow: (title: string?) -> Window,
+    createWebView: (parent: Window) -> WebView,
 }
