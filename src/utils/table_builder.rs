@@ -7,7 +7,7 @@ Ported to be compatible with mlua 0.10.x
  */
 use std::future::Future;
 
-use mlua::prelude::*;
+use mlua::{prelude::*, MaybeSend};
 
 /**
     Utility struct for building Lua tables.
@@ -96,7 +96,7 @@ impl<'lua> TableBuilder<'lua> {
         K: IntoLua,
         A: FromLuaMulti,
         R: IntoLuaMulti,
-        F: Fn(&Lua, A) -> LuaResult<R> + 'static + std::marker::Send + std::marker::Sync,
+        F: Fn(&Lua, A) -> LuaResult<R> + 'static + MaybeSend,
     {
         let f = self.lua.create_function(func)?;
         self.with_value(key, LuaValue::Function(f))
