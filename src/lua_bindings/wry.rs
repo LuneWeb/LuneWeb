@@ -1,5 +1,6 @@
 use mlua::UserDataMethods;
 
+#[derive(Clone)]
 pub struct LuaWebView(pub String);
 
 impl mlua::UserData for LuaWebView {
