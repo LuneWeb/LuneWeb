@@ -1,12 +1,17 @@
 use mlua::ExternalResult;
 use std::{collections::HashMap, sync::Arc};
 use tao::window::{Window, WindowBuilder, WindowId};
+use wry::WebView;
 
 #[derive(Debug, Clone)]
 pub enum AppEvent {
     CreateWindow {
         sender: flume::Sender<Arc<Window>>,
         title: Option<String>,
+    },
+    CreateWebView {
+        sender: flume::Sender<String>,
+        parent: Arc<Window>,
     },
     SpawnLuaThread {
         thread: mlua::Thread,
@@ -35,6 +40,17 @@ impl AppProxy {
             .expect("Failed to receive window")
     }
 
+    pub async fn create_webview(&self, parent: Arc<Window>) -> String {
+        let (sender, receiver) = flume::bounded(1);
+        self.proxy
+            .send_event(AppEvent::CreateWebView { sender, parent })
+            .expect("Failed to send event");
+        receiver
+            .recv_async()
+            .await
+            .expect("Failed to receive window")
+    }
+
     pub fn spawn_lua_thread(&self, thread: mlua::Thread, args: Option<mlua::MultiValue>) {
         self.proxy
             .send_event(AppEvent::SpawnLuaThread { thread, args })
@@ -50,9 +66,10 @@ impl AppProxy {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub(crate) struct AppHandle {
     pub(crate) windows: HashMap<WindowId, Arc<Window>>,
+    pub(crate) webviews: HashMap<String, WebView>,
     pub(crate) lua_threads: Vec<(mlua::Thread, mlua::MultiValue)>,
     pub(crate) lua_thread_listeners:
         HashMap<usize, Vec<flume::Sender<mlua::Result<mlua::MultiValue>>>>,
@@ -108,6 +125,18 @@ impl AppHandle {
                     .expect("Failed to send window");
 
                 self.windows.insert(window.id(), window);
+            }
+
+            AppEvent::CreateWebView { sender, parent } => {
+                let webview = wry::WebViewBuilder::new()
+                    .build(&parent)
+                    .expect("Failed to build webview");
+
+                let id = webview.id().to_string();
+
+                self.webviews.insert(id.clone(), webview);
+
+                sender.send_async(id).await.expect("Failed to send webview");
             }
 
             AppEvent::SpawnLuaThread { thread, args } => {
