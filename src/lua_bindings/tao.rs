@@ -5,7 +5,7 @@ pub struct LuaWindow(pub Arc<tao::window::Window>);
 
 impl mlua::UserData for LuaWindow {
     fn add_fields<F: UserDataFields<Self>>(fields: &mut F) {
-        fields.add_field_method_get("id", |lua, this| lua.create_any_userdata(this.0.id()));
+        fields.add_field_method_get("id", |_, this| Ok(LuaWindowId(this.0.id())));
 
         fields.add_field_method_get("title", |_, this| Ok(this.0.title()));
         fields.add_field_method_set("title", |_, this, title: String| {
