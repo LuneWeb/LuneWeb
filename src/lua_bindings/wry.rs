@@ -1,4 +1,4 @@
-use mlua::UserDataMethods;
+use mlua::{ExternalResult, UserDataMethods};
 
 pub struct LuaWebView(pub wry::WebView);
 
@@ -14,6 +14,10 @@ impl mlua::UserData for LuaWebView {
             let other = other.take::<Self>()?;
 
             Ok(this.0.id() == other.0.id())
+        });
+
+        methods.add_method("loadHtml", |_, this, html: String| {
+            this.0.load_html(&html).into_lua_err()
         });
     }
 }
