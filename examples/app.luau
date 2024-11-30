@@ -23,5 +23,7 @@ while true do
 	window.title = tostring(math.random(1, 100))
 	webview:loadHtml(`<h1>{window.title}<\h1>`)
 
+	print(webview:evaluate(`{window.title} + 1`))
+
 	task.wait(1)
 end
