@@ -14,9 +14,8 @@ print(typeof(window), window.id == window.id)
 local webview = web.createWebView(window)
 print(typeof(webview), webview.id == webview.id)
 
-print(webview.url)
 webview.url = "https://github.com/luneweb/luneweb/tree/v2"
-print(webview.url)
+webview:openDebugger()
 
 task.wait(5)
 

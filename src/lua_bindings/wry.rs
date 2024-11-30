@@ -31,5 +31,11 @@ impl mlua::UserData for LuaWebView {
                 .map(|x| x.iter().map(|x| x.to_string()).collect::<Vec<String>>())
                 .into_lua_err()
         });
+
+        methods.add_method("openDebugger", |_, this, _: ()| {
+            this.0.open_devtools();
+
+            Ok(())
+        });
     }
 }
