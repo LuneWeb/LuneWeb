@@ -12,7 +12,7 @@ local window = web.createWindow()
 print(typeof(window), window.id == window.id)
 
 local webview = web.createWebView(window)
-print(webview)
+print(typeof(webview), webview.id == webview.id)
 
 while true do
 	window.title = tostring(math.random(1, 100))

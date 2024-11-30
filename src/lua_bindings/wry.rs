@@ -5,6 +5,10 @@ pub struct LuaWebView(pub wry::WebView);
 unsafe impl Send for LuaWebView {}
 
 impl mlua::UserData for LuaWebView {
+    fn add_fields<F: mlua::UserDataFields<Self>>(fields: &mut F) {
+        fields.add_field_method_get("id", |_, this| Ok(this.0.id().to_string()));
+    }
+
     fn add_methods<M: UserDataMethods<Self>>(methods: &mut M) {
         methods.add_meta_method(mlua::MetaMethod::Eq, |_, this, other: mlua::AnyUserData| {
             let other = other.take::<Self>()?;

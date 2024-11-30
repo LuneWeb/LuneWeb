@@ -9,7 +9,7 @@ declare class Window
 end
 
 declare class WebView
-    
+    id: string
 end
 
 declare web: {
