@@ -13,6 +13,19 @@ pub async fn lua_require(lua: Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
         // TODO: find the final path by searching .luaurc files
         // and pass it to load_module
     } else {
+        let explicit_prefix = path.components().next().is_some_and(|x| {
+            matches!(
+                x,
+                std::path::Component::CurDir | std::path::Component::ParentDir
+            )
+        });
+
+        if !explicit_prefix {
+            return Err(mlua::Error::runtime(
+                r#"must have either "@", "./", or "../" prefix"#,
+            ));
+        }
+
         let directory = PathBuf::from(
             lua.inspect_stack(2)
                 .and_then(|x| x.source().source.map(|x| x.to_string()))
