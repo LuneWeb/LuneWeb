@@ -20,5 +20,8 @@ end
 
 declare web: {
     createWindow: (title: string?) -> Window,
-    createWebView: (parent: Window) -> WebView,
+    createWebView: (props: {
+        parent: Window,
+        scripts: { string }?
+    }) -> WebView,
 }

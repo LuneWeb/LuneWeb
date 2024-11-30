@@ -55,7 +55,11 @@ impl mlua::UserData for LuaWebView {
                 .expect("Failed to receive javascript result")
                 .into_lua_err()?;
 
-            lua.to_value(&json)
+            if matches!(json, serde_json::Value::Null) {
+                Ok(mlua::Nil)
+            } else {
+                lua.to_value(&json)
+            }
         });
     }
 }
