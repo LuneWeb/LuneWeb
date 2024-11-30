@@ -1,6 +1,4 @@
-use mlua::{ExternalResult, IntoLua, UserDataMethods};
-
-use crate::LuaAppProxyMethods;
+use mlua::{ExternalResult, UserDataMethods};
 
 pub struct LuaWebView(pub wry::WebView);
 
