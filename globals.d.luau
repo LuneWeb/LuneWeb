@@ -13,6 +13,7 @@ declare class WebView
     url: string
 
     function loadHtml(self, html: string): ()
+    function getCookies(self): { string }
 end
 
 declare web: {

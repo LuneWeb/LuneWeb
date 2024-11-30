@@ -24,5 +24,12 @@ impl mlua::UserData for LuaWebView {
         methods.add_method("loadHtml", |_, this, html: String| {
             this.0.load_html(&html).into_lua_err()
         });
+
+        methods.add_method("getCookies", |_, this, _: ()| {
+            this.0
+                .cookies()
+                .map(|x| x.iter().map(|x| x.to_string()).collect::<Vec<String>>())
+                .into_lua_err()
+        });
     }
 }
