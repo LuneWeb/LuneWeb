@@ -22,5 +22,4 @@ tao = "*"
 wry = { version = "*", features = ["devtools"] }
 path-clean = "1.0.1"
 
-serde = "*"
 serde_json = "*"
