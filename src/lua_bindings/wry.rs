@@ -37,5 +37,9 @@ impl mlua::UserData for LuaWebView {
 
             Ok(())
         });
+
+        methods.add_method("evaluate", |_, this, script: String| {
+            this.0.evaluate_script(&script).into_lua_err()
+        });
     }
 }
