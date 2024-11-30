@@ -16,16 +16,13 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
                 Ok(LuaWindow(window))
             },
         )?
-        .with_async_function(
-            "createWebView",
-            move |_, window: mlua::AnyUserData| async move {
-                let window =
-                    window.borrow_scoped::<LuaWindow, Arc<Window>>(|window| window.0.clone())?;
-                let webview = wry::WebViewBuilder::new().build(&window).into_lua_err()?;
+        .with_function("createWebView", move |_, window: mlua::AnyUserData| {
+            let window =
+                window.borrow_scoped::<LuaWindow, Arc<Window>>(|window| window.0.clone())?;
+            let webview = wry::WebViewBuilder::new().build(&window).into_lua_err()?;
 
-                Ok(LuaWebView(webview))
-            },
-        )?
+            Ok(LuaWebView(webview))
+        })?
         .build_readonly()?
         .into_lua(lua)
 }
