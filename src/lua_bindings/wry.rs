@@ -19,5 +19,9 @@ impl mlua::UserData for LuaWebView {
         methods.add_method("loadHtml", |_, this, html: String| {
             this.0.load_html(&html).into_lua_err()
         });
+
+        methods.add_method("loadUrl", |_, this, url: String| {
+            this.0.load_url(&url).into_lua_err()
+        });
     }
 }
