@@ -17,6 +17,8 @@ print(typeof(webview), webview.id == webview.id)
 webview.url = "https://github.com/luneweb/luneweb/tree/v2"
 webview:openDebugger()
 
+print(webview:evaluate("[ 100, 200 ]")[2]) -- prints 200
+
 task.wait(5)
 
 while true do

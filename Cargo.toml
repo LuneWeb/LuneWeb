@@ -10,6 +10,7 @@ mlua = { version = "*", features = [
     "async",
     "send",
     "error-send",
+    "serialize",
 ] }
 
 smol = "*"
@@ -20,3 +21,6 @@ async-event = "0.2.1"
 tao = "*"
 wry = { version = "*", features = ["devtools"] }
 path-clean = "1.0.1"
+
+serde = "*"
+serde_json = "*"

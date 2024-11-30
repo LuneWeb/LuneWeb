@@ -15,7 +15,7 @@ declare class WebView
     function loadHtml(self, html: string): ()
     function getCookies(self): { string }
     function openDebugger(self): ()
-    function evaluate(self, script: string): string
+    function evaluate(self, script: string): unknown
 end
 
 declare web: {

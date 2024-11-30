@@ -1,4 +1,4 @@
-use mlua::{ExternalResult, UserDataMethods};
+use mlua::{ExternalResult, LuaSerdeExt, UserDataMethods};
 
 pub struct LuaWebView(pub wry::WebView);
 
@@ -38,18 +38,24 @@ impl mlua::UserData for LuaWebView {
             Ok(())
         });
 
-        methods.add_async_method("evaluate", |_, this, script: String| async move {
+        methods.add_async_method("evaluate", |lua, this, script: String| async move {
             let (sender, receiver) = flume::bounded(1);
 
             this.0
                 .evaluate_script_with_callback(&script, move |result| {
                     sender
-                        .send(result)
+                        .send(serde_json::from_str::<serde_json::Value>(&result))
                         .expect("Failed to send javascript result");
                 })
                 .into_lua_err()?;
 
-            receiver.recv_async().await.into_lua_err()
+            let json = receiver
+                .recv_async()
+                .await
+                .expect("Failed to receive javascript result")
+                .into_lua_err()?;
+
+            lua.to_value(&json)
         });
     }
 }
