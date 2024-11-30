@@ -3,7 +3,7 @@ use crate::{
     utils::table_builder::TableBuilder,
     LuaAppProxyMethods,
 };
-use mlua::IntoLua;
+use mlua::{ExternalResult, IntoLua};
 use std::sync::Arc;
 use tao::window::Window;
 
@@ -18,10 +18,10 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
         )?
         .with_async_function(
             "createWebView",
-            move |lua, window: mlua::AnyUserData| async move {
+            move |_, window: mlua::AnyUserData| async move {
                 let window =
                     window.borrow_scoped::<LuaWindow, Arc<Window>>(|window| window.0.clone())?;
-                let webview = lua.get_app_proxy().create_webview(window).await;
+                let webview = wry::WebViewBuilder::new().build(&window).into_lua_err()?;
 
                 Ok(LuaWebView(webview))
             },
