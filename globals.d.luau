@@ -10,9 +10,9 @@ end
 
 declare class WebView
     id: string
+    url: string
 
     function loadHtml(self, html: string): ()
-    function loadUrl(self, url: string): ()
 end
 
 declare web: {
