@@ -31,8 +31,3 @@ end
 table.insert(onLoadCallbacks, function()
 	e("h1", "Hello, World!"):append()
 end)
-
-while true do
-	-- keep webview from being gc'd
-	task.wait()
-end

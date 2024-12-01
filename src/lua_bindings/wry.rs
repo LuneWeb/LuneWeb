@@ -3,7 +3,7 @@ use crate::LuaAppProxyMethods;
 use mlua::{ExternalResult, LuaSerdeExt, UserDataMethods};
 use serde::Deserialize;
 use smol::lock::Mutex;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, rc::Rc, sync::Arc};
 use tao::window::Window;
 
 #[derive(Debug, Deserialize)]
@@ -89,12 +89,15 @@ impl mlua::UserData for LuaWebViewBuilder {
 
         methods.add_function(
             "build",
-            |_, (this_userdata, parent): (mlua::AnyUserData, mlua::AnyUserData)| {
+            |lua, (this_userdata, parent): (mlua::AnyUserData, mlua::AnyUserData)| {
                 let this = this_userdata.take::<Self>()?;
                 let parent =
                     parent.borrow_scoped::<LuaWindow, Arc<Window>>(|window| window.0.clone())?;
 
-                Ok(LuaWebView(this.0.build(&parent).into_lua_err()?))
+                let webview = LuaWebView(this.0.build(&parent).into_lua_err()?);
+
+                // put webview in registry to keep it from beeing gc'd
+                lua.registry_value::<mlua::AnyUserData>(&lua.create_registry_value(webview)?)
             },
         );
     }
