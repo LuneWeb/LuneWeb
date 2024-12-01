@@ -3,7 +3,7 @@ use crate::{scheduler::thread::LuaThreadMethods, LuaAppProxyMethods};
 use mlua::{ExternalResult, IntoLua, LuaSerdeExt, UserDataMethods};
 use std::sync::Arc;
 use tao::window::Window;
-use wry::http::Response;
+use wry::http::{HeaderMap, HeaderName, HeaderValue, Response};
 
 pub struct LuaWebViewBuilder(pub wry::WebViewBuilder<'static>);
 
@@ -17,51 +17,6 @@ impl mlua::UserData for LuaWebViewBuilder {
                 let mut this = this_userdata.take::<Self>()?;
 
                 this.0 = this.0.with_initialization_script(&script);
-
-                Ok(this)
-            },
-        );
-
-        methods.add_async_function(
-            "withCustomProtocol",
-            |lua, (this_userdata, name, callback): (mlua::AnyUserData, String, mlua::Function)| async move {
-                let mut this = this_userdata.take::<Self>()?;
-
-                this.0 = this
-                    .0
-                    .with_asynchronous_custom_protocol(name, move |_, req, res| {
-                        let lua_inner = lua.clone();
-                        let proxy = lua.get_app_proxy();
-                        let thread = lua
-                            .create_thread(callback.clone())
-                            .expect("Failed to turn callback into thread");
-
-                        lua.spawn(async move {
-                            let body = String::from_utf8(req.body().to_owned()).expect("Failed to stringify request body");
-                            let headers = lua_inner.create_table().expect("Failed to create table");
-
-                            for (name, value) in req.headers() {
-                                headers.set(name.to_string(), value.to_str().expect("Failed to stringify header value")).expect("Failed to set header");
-                            }
-                           
-                            proxy.spawn_lua_thread(
-                                thread.clone(),
-                                Some(mlua::MultiValue::from_vec(vec![body.into_lua(&lua_inner).unwrap(), headers.into_lua(&lua_inner).unwrap()])),
-                            );
-                            res.respond::<Vec<u8>>(Response::new(
-                                proxy
-                                    .await_lua_thread(thread)
-                                    .await
-                                    .expect("Server callback failed to give results")
-                                    .get(0)
-                                    .unwrap()
-                                    .as_string_lossy()
-                                    .unwrap()
-                                    .into(),
-                            ));
-                        })
-                        .detach();
-                    });
 
                 Ok(this)
             },

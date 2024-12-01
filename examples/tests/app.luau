@@ -11,9 +11,7 @@ end)
 local window = web.createWindow()
 print(typeof(window), window.id == window.id)
 
-local webview = web.createWebView({
-	parent = window,
-})
+local webview = web.createWebView():build(window)
 print(typeof(webview), webview.id == webview.id)
 
 webview.url = "https://github.com/luneweb/luneweb/tree/v2"
