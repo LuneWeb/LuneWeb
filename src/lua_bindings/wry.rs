@@ -1,9 +1,7 @@
 use super::tao::LuaWindow;
-use crate::{scheduler::thread::LuaThreadMethods, LuaAppProxyMethods};
-use mlua::{ExternalResult, IntoLua, LuaSerdeExt, UserDataMethods};
+use mlua::{ExternalResult, LuaSerdeExt, UserDataMethods};
 use std::sync::Arc;
 use tao::window::Window;
-use wry::http::{HeaderMap, HeaderName, HeaderValue, Response};
 
 pub struct LuaWebViewBuilder(pub wry::WebViewBuilder<'static>);
 
