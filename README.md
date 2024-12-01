@@ -6,7 +6,7 @@ Thread safe Lua(u) bindings for [TauriApps](https://github.com/tauri-apps)
 
 v2 is completely independent from [lune](https://github.com/lune-org/lune), we have our own task scheduler/library implementation, which also is not fully compatible with Lune/Roblox
 
-the new task scheduler runs in the windowing thread which results in getting immediate results when you change a property on a window/webview
+the new task scheduler runs in the windowing thread which results in getting immediate results when you change a property on a window + things like resizing a window will no longer block your luau threads
 
 ### Lune std libraries
 
