@@ -1,5 +1,7 @@
 use super::{Scheduler, Stopped};
 use crate::ALWAYS_SINGLE_THREAD;
+use smol::Task;
+use std::future::Future;
 
 pub fn process_lua_thread(
     thread: &mlua::Thread,
@@ -53,10 +55,28 @@ fn initialize_tao(stopped: Stopped, send_proxy: async_broadcast::Sender<crate::a
     })
 }
 
-pub fn initialize_threads(
-    mut scheduler: Scheduler,
-    f: impl FnOnce(crate::app::AppProxy) + Send + 'static,
-) {
+pub trait LuaThreadMethods {
+    fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static)
+        -> Task<T>;
+}
+
+impl LuaThreadMethods for mlua::Lua {
+    fn spawn<T: Send + 'static>(
+        &self,
+        future: impl Future<Output = T> + Send + 'static,
+    ) -> Task<T> {
+        let scheduler = self.app_data_ref::<Scheduler>().expect("Failed to find scheduler in app data container, have you trued calling initialize_threads on this lua vm?");
+
+        scheduler.executor.spawn(future)
+    }
+}
+
+pub fn initialize_threads(lua: mlua::Lua, f: impl FnOnce(crate::app::AppProxy) + Send + 'static) {
+    let scheduler = Scheduler::new();
+    let (proxy_sender, mut proxy_receiver) = async_broadcast::broadcast(1);
+
+    lua.set_app_data(scheduler.clone());
+
     let threads_count = std::thread::available_parallelism()
         .map_or(1, |x| x.get())
         .clamp(1, 8);
@@ -66,12 +86,11 @@ pub fn initialize_threads(
     }
 
     let stopped = scheduler.stopped.clone();
-    let send_proxy = scheduler.send_proxy.clone();
 
     scheduler
         .executor
         .spawn(async move {
-            f(smol::block_on(scheduler.recv_proxy.recv()).expect("Failed to receive proxy"));
+            f(smol::block_on(proxy_receiver.recv()).expect("Failed to receive proxy"));
         })
         .detach();
 
@@ -95,5 +114,5 @@ pub fn initialize_threads(
         }
     }
 
-    initialize_tao(stopped, send_proxy);
+    initialize_tao(stopped, proxy_sender);
 }

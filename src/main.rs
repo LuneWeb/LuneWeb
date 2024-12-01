@@ -1,5 +1,6 @@
-use scheduler::Scheduler;
 use std::path::PathBuf;
+
+use scheduler::thread::LuaThreadMethods;
 
 pub mod app;
 pub mod lua_bindings;
@@ -24,7 +25,6 @@ impl LuaAppProxyMethods for mlua::Lua {
 }
 
 fn main() -> mlua::Result<()> {
-    let sched = Scheduler::new();
     let lua = mlua::Lua::new();
 
     lua.globals()
@@ -38,22 +38,17 @@ fn main() -> mlua::Result<()> {
         lua.create_async_function(lua_require::lua_require)?,
     )?;
 
-    // keep lua alive until the end of the scope
-    let _lua = lua.clone();
-
-    scheduler::thread::initialize_threads(sched.clone(), |proxy| {
+    scheduler::thread::initialize_threads(lua.clone(), |proxy| {
         if let Err(err) = smol::block_on::<mlua::Result<()>>(async move {
             let script_path = std::env::args().nth(1).unwrap_or("init.luau".to_string());
 
             lua.set_app_data(proxy.clone());
 
-            sched
-                .executor
-                .spawn(lua_require::utils::load_script(
-                    lua.clone(),
-                    PathBuf::from(script_path),
-                ))
-                .detach();
+            lua.spawn(lua_require::utils::load_script(
+                lua.clone(),
+                PathBuf::from(script_path),
+            ))
+            .detach();
 
             Ok(())
         }) {
