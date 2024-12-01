@@ -37,14 +37,16 @@ impl mlua::UserData for LuaWebViewBuilder {
                             .expect("Failed to turn callback into thread");
 
                         lua.spawn(async move {
+                            let body = String::from_utf8(req.body().to_owned()).expect("Failed to stringify request body");
+                            let headers = lua_inner.create_table().expect("Failed to create table");
+
+                            for (name, value) in req.headers() {
+                                headers.set(name.to_string(), value.to_str().expect("Failed to stringify header value")).expect("Failed to set header");
+                            }
+                           
                             proxy.spawn_lua_thread(
                                 thread.clone(),
-                                Some(mlua::MultiValue::from_vec(vec![String::from_utf8(
-                                    req.into_body(),
-                                )
-                                .unwrap()
-                                .into_lua(&lua_inner)
-                                .unwrap()])),
+                                Some(mlua::MultiValue::from_vec(vec![body.into_lua(&lua_inner).unwrap(), headers.into_lua(&lua_inner).unwrap()])),
                             );
                             res.respond::<Vec<u8>>(Response::new(
                                 proxy

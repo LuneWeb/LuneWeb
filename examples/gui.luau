@@ -5,7 +5,7 @@ local window = web.createWindow("GUI")
 local webview = web.createWebView()
 	:withInitScript(scripts.gui)
 	:withInitScript("fetch('http://load.x', { method: 'POST' })")
-	:withCustomProtocol("load", function(_)
+	:withCustomProtocol("load", function(_, headers)
 		for _, fn in onLoadCallbacks do
 			task.spawn(fn)
 		end

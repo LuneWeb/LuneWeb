@@ -10,7 +10,7 @@ end
 
 declare class WebViewBuilder
     function withInitScript(self, script: string): WebViewBuilder
-    function withCustomProtocol(self, name: string, callback: (string) -> string): WebViewBuilder
+    function withCustomProtocol(self, name: string, callback: (body: string, headers: { [string]: string }) -> string): WebViewBuilder
     function build(self, parent: Window): WebView
 end
 
