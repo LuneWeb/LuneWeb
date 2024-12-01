@@ -8,6 +8,12 @@ declare class Window
     visible: boolean
 end
 
+declare class WebViewBuilder
+    function withInitScript(self, script: string): WebViewBuilder
+    function withCustomProtocol(self, name: string, callback: (string) -> string): WebViewBuilder
+    function build(self, parent: Window): WebView
+end
+
 declare class WebView
     id: string
     url: string
@@ -20,8 +26,5 @@ end
 
 declare web: {
     createWindow: (title: string?) -> Window,
-    createWebView: (props: {
-        parent: Window,
-        scripts: { string }?
-    }) -> WebView,
+    createWebView: () -> WebViewBuilder,
 }

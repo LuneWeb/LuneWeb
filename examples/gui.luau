@@ -2,19 +2,17 @@ local scripts = require("./scripts")
 local onLoadCallbacks: { () -> () } = {}
 
 local window = web.createWindow("GUI")
-local webview = web.createWebView({
-	parent = window,
-	scripts = { scripts.gui, "fetch('http://load.x', { method: 'POST' })" },
-	servers = {
-		load = function(_)
-			for _, fn in onLoadCallbacks do
-				task.spawn(fn)
-			end
+local webview = web.createWebView()
+	:withInitScript(scripts.gui)
+	:withInitScript("fetch('http://load.x', { method: 'POST' })")
+	:withCustomProtocol("load", function(_)
+		for _, fn in onLoadCallbacks do
+			task.spawn(fn)
+		end
 
-			return "success"
-		end,
-	},
-})
+		return "success"
+	end)
+	:build(window)
 
 -- scripts only run on `window.onload`
 -- so we have to reload the page once
