@@ -4,7 +4,7 @@ Object.defineProperty(window, "luneweb", {
       window.ipc.postMessage(
         JSON.stringify({
           channel,
-          value: JSON.stringify(value) | null,
+          value,
         })
       );
     },
