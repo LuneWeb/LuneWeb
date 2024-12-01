@@ -10,6 +10,7 @@ end
 
 declare class WebViewBuilder
     function withInitScript(self, script: string): WebViewBuilder
+    function withChannel(self, name: string, callback: (value: unknown) -> ()): WebViewBuilder
     function build(self, parent: Window): WebView
 end
 

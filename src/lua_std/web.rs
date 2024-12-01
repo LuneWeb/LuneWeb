@@ -11,8 +11,8 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
             let window = lua.get_app_proxy().create_window(title).await;
             Ok(LuaWindow(window))
         })?
-        .with_function("createWebView", |_, _: ()| {
-            Ok(LuaWebViewBuilder(wry::WebViewBuilder::new()))
+        .with_function("createWebView", |lua, _: ()| {
+            Ok(LuaWebViewBuilder::new(lua))
         })?
         .build_readonly()?
         .into_lua(lua)

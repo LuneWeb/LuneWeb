@@ -1,11 +1,60 @@
 use super::tao::LuaWindow;
+use crate::LuaAppProxyMethods;
 use mlua::{ExternalResult, LuaSerdeExt, UserDataMethods};
-use std::sync::Arc;
+use serde::Deserialize;
+use smol::lock::Mutex;
+use std::{collections::HashMap, sync::Arc};
 use tao::window::Window;
 
-pub struct LuaWebViewBuilder(pub wry::WebViewBuilder<'static>);
+#[derive(Debug, Deserialize)]
+struct ChannelMessage {
+    channel: String,
+    value: serde_json::Value,
+}
+
+pub struct LuaWebViewBuilder(
+    pub wry::WebViewBuilder<'static>,
+    Arc<Mutex<HashMap<String, Vec<mlua::Function>>>>,
+);
 
 unsafe impl Send for LuaWebViewBuilder {}
+
+impl LuaWebViewBuilder {
+    pub const CHANNEL_JS_SCRIPT: &str = include_str!("script.js");
+
+    pub fn new(lua: &mlua::Lua) -> Self {
+        let proxy = lua.get_app_proxy();
+        let lua_inner = lua.clone();
+        let channels: Arc<Mutex<HashMap<String, Vec<mlua::Function>>>> =
+            Arc::new(Mutex::new(HashMap::new()));
+        let channels_inner = Arc::clone(&channels);
+
+        Self(
+            wry::WebViewBuilder::new()
+                .with_initialization_script(Self::CHANNEL_JS_SCRIPT)
+                .with_ipc_handler(move |request| {
+                    let message = serde_json::from_str::<ChannelMessage>(&request.into_body())
+                        .expect("Expected ipc handler to receive ChannelMessage type");
+                    let body = lua_inner
+                        .to_value(&message.value)
+                        .expect("Failed to serialize json into luau value");
+                    let args = mlua::MultiValue::from_vec(vec![body]);
+
+                    if let Some(listeners) = channels_inner.lock_blocking().get(&message.channel) {
+                        for thread in listeners.iter() {
+                            proxy.spawn_lua_thread(
+                                lua_inner
+                                    .create_thread(thread.clone())
+                                    .expect("Failed to turn channel callback into thread"),
+                                Some(args.clone()),
+                            );
+                        }
+                    }
+                }),
+            channels,
+        )
+    }
+}
 
 impl mlua::UserData for LuaWebViewBuilder {
     fn add_methods<M: UserDataMethods<Self>>(methods: &mut M) {
@@ -15,6 +64,24 @@ impl mlua::UserData for LuaWebViewBuilder {
                 let mut this = this_userdata.take::<Self>()?;
 
                 this.0 = this.0.with_initialization_script(&script);
+
+                Ok(this)
+            },
+        );
+
+        methods.add_async_function(
+            "withChannel",
+            |_, (this_userdata, name, callback): (mlua::AnyUserData, String, mlua::Function)| async move {
+                let this = this_userdata.take::<Self>()?;
+                let mut channels = this.1.lock().await;
+
+                if let Some(listeners) = channels.get_mut(&name) {
+                    listeners.push(callback);
+                } else {
+                    channels.insert(name, vec![callback]);
+                }
+
+                drop(channels);
 
                 Ok(this)
             },

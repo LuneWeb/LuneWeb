@@ -1487,6 +1487,7 @@ dependencies = [
  "flume",
  "mlua",
  "path-clean",
+ "serde",
  "serde_json",
  "smol",
  "tao",
