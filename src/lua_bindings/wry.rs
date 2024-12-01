@@ -3,7 +3,7 @@ use crate::LuaAppProxyMethods;
 use mlua::{ExternalResult, LuaSerdeExt, UserDataMethods};
 use serde::Deserialize;
 use smol::lock::Mutex;
-use std::{collections::HashMap, rc::Rc, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 use tao::window::Window;
 
 #[derive(Debug, Deserialize)]
