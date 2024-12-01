@@ -1,9 +1,19 @@
 local scripts = require("./scripts")
+local onLoadCallbacks: { () -> () } = {}
 
 local window = web.createWindow("GUI")
 local webview = web.createWebView({
 	parent = window,
-	scripts = { scripts.gui },
+	scripts = { scripts.gui, "fetch('http://load.x', { method: 'POST' })" },
+	servers = {
+		load = function(_)
+			for _, fn in onLoadCallbacks do
+				task.spawn(fn)
+			end
+
+			return "success"
+		end,
+	},
 })
 
 -- scripts only run on `window.onload`
@@ -22,7 +32,9 @@ local function e(tag: string, innerHtml: string?)
 	return self
 end
 
-e("h1", "Hello, World!"):append()
+table.insert(onLoadCallbacks, function()
+	e("h1", "Hello, World!"):append()
+end)
 
 while true do
 	-- keep webview from being gc'd
