@@ -51,16 +51,12 @@ fn main() {
     inject_globals(&lua).expect("Failed to inject globals");
 
     scheduler::thread::initialize_threads(lua.clone(), |proxy| {
+        lua.set_app_data(proxy);
+
         if let Err(err) = smol::block_on::<mlua::Result<()>>(async move {
             let script_path = std::env::args().nth(1).unwrap_or("init.luau".to_string());
 
-            lua.set_app_data(proxy.clone());
-
-            lua.spawn(lua_require::utils::load_script(
-                lua.clone(),
-                PathBuf::from(script_path),
-            ))
-            .detach();
+            lua_require::utils::load_script(lua.clone(), PathBuf::from(script_path)).await?;
 
             Ok(())
         }) {
