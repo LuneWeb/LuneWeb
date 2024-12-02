@@ -1,6 +1,5 @@
-use std::path::PathBuf;
-
 use scheduler::thread::LuaThreadMethods;
+use std::path::PathBuf;
 
 pub mod app;
 pub mod lua_bindings;
@@ -24,19 +23,32 @@ impl LuaAppProxyMethods for mlua::Lua {
     }
 }
 
-fn main() -> mlua::Result<()> {
-    let lua = mlua::Lua::new();
+fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
+    let task = lua_std::StandardLibrary::Task.into_lua(&lua)?;
+    let web = lua_std::StandardLibrary::Web.into_lua(&lua)?;
+    let co = lua.globals().get::<mlua::Table>("coroutine")?;
 
-    lua.globals()
-        .set("task", lua_std::StandardLibrary::Task.into_lua(&lua)?)?;
+    co.set(
+        "close",
+        task.as_table().unwrap().get::<mlua::Function>("cancel")?,
+    )?;
 
-    lua.globals()
-        .set("web", lua_std::StandardLibrary::Web.into_lua(&lua)?)?;
+    lua.globals().set("task", task)?;
+
+    lua.globals().set("web", web)?;
 
     lua.globals().set(
         "require",
         lua.create_async_function(lua_require::lua_require)?,
     )?;
+
+    Ok(())
+}
+
+fn main() {
+    let lua = mlua::Lua::new();
+
+    inject_globals(&lua).expect("Failed to inject globals");
 
     scheduler::thread::initialize_threads(lua.clone(), |proxy| {
         if let Err(err) = smol::block_on::<mlua::Result<()>>(async move {
@@ -56,6 +68,4 @@ fn main() -> mlua::Result<()> {
             std::process::exit(1);
         };
     });
-
-    Ok(())
 }

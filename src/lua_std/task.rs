@@ -42,6 +42,12 @@ pub(super) fn create(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
                 Ok(thread)
             },
         )?
+        .with_function("cancel", move |lua, thread: mlua::Thread| {
+            let proxy = lua.get_app_proxy();
+            proxy.cancel_lua_thread(thread);
+
+            Ok(())
+        })?
         .build_readonly()?
         .into_lua(lua)
 }

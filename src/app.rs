@@ -31,6 +31,9 @@ pub enum AppEvent {
         thread: mlua::Thread,
         args: Option<mlua::MultiValue>,
     },
+    CancelLuaThread {
+        thread: mlua::Thread,
+    },
     StoreLuaThread {
         thread: LuaThread,
     },
@@ -60,6 +63,12 @@ impl AppProxy {
     pub fn spawn_lua_thread(&self, thread: mlua::Thread, args: Option<mlua::MultiValue>) {
         self.proxy
             .send_event(AppEvent::SpawnLuaThread { thread, args })
+            .expect("Failed to send event");
+    }
+
+    pub fn cancel_lua_thread(&self, thread: mlua::Thread) {
+        self.proxy
+            .send_event(AppEvent::CancelLuaThread { thread })
             .expect("Failed to send event");
     }
 
@@ -136,6 +145,16 @@ impl AppHandle {
                     args: args.unwrap_or_default(),
                     thread,
                 });
+            }
+
+            AppEvent::CancelLuaThread { thread } => {
+                for lua_thread in self.lua_threads.iter_mut() {
+                    if lua_thread.thread == thread {
+                        lua_thread.result = Some(Err(mlua::Error::runtime("Thread got canceled")));
+
+                        break;
+                    }
+                }
             }
 
             AppEvent::StoreLuaThread { thread } => {
