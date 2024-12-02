@@ -5,8 +5,10 @@ local onLoadThreads: { thread } = {}
 local window = web.createWindow("GUI")
 local webview = web.createWebView()
 	:withInitScript(scripts.gui)
-	:withInitScript("window.luneweb.post('load')")
-	:withChannel("load", function(_)
+	:withInitScript("window.luneweb.post('load', 0)")
+	:withChannel("load", function(body)
+		assert(body == 0, "expected channel to receive 0")
+
 		for _, thread in onLoadThreads do
 			task.cancel(thread)
 		end
