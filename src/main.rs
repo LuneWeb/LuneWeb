@@ -1,4 +1,3 @@
-use scheduler::thread::LuaThreadMethods;
 use std::path::PathBuf;
 
 pub mod app;
