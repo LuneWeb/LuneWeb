@@ -1,6 +1,6 @@
 # LuneWeb
 
-Thread safe Lua(u) bindings for [TauriApps](https://github.com/tauri-apps)
+Lua(u) bindings for [TauriApps](https://github.com/tauri-apps)
 
 ## `v2.x.x` (Work in progress)
 
