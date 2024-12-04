@@ -3,6 +3,9 @@ name = "luneweb"
 version = "2.0.0-rc1"
 edition = "2021"
 
+[lib]
+path = "lib/lib.rs"
+
 [dependencies]
 mlua = { version = "*", features = [
     "luau",
