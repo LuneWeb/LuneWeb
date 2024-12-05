@@ -28,3 +28,10 @@ declare web: {
     createWindow: (title: string?) -> Window,
     createWebView: () -> WebViewBuilder,
 }
+
+declare task: {
+    wait: (secs: number?) -> (),
+    spawn: <T...>(f: (T...) -> (), T...) -> (),
+    defer: <T...>(f: (T...) -> (), T...) -> (),
+    cancel: (thread: thread) -> (),
+}
