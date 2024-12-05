@@ -1,19 +1,19 @@
 name = "luneweb/examples"
 version = "0.0.0"
-target = "luau"
+target = "lune"
 
-[graph."luneweb/dom"."0.1.0 luau"]
+[graph."luneweb/dom"."0.2.0 lune"]
 direct = ["dom", { workspace = "luneweb/dom", version = "*" }, "standard"]
 resolved_ty = "standard"
 
-[graph."luneweb/dom"."0.1.0 luau".target]
-environment = "luau"
+[graph."luneweb/dom"."0.2.0 lune".target]
+environment = "lune"
 lib = "init.luau"
 
-[graph."luneweb/dom"."0.1.0 luau".pkg_ref]
+[graph."luneweb/dom"."0.2.0 lune".pkg_ref]
 ref_ty = "workspace"
 path = "libraries/dom"
 
-[graph."luneweb/dom"."0.1.0 luau".pkg_ref.target]
-environment = "luau"
+[graph."luneweb/dom"."0.2.0 lune".pkg_ref.target]
+environment = "lune"
 lib = "init.luau"

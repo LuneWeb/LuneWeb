@@ -1,9 +1,9 @@
 name = "luneweb/root"
 version = "0.0.0"
-target = "luau"
+target = "lune"
 
 [workspace."luneweb/dom"]
-luau = "libraries/dom"
+lune = "libraries/dom"
 
 [workspace."luneweb/examples"]
-luau = "examples"
+lune = "examples"
