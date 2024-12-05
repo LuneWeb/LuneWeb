@@ -1,4 +1,4 @@
-local Dom = require("../luau_packages/dom")()
+local Dom = require("../lune_packages/dom")()
 
 local window = web.createWindow("Click Counter 3")
 local dom = Dom:new(window)
