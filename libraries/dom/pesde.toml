@@ -1,9 +1,9 @@
 name = "luneweb/dom"
-version = "0.1.0"
+version = "0.2.0"
 description = "bindings for interacting with the DOM"
 repository = "https://github.com/LuneWeb/LuneWeb"
 license = "MIT"
-includes = ["pesde.toml", "**/*.luau"]
+includes = ["pesde.toml", "**/*.luau", "**/*.luaurc"]
 
 [target]
 environment = "lune"
