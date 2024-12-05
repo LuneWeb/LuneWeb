@@ -11,7 +11,10 @@ local data = {
 
 local rebirth = {
 	shown = false,
+	el = dom:createElement("button"),
 }
+
+dom:setStyle(rebirth.el, "visibility", "hidden")
 
 function rebirth.upgradeCost(self: typeof(rebirth), data: typeof(data)): number
 	return data.multiplier * 50
@@ -22,9 +25,8 @@ function rebirth.show(self: typeof(rebirth), data: typeof(data)): ()
 		return
 	end
 
-	local upgrade = dom:createElement("button")
-	dom:setProp(upgrade, "innerHTML", `{data.multiplier + 1}x clicks (rebirth)`)
-	dom:onEvent(upgrade, "onclick", function()
+	dom:setProp(self.el, "innerHTML", `{data.multiplier + 1}x clicks (rebirth)`)
+	dom:onEvent(self.el, "onclick", function()
 		if data.clicks < self:upgradeCost(data) then
 			return
 		end
@@ -32,9 +34,13 @@ function rebirth.show(self: typeof(rebirth), data: typeof(data)): ()
 		data.clicks = 0
 		data.multiplier += 1
 
-		dom:setProp(upgrade, "innerHTML", `{data.multiplier + 1}x clicks (rebirth for {self:upgradeCost(data)} clicks)`)
+		dom:setStyle(self.el, "visibility", "hidden")
 		dom:setProp(button, "innerHTML", `Clicks: {data.clicks}`)
+
+		self.shown = false
 	end)
+
+	dom:setStyle(self.el, "visibility", "visible")
 
 	self.shown = true
 end
