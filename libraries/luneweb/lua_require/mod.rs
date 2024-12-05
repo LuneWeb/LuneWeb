@@ -34,7 +34,7 @@ pub async fn lua_require(lua: Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
         .parent()
         .map_or_else(|| PathBuf::new(), |x| x.to_path_buf());
 
-        let relative_path = directory.join(append_extension(clean_path(path), "luau"));
+        let relative_path = clean_path(directory.join(append_extension(path, "luau")));
 
         utils::load_module(lua, relative_path).await
     }

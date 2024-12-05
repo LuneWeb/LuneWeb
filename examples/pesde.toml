@@ -1,0 +1,9 @@
+name = "luneweb/examples"
+version = "0.0.0"
+private = true
+
+[target]
+environment = "luau"
+
+[dependencies]
+dom = { workspace = "luneweb/dom", version = "*" }

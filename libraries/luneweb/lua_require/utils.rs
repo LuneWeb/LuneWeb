@@ -23,15 +23,16 @@ fn load_cache(lua: &mlua::Lua) -> mlua::AppDataRef<ModuleCache> {
 }
 
 pub async fn load_script(lua: mlua::Lua, path: PathBuf) -> LuaResult<LuaMultiValue> {
-    let contents = smol::fs::read_to_string(&path)
-        .await
-        .map_err(|x| match x.kind() {
-            std::io::ErrorKind::NotFound => mlua::Error::runtime(format!(
-                "The system cannot find {} (os error 2)",
-                path.to_string_lossy()
-            )),
-            _ => x.into_lua_err(),
-        })?;
+    let contents =
+        smol::fs::read_to_string(smol::fs::read_link(&path).await.unwrap_or(path.clone()))
+            .await
+            .map_err(|x| match x.kind() {
+                std::io::ErrorKind::NotFound => mlua::Error::runtime(format!(
+                    "The system cannot find {} (os error 2)",
+                    path.to_string_lossy()
+                )),
+                _ => x.into_lua_err(),
+            })?;
 
     let chunk = lua.load(contents).set_name(path.to_string_lossy());
     let thread = lua.create_thread(chunk.into_function()?)?;

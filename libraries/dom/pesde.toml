@@ -1,0 +1,13 @@
+name = "luneweb/dom"
+version = "0.1.0"
+description = "bindings for interacting with the DOM"
+repository = "https://github.com/LuneWeb/LuneWeb"
+license = "MIT"
+includes = ["pesde.toml", "**/*.luau"]
+
+[target]
+environment = "luau"
+lib = "init.luau"
+
+[indices]
+default = "https://github.com/pesde-pkg/index"

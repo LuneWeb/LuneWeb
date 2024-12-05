@@ -1,0 +1,8 @@
+name = "luneweb/root"
+version = "0.0.0"
+private = true
+
+workspace_members = ["examples", "libraries/dom"]
+
+[target]
+environment = "luau"

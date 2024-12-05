@@ -1,0 +1,19 @@
+name = "luneweb/examples"
+version = "0.0.0"
+target = "luau"
+
+[graph."luneweb/dom"."0.1.0 luau"]
+direct = ["dom", { workspace = "luneweb/dom", version = "*" }, "standard"]
+resolved_ty = "standard"
+
+[graph."luneweb/dom"."0.1.0 luau".target]
+environment = "luau"
+lib = "init.luau"
+
+[graph."luneweb/dom"."0.1.0 luau".pkg_ref]
+ref_ty = "workspace"
+path = "libraries/dom"
+
+[graph."luneweb/dom"."0.1.0 luau".pkg_ref.target]
+environment = "luau"
+lib = "init.luau"
