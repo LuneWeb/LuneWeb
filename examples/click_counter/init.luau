@@ -1,4 +1,4 @@
-local lib = require("../ui_builder")
+local lib = require("./ui_builder")
 
 local data = {
 	clicks = 0,
