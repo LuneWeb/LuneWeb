@@ -6,7 +6,7 @@ license = "MIT"
 includes = ["pesde.toml", "**/*.luau"]
 
 [target]
-environment = "luau"
+environment = "lune"
 lib = "init.luau"
 
 [indices]

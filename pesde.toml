@@ -5,4 +5,4 @@ private = true
 workspace_members = ["examples", "libraries/dom"]
 
 [target]
-environment = "luau"
+environment = "lune"
