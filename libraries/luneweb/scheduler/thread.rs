@@ -71,11 +71,11 @@ impl LuaThreadMethods for mlua::Lua {
     }
 }
 
-pub fn initialize_threads(lua: mlua::Lua, f: impl FnOnce(crate::app::AppProxy) + Send + 'static) {
+pub fn initialize_threads(f: impl FnOnce(Scheduler, crate::app::AppProxy) + Send + 'static) {
     let scheduler = Scheduler::new();
-    let (proxy_sender, mut proxy_receiver) = async_broadcast::broadcast(1);
+    let scheduler_inner = scheduler.clone();
 
-    lua.set_app_data(scheduler.clone());
+    let (proxy_sender, mut proxy_receiver) = async_broadcast::broadcast(1);
 
     let threads_count = std::thread::available_parallelism()
         .map_or(1, |x| x.get())
@@ -90,7 +90,10 @@ pub fn initialize_threads(lua: mlua::Lua, f: impl FnOnce(crate::app::AppProxy) +
     scheduler
         .executor
         .spawn(async move {
-            f(smol::block_on(proxy_receiver.recv()).expect("Failed to receive proxy"));
+            f(
+                scheduler_inner,
+                smol::block_on(proxy_receiver.recv()).expect("Failed to receive proxy"),
+            );
         })
         .detach();
 

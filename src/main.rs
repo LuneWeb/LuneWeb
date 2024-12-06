@@ -36,11 +36,12 @@ fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
 }
 
 fn main() {
-    let lua = mlua::Lua::new();
+    scheduler::thread::initialize_threads(|scheduler, proxy| {
+        let lua = mlua::Lua::new();
 
-    inject_globals(&lua).expect("Failed to inject globals");
+        inject_globals(&lua).expect("Failed to inject globals");
 
-    scheduler::thread::initialize_threads(lua.clone(), |proxy| {
+        lua.set_app_data(scheduler);
         lua.set_app_data(proxy);
 
         if let Err(err) = smol::block_on::<mlua::Result<()>>(async move {
