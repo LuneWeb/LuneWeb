@@ -11,6 +11,18 @@ fn inject_globals(lua: &mlua::Lua) -> mlua::Result<()> {
         task.as_table().unwrap().get::<mlua::Function>("cancel")?,
     )?;
 
+    co.set(
+        "resume",
+        lua.create_async_function(
+            |lua, (thread, args): (mlua::Thread, mlua::MultiValue)| async move {
+                let proxy = lua.get_app_proxy();
+
+                proxy.spawn_lua_thread(thread.clone(), Some(args));
+                proxy.await_lua_thread(thread).await
+            },
+        )?,
+    )?;
+
     lua.globals().set("task", task)?;
 
     lua.globals().set("web", web)?;
